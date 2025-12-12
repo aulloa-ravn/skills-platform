@@ -9,6 +9,7 @@ Limitations:
 
 To know:
 
+- This is a starter monorepo project.
 - Create migrations for the database schema defined in PRD file.
 - All emails must be from the `ravn.com` domain.
 - Seed the DB with the top 50 tech skills. For example:
