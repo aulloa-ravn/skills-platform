@@ -1,6 +1,14 @@
 # Product Roadmap
 
-1. [ ] Database Schema & Migrations — Set up Prisma with PostgreSQL, create all models (Profile, Skill, EmployeeSkill, Suggestion, Project, Assignment, SeniorityHistory), and run initial migrations `M`
+## Implementation Constraints
+
+- **Iterative Sprints**: Each sprint must deliver functional improvements on **both** frontend (`/apps/client`) and backend (`/apps/api`).
+- **Mission Board Integration**: Deferred to last - not yet possible. Use fake data seeding in interim.
+- **Email Domain**: All emails must be from `ravn.com` domain.
+- **Skill Seeding**: Initialize DB with top 50 tech skills with default disciplines (e.g., React → Frontend, Node.js → Backend, JavaScript/TypeScript → Languages).
+- **Testing**: Skip testing for now - focus on core functionality first.
+
+1. [x] Database Schema & Migrations — Set up Prisma with PostgreSQL, create all models (Profile, Skill, EmployeeSkill, Suggestion, Project, Assignment, SeniorityHistory), and run initial migrations `M`
 
 2. [ ] Skills Taxonomy Seeding — Seed the database with top 50 tech skills including discipline mappings (e.g., React/Frontend, Node.js/Backend, TypeScript/Languages) `S`
 
@@ -39,6 +47,7 @@
 19. [ ] Mission Board Integration — Connect sync endpoint to actual Mission Board system, validate data flow, and handle edge cases `L`
 
 > Notes
+>
 > - Order reflects technical dependencies and product architecture (database first, then APIs, then UIs)
 > - Items 1-17 form the core product that can run with seeded data
 > - Items 18-19 are the Mission Board integration phase, intentionally last per project constraints

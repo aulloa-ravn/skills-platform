@@ -10,4 +10,167 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Models will be added in Database Schema spec
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum ProficiencyLevel {
+  NOVICE
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum SuggestionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ADJUSTED
+}
+
+enum SuggestionSource {
+  SELF_REPORT
+  SYSTEM_FLAG
+}
+
+enum Discipline {
+  FRONTEND
+  BACKEND
+  LANGUAGES
+  DEVOPS
+  DATABASE
+  DESIGN
+  MOBILE
+  TESTING
+  CLOUD
+  OTHER
+}
+
+// ============================================================================
+// CORE MODELS
+// ============================================================================
+
+model Profile {
+  id                    String   @id @default(uuid())
+  missionBoardId        String   @unique
+  email                 String   @unique
+  name                  String
+  avatarUrl             String?
+  currentSeniorityLevel String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  employeeSkills   EmployeeSkill[]    @relation("ProfileEmployeeSkills")
+  validatedSkills  EmployeeSkill[]    @relation("ValidatedByProfile")
+  seniorityHistory SeniorityHistory[] @relation("ProfileSeniorityHistory")
+  createdHistories SeniorityHistory[] @relation("CreatedBySeniorityHistory")
+  suggestions      Suggestion[]
+  assignments      Assignment[]
+  techLeadProjects Project[]          @relation("TechLeadProjects")
+}
+
+model Skill {
+  id         String     @id @default(uuid())
+  name       String     @unique
+  discipline Discipline
+  isActive   Boolean    @default(true)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  // Relations
+  employeeSkills EmployeeSkill[]
+  suggestions    Suggestion[]
+}
+
+model Project {
+  id             String   @id @default(uuid())
+  name           String
+  missionBoardId String   @unique
+  techLeadId     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  techLead    Profile?     @relation("TechLeadProjects", fields: [techLeadId], references: [id])
+  assignments Assignment[]
+
+  @@index([techLeadId])
+}
+
+// ============================================================================
+// JUNCTION & HISTORY MODELS (placeholders for Task Group 3)
+// ============================================================================
+
+model EmployeeSkill {
+  id               String           @id @default(uuid())
+  profileId        String
+  skillId          String
+  proficiencyLevel ProficiencyLevel
+  validatedAt      DateTime
+  validatedById    String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  // Relations
+  profile     Profile  @relation("ProfileEmployeeSkills", fields: [profileId], references: [id])
+  skill       Skill    @relation(fields: [skillId], references: [id])
+  validatedBy Profile? @relation("ValidatedByProfile", fields: [validatedById], references: [id])
+
+  @@unique([profileId, skillId])
+  @@index([profileId])
+  @@index([skillId])
+}
+
+model Suggestion {
+  id                   String           @id @default(uuid())
+  profileId            String
+  skillId              String
+  suggestedProficiency ProficiencyLevel
+  status               SuggestionStatus
+  source               SuggestionSource
+  createdAt            DateTime         @default(now())
+  resolvedAt           DateTime?
+
+  // Relations
+  profile Profile @relation(fields: [profileId], references: [id])
+  skill   Skill   @relation(fields: [skillId], references: [id])
+
+  @@index([profileId])
+  @@index([skillId])
+  @@index([status])
+}
+
+model Assignment {
+  id             String   @id @default(uuid())
+  profileId      String
+  projectId      String
+  missionBoardId String   @unique
+  role           String
+  tags           String[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  profile Profile @relation(fields: [profileId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@index([profileId])
+  @@index([projectId])
+}
+
+model SeniorityHistory {
+  id             String   @id @default(uuid())
+  profileId      String
+  seniorityLevel String
+  effectiveDate  DateTime
+  createdById    String?
+  createdAt      DateTime @default(now())
+  // Note: No updatedAt field - this is an append-only model
+
+  // Relations
+  profile   Profile  @relation("ProfileSeniorityHistory", fields: [profileId], references: [id])
+  createdBy Profile? @relation("CreatedBySeniorityHistory", fields: [createdById], references: [id])
+
+  @@index([profileId])
+}
