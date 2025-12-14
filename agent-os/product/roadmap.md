@@ -8,6 +8,8 @@
 - **Skill Seeding**: Initialize DB with top 50 tech skills with default disciplines (e.g., React → Frontend, Node.js → Backend, JavaScript/TypeScript → Languages).
 - **Testing**: Skip testing for now - focus on core functionality first.
 
+---
+
 1. [x] Database Schema & Migrations — Set up Prisma with PostgreSQL, create all models (Profile, Skill, EmployeeSkill, Suggestion, Project, Assignment, SeniorityHistory), and run initial migrations `M`
 
 2. [ ] Skills Taxonomy Seeding — Seed the database with top 50 tech skills including discipline mappings (e.g., React/Frontend, Node.js/Backend, TypeScript/Languages) `S`
