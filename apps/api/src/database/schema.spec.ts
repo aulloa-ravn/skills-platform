@@ -71,11 +71,20 @@ describe('Database Schema - Enums', () => {
         'TESTING',
         'CLOUD',
         'OTHER',
+        'STYLING',
+        'TOOLS',
+        'API',
+        'PERFORMANCE',
+        'SECURITY',
+        'IOS',
+        'ANDROID',
+        'BUILD_TOOLS',
+        'NO_CODE',
       ];
       const actualValues = Object.values(Discipline);
 
       expect(actualValues).toEqual(expectedValues);
-      expect(actualValues).toHaveLength(10);
+      expect(actualValues).toHaveLength(19);
     });
   });
 });

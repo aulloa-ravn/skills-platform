@@ -12,7 +12,7 @@
 
 1. [x] Database Schema & Migrations — Set up Prisma with PostgreSQL, create all models (Profile, Skill, EmployeeSkill, Suggestion, Project, Assignment, SeniorityHistory), and run initial migrations `M`
 
-2. [ ] Skills Taxonomy Seeding — Seed the database with top 50 tech skills including discipline mappings (e.g., React/Frontend, Node.js/Backend, TypeScript/Languages) `S`
+2. [x] Skills Taxonomy Seeding — Seed the database with top 50 tech skills including discipline mappings (e.g., React/Frontend, Node.js/Backend, TypeScript/Languages) `S`
 
 3. [ ] Sample Data Seeding — Create fake data for Profiles, Projects, Assignments, and Suggestions to enable development without Mission Board integration `S`
 
