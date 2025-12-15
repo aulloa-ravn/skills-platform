@@ -2,6 +2,41 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type CurrentAssignmentResponse {
+  projectName: String!
+  role: String!
+  tags: [String!]!
+  techLead: TechLeadInfo
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+"""Skill discipline category"""
+enum Discipline {
+  ANDROID
+  API
+  BACKEND
+  BUILD_TOOLS
+  CLOUD
+  DATABASE
+  DESIGN
+  DEVOPS
+  FRONTEND
+  IOS
+  LANGUAGES
+  MOBILE
+  NO_CODE
+  OTHER
+  PERFORMANCE
+  SECURITY
+  STYLING
+  TESTING
+  TOOLS
+}
+
 input LoginInput {
   email: String!
   password: String!
@@ -18,6 +53,21 @@ type Mutation {
   refreshToken(input: RefreshTokenInput!): RefreshTokenResponse!
 }
 
+type PendingSkillResponse {
+  createdAt: DateTime!
+  discipline: Discipline!
+  skillName: String!
+  suggestedProficiency: ProficiencyLevel!
+}
+
+"""Skill proficiency level"""
+enum ProficiencyLevel {
+  ADVANCED
+  EXPERT
+  INTERMEDIATE
+  NOVICE
+}
+
 type ProfileInfo {
   email: String!
   id: String!
@@ -25,7 +75,19 @@ type ProfileInfo {
   role: Role!
 }
 
+type ProfileResponse {
+  avatarUrl: String
+  currentAssignments: [CurrentAssignmentResponse!]!
+  currentSeniorityLevel: String!
+  email: String!
+  id: String!
+  name: String!
+  seniorityHistory: [SeniorityHistoryResponse!]!
+  skills: SkillsTiersResponse!
+}
+
 type Query {
+  getProfile(id: String!): ProfileResponse!
   health: String!
 }
 
@@ -42,4 +104,35 @@ enum Role {
   ADMIN
   EMPLOYEE
   TECH_LEAD
+}
+
+type SeniorityHistoryResponse {
+  createdBy: ValidatorInfo
+  effectiveDate: DateTime!
+  seniorityLevel: String!
+}
+
+type SkillsTiersResponse {
+  coreStack: [ValidatedSkillResponse!]!
+  pending: [PendingSkillResponse!]!
+  validatedInventory: [ValidatedSkillResponse!]!
+}
+
+type TechLeadInfo {
+  email: String
+  id: String
+  name: String
+}
+
+type ValidatedSkillResponse {
+  discipline: Discipline!
+  proficiencyLevel: ProficiencyLevel!
+  skillName: String!
+  validatedAt: DateTime!
+  validator: ValidatorInfo
+}
+
+type ValidatorInfo {
+  id: String
+  name: String
 }

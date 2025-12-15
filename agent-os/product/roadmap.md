@@ -18,7 +18,7 @@
 
 4. [x] Authentication Foundation — Implement JWT-based authentication with login endpoint and auth guards for protected routes `M`
 
-5. [ ] Employee Profile API — Build GraphQL queries to fetch profile data including validated skills (tiered), seniority timeline, and current assignments `M`
+5. [x] Employee Profile API — Build GraphQL queries to fetch profile data including validated skills (tiered), seniority timeline, and current assignments `M`
 
 6. [ ] Employee Profile UI — Create profile dashboard displaying employee header, seniority timeline visualization, and tiered skills display (Core Stack, Validated Inventory, Pending) `M`
 
