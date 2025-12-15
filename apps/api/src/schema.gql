@@ -1,0 +1,45 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type LoginResponse {
+  accessToken: String!
+  profile: ProfileInfo!
+  refreshToken: String!
+}
+
+type Mutation {
+  login(input: LoginInput!): LoginResponse!
+  refreshToken(input: RefreshTokenInput!): RefreshTokenResponse!
+}
+
+type ProfileInfo {
+  email: String!
+  id: String!
+  name: String!
+  role: Role!
+}
+
+type Query {
+  health: String!
+}
+
+input RefreshTokenInput {
+  refreshToken: String!
+}
+
+type RefreshTokenResponse {
+  accessToken: String!
+}
+
+"""User role in the system"""
+enum Role {
+  ADMIN
+  EMPLOYEE
+  TECH_LEAD
+}

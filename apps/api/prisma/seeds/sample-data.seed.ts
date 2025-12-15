@@ -8,8 +8,10 @@ import {
   ProficiencyLevel,
   SuggestionStatus,
   SuggestionSource,
+  Role,
 } from '@prisma/client';
 import { faker } from '@faker-js/faker';
+import * as bcrypt from 'bcrypt';
 import {
   initializeFaker,
   generateEmail,
@@ -32,6 +34,8 @@ import {
 const PROFILE_COUNT = 25; // Between 20-30
 const PROJECT_COUNT = 7; // Between 5-10
 const MIN_LEAD_PROFILES = 7; // Ensure enough for all projects
+const BCRYPT_SALT_ROUNDS = 10; // Standard salt rounds for bcrypt
+const DEFAULT_PASSWORD = 'password123'; // Default password for all seeded profiles
 
 // Seniority levels
 type SeniorityLevel = 'JUNIOR' | 'MID' | 'SENIOR' | 'LEAD';
@@ -129,12 +133,14 @@ interface GeneratedProject extends Project {
 }
 
 /**
- * Generate profiles with seniority distribution
+ * Generate profiles with seniority distribution, passwords, and roles
  */
-function generateProfiles(count: number): Array<{
-  data: Omit<Profile, 'id' | 'createdAt' | 'updatedAt'>;
-  seniorityLevel: SeniorityLevel;
-}> {
+async function generateProfiles(count: number): Promise<
+  Array<{
+    data: Omit<Profile, 'id' | 'createdAt' | 'updatedAt'>;
+    seniorityLevel: SeniorityLevel;
+  }>
+> {
   const profiles: Array<{
     data: Omit<Profile, 'id' | 'createdAt' | 'updatedAt'>;
     seniorityLevel: SeniorityLevel;
@@ -156,13 +162,25 @@ function generateProfiles(count: number): Array<{
     distribution[1] -= Math.floor(deficit / 2);
   }
 
+  // Hash the default password once (reused for all profiles)
+  const hashedPassword = await bcrypt.hash(DEFAULT_PASSWORD, BCRYPT_SALT_ROUNDS);
+
   let profileIndex = 0;
+  let adminAssigned = false; // Ensure at least one admin
+
   seniorityLevels.forEach((level, levelIndex) => {
     for (let i = 0; i < distribution[levelIndex]; i++) {
       const firstName = faker.person.firstName();
       const lastName = faker.person.lastName();
       const email = generateEmail(firstName, lastName);
       const name = `${firstName} ${lastName}`;
+
+      // Assign ADMIN role to first SENIOR or LEAD profile for testing
+      let role: Role = Role.EMPLOYEE;
+      if (!adminAssigned && (level === 'SENIOR' || level === 'LEAD')) {
+        role = Role.ADMIN;
+        adminAssigned = true;
+      }
 
       profiles.push({
         data: {
@@ -171,6 +189,8 @@ function generateProfiles(count: number): Array<{
           name,
           avatarUrl: faker.image.avatar(),
           currentSeniorityLevel: level,
+          password: hashedPassword,
+          role,
         },
         seniorityLevel: level,
       });
@@ -302,210 +322,252 @@ function generateProjects(
     data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>;
     projectType: ProjectType;
   }> = [];
-  const shuffledLeads = shuffleArray(leadProfiles);
-  const selectedTemplates = selectRandomItems(PROJECT_TEMPLATES, count);
 
-  for (let i = 0; i < count; i++) {
-    const template = selectedTemplates[i];
-    const techLead = shuffledLeads[i];
+  // Shuffle templates to add variety
+  const shuffledTemplates = shuffleArray([...PROJECT_TEMPLATES]);
+  const selectedTemplates = shuffledTemplates.slice(0, count);
+
+  // Shuffle Lead profiles to assign them to projects
+  const shuffledLeads = shuffleArray([...leadProfiles]);
+
+  selectedTemplates.forEach((template, index) => {
+    const assignedLead = shuffledLeads[index % shuffledLeads.length];
 
     projects.push({
       data: {
         name: template.name,
         missionBoardId: generateMissionBoardId(),
-        techLeadId: techLead.id,
+        techLeadId: assignedLead.id,
       },
       projectType: template.type,
     });
-  }
+  });
 
   return projects;
 }
 
 /**
- * Generate assignments with distribution
+ * Generate assignments for profiles to projects
  */
 function generateAssignments(
   profiles: GeneratedProfile[],
   projects: GeneratedProject[],
 ): AssignmentData[] {
   const assignments: AssignmentData[] = [];
+
+  // Distribute assignments based on ASSIGNMENT_DISTRIBUTION
   const distribution = distributeByPercentages(
     profiles.length,
     ASSIGNMENT_DISTRIBUTION,
   );
 
-  const shuffledProfiles = shuffleArray(profiles);
   let profileIndex = 0;
 
-  // Assign profiles to 1, 2, or 3 projects based on distribution
-  [1, 2, 3].forEach((projectCount, groupIndex) => {
-    for (let i = 0; i < distribution[groupIndex]; i++) {
-      const profile = shuffledProfiles[profileIndex];
-      const assignedProjects = selectRandomItems(projects, projectCount);
+  // 1 project (65%)
+  for (let i = 0; i < distribution[0]; i++) {
+    const profile = profiles[profileIndex++];
+    const project = getRandomItem(projects);
+    const role = getRandomItem(ROLE_TEMPLATES[project.projectType]);
+    const tags = selectRandomItems(
+      TAG_TEMPLATES[project.projectType],
+      getRandomInt(2, 4),
+    );
 
-      assignedProjects.forEach((project) => {
-        const role = getRandomItem(ROLE_TEMPLATES[project.projectType]);
-        const tagCount = getRandomInt(1, 3);
-        const tags = selectRandomItems(
-          TAG_TEMPLATES[project.projectType],
-          tagCount,
-        );
+    assignments.push({
+      profileId: profile.id,
+      projectId: project.id,
+      missionBoardId: generateMissionBoardId(),
+      role,
+      tags,
+      createdAt: generatePastDate(180),
+      updatedAt: generateRecentDate(30),
+    });
+  }
 
-        assignments.push({
-          profileId: profile.id,
-          projectId: project.id,
-          missionBoardId: generateMissionBoardId(),
-          role,
-          tags,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
+  // 2 projects (25%)
+  for (let i = 0; i < distribution[1]; i++) {
+    const profile = profiles[profileIndex++];
+    const selectedProjects = selectRandomItems(projects, 2);
+
+    selectedProjects.forEach((project) => {
+      const role = getRandomItem(ROLE_TEMPLATES[project.projectType]);
+      const tags = selectRandomItems(
+        TAG_TEMPLATES[project.projectType],
+        getRandomInt(2, 4),
+      );
+
+      assignments.push({
+        profileId: profile.id,
+        projectId: project.id,
+        missionBoardId: generateMissionBoardId(),
+        role,
+        tags,
+        createdAt: generatePastDate(180),
+        updatedAt: generateRecentDate(30),
       });
+    });
+  }
 
-      profileIndex++;
-    }
-  });
+  // 3 projects (10%)
+  for (let i = 0; i < distribution[2]; i++) {
+    const profile = profiles[profileIndex++];
+    const selectedProjects = selectRandomItems(projects, 3);
+
+    selectedProjects.forEach((project) => {
+      const role = getRandomItem(ROLE_TEMPLATES[project.projectType]);
+      const tags = selectRandomItems(
+        TAG_TEMPLATES[project.projectType],
+        getRandomInt(2, 4),
+      );
+
+      assignments.push({
+        profileId: profile.id,
+        projectId: project.id,
+        missionBoardId: generateMissionBoardId(),
+        role,
+        tags,
+        createdAt: generatePastDate(180),
+        updatedAt: generateRecentDate(30),
+      });
+    });
+  }
 
   return assignments;
 }
 
 /**
- * Get proficiency level based on seniority
- */
-function getProficiencyForSeniority(
-  seniority: SeniorityLevel,
-  targetDistribution: Record<ProficiencyLevel, number>,
-): ProficiencyLevel {
-  const random = Math.random() * 100;
-
-  // Adjust distribution based on seniority
-  let levels: ProficiencyLevel[];
-  let weights: number[];
-
-  switch (seniority) {
-    case 'JUNIOR':
-      levels = [
-        ProficiencyLevel.NOVICE,
-        ProficiencyLevel.INTERMEDIATE,
-        ProficiencyLevel.ADVANCED,
-      ];
-      weights = [20, 50, 30]; // No EXPERT for Juniors
-      break;
-    case 'MID':
-      levels = [
-        ProficiencyLevel.NOVICE,
-        ProficiencyLevel.INTERMEDIATE,
-        ProficiencyLevel.ADVANCED,
-        ProficiencyLevel.EXPERT,
-      ];
-      weights = [5, 45, 45, 5];
-      break;
-    case 'SENIOR':
-      levels = [
-        ProficiencyLevel.INTERMEDIATE,
-        ProficiencyLevel.ADVANCED,
-        ProficiencyLevel.EXPERT,
-      ];
-      weights = [20, 50, 30];
-      break;
-    case 'LEAD':
-      levels = [
-        ProficiencyLevel.INTERMEDIATE,
-        ProficiencyLevel.ADVANCED,
-        ProficiencyLevel.EXPERT,
-      ];
-      weights = [10, 40, 50];
-      break;
-    default:
-      levels = Object.values(ProficiencyLevel);
-      weights = Object.values(targetDistribution);
-  }
-
-  let cumulative = 0;
-  for (let i = 0; i < levels.length; i++) {
-    cumulative += weights[i];
-    if (random <= cumulative) {
-      return levels[i];
-    }
-  }
-
-  return levels[levels.length - 1];
-}
-
-/**
- * Generate employee skills with context awareness
+ * Generate employee skills based on project assignments and seniority
  */
 function generateEmployeeSkills(
   profiles: GeneratedProfile[],
-  assignments: AssignmentData[],
+  assignments: Assignment[],
   projects: GeneratedProject[],
-  skills: Skill[],
+  allSkills: Skill[],
 ): EmployeeSkillData[] {
   const employeeSkills: EmployeeSkillData[] = [];
-  const seniorProfiles = profiles.filter(
-    (p) => p.seniorityLevel === 'SENIOR' || p.seniorityLevel === 'LEAD',
-  );
+  const skillsByProfile = new Map<
+    string,
+    Map<string, { level: ProficiencyLevel; validatedById: string | null }>
+  >();
 
-  const targetDistribution = {
-    [ProficiencyLevel.NOVICE]: 10,
-    [ProficiencyLevel.INTERMEDIATE]: 40,
-    [ProficiencyLevel.ADVANCED]: 40,
-    [ProficiencyLevel.EXPERT]: 10,
+  // Helper function to determine proficiency based on seniority
+  const getProficiencyForSeniority = (
+    seniorityLevel: SeniorityLevel,
+  ): ProficiencyLevel => {
+    switch (seniorityLevel) {
+      case 'JUNIOR':
+        return Math.random() < 0.7
+          ? ProficiencyLevel.NOVICE
+          : ProficiencyLevel.INTERMEDIATE;
+      case 'MID':
+        return Math.random() < 0.6
+          ? ProficiencyLevel.INTERMEDIATE
+          : ProficiencyLevel.ADVANCED;
+      case 'SENIOR':
+        return Math.random() < 0.5
+          ? ProficiencyLevel.ADVANCED
+          : ProficiencyLevel.EXPERT;
+      case 'LEAD':
+        return Math.random() < 0.3
+          ? ProficiencyLevel.ADVANCED
+          : ProficiencyLevel.EXPERT;
+      default:
+        return ProficiencyLevel.INTERMEDIATE;
+    }
   };
 
+  // Build a map of profiles by ID for quick lookup
+  const profileMap = new Map(profiles.map((p) => [p.id, p]));
+
+  // For each profile with assignments, add relevant skills
   profiles.forEach((profile) => {
-    // Get profile's project assignments
     const profileAssignments = assignments.filter(
       (a) => a.profileId === profile.id,
     );
 
-    // Get project types for those assignments
-    const profileProjects = projects.filter((p) =>
-      profileAssignments.some((a) => a.projectId === p.id),
+    if (profileAssignments.length === 0) return;
+
+    const profileProjects = profileAssignments
+      .map((a) => projects.find((p) => p.id === a.projectId))
+      .filter((p): p is GeneratedProject => p !== undefined);
+
+    const projectTypes = Array.from(
+      new Set(profileProjects.map((p) => p.projectType)),
     );
 
-    const projectTypes = profileProjects.map((p) => p.projectType);
-
-    // Get relevant skills for profile's projects
+    // Get relevant skills for project types
     const relevantSkills = getRelevantSkillsForProjectTypes(
       projectTypes,
-      skills,
+      allSkills,
     );
 
-    // Generate 3-7 skills per profile
-    const skillCount = getRandomInt(3, 7);
-    const selectedSkills =
-      relevantSkills.length >= skillCount
-        ? selectRandomItems(relevantSkills, skillCount)
-        : [
-            ...relevantSkills,
-            ...selectRandomItems(
-              skills.filter((s) => !relevantSkills.includes(s)),
-              skillCount - relevantSkills.length,
-            ),
-          ];
+    // Determine how many skills this profile should have based on seniority
+    let skillCount: number;
+    switch (profile.seniorityLevel) {
+      case 'JUNIOR':
+        skillCount = getRandomInt(3, 6);
+        break;
+      case 'MID':
+        skillCount = getRandomInt(5, 10);
+        break;
+      case 'SENIOR':
+        skillCount = getRandomInt(8, 15);
+        break;
+      case 'LEAD':
+        skillCount = getRandomInt(12, 20);
+        break;
+      default:
+        skillCount = 5;
+    }
+
+    // Select random skills from relevant skills
+    const selectedSkills = selectRandomItems(
+      relevantSkills,
+      Math.min(skillCount, relevantSkills.length),
+    );
+
+    // Initialize profile's skill map
+    if (!skillsByProfile.has(profile.id)) {
+      skillsByProfile.set(profile.id, new Map());
+    }
+    const profileSkillMap = skillsByProfile.get(profile.id)!;
 
     selectedSkills.forEach((skill) => {
       const proficiencyLevel = getProficiencyForSeniority(
         profile.seniorityLevel,
-        targetDistribution,
       );
 
-      const validatedAt = generatePastDate(getRandomInt(1, 12));
-      const validatedById =
-        seniorProfiles.length > 0 && Math.random() > 0.25
-          ? getRandomItem(seniorProfiles).id
-          : null;
+      // Find a validator (Senior or Lead) - 80% chance of being validated
+      let validatedById: string | null = null;
+      if (Math.random() < 0.8) {
+        const validators = profiles.filter(
+          (p) =>
+            (p.seniorityLevel === 'SENIOR' || p.seniorityLevel === 'LEAD') &&
+            p.id !== profile.id,
+        );
+        if (validators.length > 0) {
+          validatedById = getRandomItem(validators).id;
+        }
+      }
 
-      employeeSkills.push({
-        profileId: profile.id,
-        skillId: skill.id,
-        proficiencyLevel,
-        validatedAt,
+      profileSkillMap.set(skill.id, {
+        level: proficiencyLevel,
         validatedById,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+      });
+    });
+  });
+
+  // Convert map to employee skills array
+  skillsByProfile.forEach((skillMap, profileId) => {
+    skillMap.forEach((skillData, skillId) => {
+      employeeSkills.push({
+        profileId,
+        skillId,
+        proficiencyLevel: skillData.level,
+        validatedAt: generatePastDate(90),
+        validatedById: skillData.validatedById,
+        createdAt: generatePastDate(120),
+        updatedAt: generateRecentDate(60),
       });
     });
   });
@@ -514,14 +576,12 @@ function generateEmployeeSkills(
 }
 
 /**
- * Generate skill suggestions
+ * Generate skill suggestions (PENDING status only)
  */
-function generateSkillSuggestions(
+function generateSuggestions(
   profiles: GeneratedProfile[],
-  employeeSkills: EmployeeSkillData[],
-  assignments: AssignmentData[],
-  projects: GeneratedProject[],
-  skills: Skill[],
+  allSkills: Skill[],
+  existingSkills: EmployeeSkillData[],
 ): Array<{
   profileId: string;
   skillId: string;
@@ -539,57 +599,44 @@ function generateSkillSuggestions(
     createdAt: Date;
   }> = [];
 
-  profiles.forEach((profile) => {
-    // Determine number of suggestions: 60% get 1, 30% get 2, 10% get 3
-    const random = Math.random() * 100;
-    const suggestionCount = random < 60 ? 1 : random < 90 ? 2 : 3;
+  // Generate 5-10 pending suggestions total (not per profile)
+  const suggestionCount = getRandomInt(5, 10);
 
-    // Get profile's existing skills
-    const profileSkills = employeeSkills
-      .filter((es) => es.profileId === profile.id)
-      .map((es) => ({ skillId: es.skillId, level: es.proficiencyLevel }));
+  // Select random profiles to receive suggestions
+  const profilesWithSuggestions = selectRandomItems(
+    profiles,
+    Math.min(suggestionCount, profiles.length),
+  );
 
-    // Get profile's project types
-    const profileAssignments = assignments.filter(
-      (a) => a.profileId === profile.id,
+  profilesWithSuggestions.forEach((profile) => {
+    // Get existing skills for this profile
+    const profileExistingSkills = existingSkills.filter(
+      (es) => es.profileId === profile.id,
     );
-    const profileProjects = projects.filter((p) =>
-      profileAssignments.some((a) => a.projectId === p.id),
-    );
-    const projectTypes = profileProjects.map((p) => p.projectType);
-
-    // Get relevant skills
-    const relevantSkills = getRelevantSkillsForProjectTypes(
-      projectTypes,
-      skills,
+    const existingSkillIds = new Set(
+      profileExistingSkills.map((es) => es.skillId),
     );
 
-    // Filter out skills already at same or higher proficiency
-    const availableSkills = relevantSkills.filter((skill) => {
-      const existing = profileSkills.find((ps) => ps.skillId === skill.id);
-      return !existing; // For suggestions, we'll suggest new skills or upgrades
-    });
+    // Find skills not yet added
+    const availableSkills = allSkills.filter(
+      (s) => !existingSkillIds.has(s.id),
+    );
 
-    // If not enough relevant skills, add random ones
-    const candidateSkills =
-      availableSkills.length >= suggestionCount
-        ? selectRandomItems(availableSkills, suggestionCount)
-        : [
-            ...availableSkills,
-            ...selectRandomItems(
-              skills.filter(
-                (s) =>
-                  !availableSkills.includes(s) &&
-                  !profileSkills.some((ps) => ps.skillId === s.id),
-              ),
-              suggestionCount - availableSkills.length,
-            ),
-          ];
+    if (availableSkills.length === 0) return;
 
-    candidateSkills.forEach((skill) => {
-      const existing = profileSkills.find((ps) => ps.skillId === skill.id);
+    // Select 1-2 skills to suggest
+    const skillsToSuggest = selectRandomItems(
+      availableSkills,
+      Math.min(getRandomInt(1, 2), availableSkills.length),
+    );
+
+    skillsToSuggest.forEach((skill) => {
       let suggestedProficiency: ProficiencyLevel;
 
+      // Check if this is an upgrade suggestion
+      const existing = profileExistingSkills.find(
+        (es) => es.skillId === skill.id,
+      );
       if (existing) {
         // Suggest next level up
         const levels = [
@@ -598,11 +645,11 @@ function generateSkillSuggestions(
           ProficiencyLevel.ADVANCED,
           ProficiencyLevel.EXPERT,
         ];
-        const currentIndex = levels.indexOf(existing.level);
+        const currentIndex = levels.indexOf(existing.proficiencyLevel);
         suggestedProficiency =
           currentIndex < levels.length - 1
             ? levels[currentIndex + 1]
-            : existing.level;
+            : existing.proficiencyLevel;
       } else {
         // New skill - suggest based on seniority
         switch (profile.seniorityLevel) {
@@ -693,8 +740,8 @@ export async function seedSampleData(prisma: PrismaClient): Promise<void> {
         console.log(`  Verified ${skillCountAfter} skills preserved\n`);
 
         // ===== PROFILE GENERATION =====
-        console.log('[2/7] Generating profiles...');
-        const profileSpecs = generateProfiles(PROFILE_COUNT);
+        console.log('[2/7] Generating profiles with authentication...');
+        const profileSpecs = await generateProfiles(PROFILE_COUNT);
 
         // Create profiles individually to get their IDs
         const profilesWithSeniority: GeneratedProfile[] = [];
@@ -722,9 +769,17 @@ export async function seedSampleData(prisma: PrismaClient): Promise<void> {
           ).length,
         };
 
+        const adminCount = profilesWithSeniority.filter(
+          (p) => p.role === Role.ADMIN,
+        ).length;
+
         console.log(
-          `  Created ${profilesWithSeniority.length} profiles (${seniorityStats.JUNIOR} Junior, ${seniorityStats.MID} Mid, ${seniorityStats.SENIOR} Senior, ${seniorityStats.LEAD} Lead)\n`,
+          `  Created ${profilesWithSeniority.length} profiles (${seniorityStats.JUNIOR} Junior, ${seniorityStats.MID} Mid, ${seniorityStats.SENIOR} Senior, ${seniorityStats.LEAD} Lead)`,
         );
+        console.log(
+          `  Assigned ${adminCount} ADMIN role(s), remaining profiles have EMPLOYEE role`,
+        );
+        console.log(`  All profiles have password: "${DEFAULT_PASSWORD}"\n`);
 
         // ===== SENIORITY HISTORY GENERATION =====
         console.log('[3/7] Generating seniority history...');
@@ -748,63 +803,77 @@ export async function seedSampleData(prisma: PrismaClient): Promise<void> {
         const projectSpecs = generateProjects(PROJECT_COUNT, leadProfiles);
 
         // Create projects individually to get their IDs
-        const createdProjects: GeneratedProject[] = [];
+        const projectsWithTypes: GeneratedProject[] = [];
         for (const spec of projectSpecs) {
           const createdProject = await tx.project.create({
             data: spec.data,
           });
-          createdProjects.push({
+          projectsWithTypes.push({
             ...createdProject,
             projectType: spec.projectType,
           });
         }
 
+        const projectStats = {
+          MOBILE: projectsWithTypes.filter((p) => p.projectType === 'MOBILE')
+            .length,
+          BACKEND: projectsWithTypes.filter((p) => p.projectType === 'BACKEND')
+            .length,
+          FRONTEND: projectsWithTypes.filter(
+            (p) => p.projectType === 'FRONTEND',
+          ).length,
+          FULLSTACK: projectsWithTypes.filter(
+            (p) => p.projectType === 'FULLSTACK',
+          ).length,
+        };
+
         console.log(
-          `  Created ${createdProjects.length} projects with unique Tech Leads\n`,
+          `  Created ${projectsWithTypes.length} projects (${projectStats.MOBILE} Mobile, ${projectStats.BACKEND} Backend, ${projectStats.FRONTEND} Frontend, ${projectStats.FULLSTACK} Fullstack)`,
+        );
+        console.log(
+          `  All projects have Tech Leads assigned from LEAD profiles\n`,
         );
 
         // ===== ASSIGNMENT GENERATION =====
         console.log('[5/7] Generating assignments...');
         const assignmentData = generateAssignments(
           profilesWithSeniority,
-          createdProjects,
+          projectsWithTypes,
         );
 
-        await tx.assignment.createMany({
+        const createdAssignments = await tx.assignment.createMany({
           data: assignmentData,
         });
 
-        // Calculate distribution stats
-        const assignmentCounts = new Map<string, number>();
-        assignmentData.forEach((a) => {
-          assignmentCounts.set(
-            a.profileId,
-            (assignmentCounts.get(a.profileId) || 0) + 1,
-          );
-        });
-
-        const distribution1 = Array.from(assignmentCounts.values()).filter(
-          (c) => c === 1,
-        ).length;
-        const distribution2 = Array.from(assignmentCounts.values()).filter(
-          (c) => c === 2,
-        ).length;
-        const distribution3 = Array.from(assignmentCounts.values()).filter(
-          (c) => c === 3,
-        ).length;
+        const assignmentStats = {
+          oneProject: profilesWithSeniority.filter(
+            (p) => assignmentData.filter((a) => a.profileId === p.id).length === 1,
+          ).length,
+          twoProjects: profilesWithSeniority.filter(
+            (p) => assignmentData.filter((a) => a.profileId === p.id).length === 2,
+          ).length,
+          threeProjects: profilesWithSeniority.filter(
+            (p) => assignmentData.filter((a) => a.profileId === p.id).length === 3,
+          ).length,
+        };
 
         console.log(
-          `  Created ${assignmentData.length} assignments (${distribution1} on 1 project, ${distribution2} on 2 projects, ${distribution3} on 3 projects)\n`,
+          `  Created ${createdAssignments.count} assignments (${assignmentStats.oneProject} profiles with 1 project, ${assignmentStats.twoProjects} with 2 projects, ${assignmentStats.threeProjects} with 3 projects)\n`,
         );
 
         // ===== EMPLOYEE SKILLS GENERATION =====
         console.log('[6/7] Generating employee skills...');
+
+        // Fetch all skills
         const allSkills = await tx.skill.findMany();
+
+        // Fetch all assignments for passing to generation
+        const assignments = await tx.assignment.findMany();
 
         const employeeSkillData = generateEmployeeSkills(
           profilesWithSeniority,
-          assignmentData,
-          createdProjects,
+          assignments,
+          projectsWithTypes,
           allSkills,
         );
 
@@ -812,152 +881,55 @@ export async function seedSampleData(prisma: PrismaClient): Promise<void> {
           data: employeeSkillData,
         });
 
-        // Calculate proficiency stats
-        const proficiencyStats = {
-          NOVICE: employeeSkillData.filter(
-            (es) => es.proficiencyLevel === ProficiencyLevel.NOVICE,
-          ).length,
-          INTERMEDIATE: employeeSkillData.filter(
-            (es) => es.proficiencyLevel === ProficiencyLevel.INTERMEDIATE,
-          ).length,
-          ADVANCED: employeeSkillData.filter(
-            (es) => es.proficiencyLevel === ProficiencyLevel.ADVANCED,
-          ).length,
-          EXPERT: employeeSkillData.filter(
-            (es) => es.proficiencyLevel === ProficiencyLevel.EXPERT,
-          ).length,
-        };
-
-        const avgSkillsPerProfile = (
-          employeeSkillData.length / profilesWithSeniority.length
+        const validatedSkills = employeeSkillData.filter(
+          (es) => es.validatedById !== null,
+        ).length;
+        const validationRate = (
+          (validatedSkills / employeeSkillData.length) *
+          100
         ).toFixed(1);
 
         console.log(
-          `  Created ${employeeSkillData.length} employee skills (avg ${avgSkillsPerProfile} per profile)`,
-        );
-        console.log(
-          `  Proficiency distribution: ${proficiencyStats.NOVICE} NOVICE, ${proficiencyStats.INTERMEDIATE} INTERMEDIATE, ${proficiencyStats.ADVANCED} ADVANCED, ${proficiencyStats.EXPERT} EXPERT\n`,
+          `  Created ${employeeSkillData.length} employee skills (${validatedSkills} validated, ${validationRate}% validation rate)\n`,
         );
 
-        // ===== SKILL SUGGESTIONS GENERATION =====
-        console.log('[7/7] Generating skill suggestions...');
-        const suggestionData = generateSkillSuggestions(
+        // ===== SUGGESTIONS GENERATION =====
+        console.log('[7/7] Generating suggestions...');
+
+        const suggestionData = generateSuggestions(
           profilesWithSeniority,
-          employeeSkillData,
-          assignmentData,
-          createdProjects,
           allSkills,
+          employeeSkillData,
         );
 
         await tx.suggestion.createMany({
           data: suggestionData,
         });
 
-        // Calculate suggestion distribution
-        const suggestionCounts = new Map<string, number>();
-        suggestionData.forEach((s) => {
-          suggestionCounts.set(
-            s.profileId,
-            (suggestionCounts.get(s.profileId) || 0) + 1,
-          );
-        });
-
-        const suggestions1 = Array.from(suggestionCounts.values()).filter(
-          (c) => c === 1,
-        ).length;
-        const suggestions2 = Array.from(suggestionCounts.values()).filter(
-          (c) => c === 2,
-        ).length;
-        const suggestions3 = Array.from(suggestionCounts.values()).filter(
-          (c) => c === 3,
-        ).length;
-
         console.log(
-          `  Created ${suggestionData.length} skill suggestions (${suggestions1} profiles with 1, ${suggestions2} with 2, ${suggestions3} with 3)`,
+          `  Created ${suggestionData.length} pending suggestions\n`,
         );
-        console.log(
-          '  All suggestions set to PENDING status from SELF_REPORT source\n',
-        );
-
-        // ===== DATA INTEGRITY VALIDATIONS =====
-        console.log('Validating data integrity...');
-
-        // Validate all emails use @ravn.com domain
-        const invalidEmails = await tx.profile.findMany({
-          where: {
-            NOT: {
-              email: {
-                endsWith: '@ravn.com',
-              },
-            },
-          },
-        });
-
-        if (invalidEmails.length > 0) {
-          throw new Error(
-            `Found ${invalidEmails.length} profiles with invalid email domains`,
-          );
-        }
-        console.log('  All emails use @ravn.com domain');
-
-        // Validate Tech Leads have Lead seniority
-        const projectsWithLeads = await tx.project.findMany({
-          include: { techLead: true },
-        });
-
-        const invalidTechLeads = projectsWithLeads.filter(
-          (p) => p.techLead && p.techLead.currentSeniorityLevel !== 'LEAD',
-        );
-
-        if (invalidTechLeads.length > 0) {
-          throw new Error(
-            `Found ${invalidTechLeads.length} projects with Tech Leads who are not LEAD seniority`,
-          );
-        }
-        console.log('  All Tech Leads have LEAD seniority level');
-
-        // Validate each project has exactly one Tech Lead
-        const projectsWithoutLead = projectsWithLeads.filter(
-          (p) => !p.techLeadId,
-        );
-
-        if (projectsWithoutLead.length > 0) {
-          throw new Error(
-            `Found ${projectsWithoutLead.length} projects without Tech Leads`,
-          );
-        }
-        console.log('  All projects have exactly one Tech Lead');
-
-        // Validate assignment distribution
-        const dist1Pct = ((distribution1 / PROFILE_COUNT) * 100).toFixed(1);
-        const dist2Pct = ((distribution2 / PROFILE_COUNT) * 100).toFixed(1);
-        const dist3Pct = ((distribution3 / PROFILE_COUNT) * 100).toFixed(1);
-
-        console.log(
-          `  Assignment distribution: ${dist1Pct}% on 1 project, ${dist2Pct}% on 2, ${dist3Pct}% on 3`,
-        );
-
-        console.log('  All data integrity checks passed\n');
       },
       {
-        timeout: 30000, // 30 second timeout
+        timeout: 60000, // 60 seconds timeout for the transaction
       },
     );
 
-    // ===== FINAL SUMMARY =====
-    const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+    const totalElapsed = ((Date.now() - startTime) / 1000).toFixed(2);
 
     console.log('========================================');
-    console.log('Sample data seeding completed successfully!');
+    console.log('Sample data seeding completed!');
     console.log('========================================');
-    console.log(`Total time elapsed: ${elapsed} seconds\n`);
+    console.log(`Total execution time: ${totalElapsed} seconds\n`);
   } catch (error) {
     console.error('\n========================================');
-    console.error('ERROR: Seeding failed');
-    console.error('========================================');
-    console.error('Error message:', error instanceof Error ? error.message : error);
-    if (error instanceof Error && error.stack) {
+    console.error('ERROR: Sample data seeding failed');
+    console.error('========================================\n');
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
       console.error('Stack trace:', error.stack);
+    } else {
+      console.error('Unknown error:', error);
     }
     throw error;
   }

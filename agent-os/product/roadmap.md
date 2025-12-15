@@ -16,7 +16,7 @@
 
 3. [x] Sample Data Seeding — Create fake data for Profiles, Projects, Assignments, and Suggestions to enable development without Mission Board integration `S`
 
-4. [ ] Authentication Foundation — Implement JWT-based authentication with login endpoint and auth guards for protected routes `M`
+4. [x] Authentication Foundation — Implement JWT-based authentication with login endpoint and auth guards for protected routes `M`
 
 5. [ ] Employee Profile API — Build GraphQL queries to fetch profile data including validated skills (tiered), seniority timeline, and current assignments `M`
 

@@ -55,6 +55,12 @@ enum Discipline {
   NO_CODE
 }
 
+enum Role {
+  EMPLOYEE
+  TECH_LEAD
+  ADMIN
+}
+
 // ============================================================================
 // CORE MODELS
 // ============================================================================
@@ -66,6 +72,8 @@ model Profile {
   name                  String
   avatarUrl             String?
   currentSeniorityLevel String
+  password              String?  // bcrypt-hashed password with salt round 10, nullable for migration compatibility
+  role                  Role     @default(EMPLOYEE)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
