@@ -14,7 +14,7 @@
 
 2. [x] Skills Taxonomy Seeding — Seed the database with top 50 tech skills including discipline mappings (e.g., React/Frontend, Node.js/Backend, TypeScript/Languages) `S`
 
-3. [ ] Sample Data Seeding — Create fake data for Profiles, Projects, Assignments, and Suggestions to enable development without Mission Board integration `S`
+3. [x] Sample Data Seeding — Create fake data for Profiles, Projects, Assignments, and Suggestions to enable development without Mission Board integration `S`
 
 4. [ ] Authentication Foundation — Implement JWT-based authentication with login endpoint and auth guards for protected routes `M`
 
