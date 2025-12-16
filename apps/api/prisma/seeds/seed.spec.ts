@@ -142,7 +142,7 @@ describe('Profile and Seniority Generation', () => {
 
   it('should create seniority history with sequential progressions', async () => {
     const histories = await prisma.seniorityHistory.findMany({
-      orderBy: { effectiveDate: 'asc' },
+      orderBy: { start_date: 'asc' },
     });
 
     expect(histories.length).toBeGreaterThan(0);
@@ -159,8 +159,8 @@ describe('Profile and Seniority Generation', () => {
 
     historiesByProfile.forEach((profileHistories) => {
       for (let i = 1; i < profileHistories.length; i++) {
-        expect(profileHistories[i].effectiveDate.getTime()).toBeGreaterThan(
-          profileHistories[i - 1].effectiveDate.getTime(),
+        expect(profileHistories[i].start_date.getTime()).toBeGreaterThan(
+          profileHistories[i - 1].start_date.getTime(),
         );
       }
     });

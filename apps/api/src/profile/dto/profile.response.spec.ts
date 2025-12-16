@@ -107,11 +107,13 @@ describe('Profile Response DTOs', () => {
 
       const seniorityHistory = new SeniorityHistoryResponse();
       seniorityHistory.seniorityLevel = 'Senior Developer';
-      seniorityHistory.effectiveDate = new Date('2023-01-01');
+      seniorityHistory.start_date = new Date('2023-01-01');
+      seniorityHistory.end_date = new Date('2024-01-01');
       seniorityHistory.createdBy = creatorInfo;
 
       expect(seniorityHistory.seniorityLevel).toBe('Senior Developer');
-      expect(seniorityHistory.effectiveDate).toEqual(new Date('2023-01-01'));
+      expect(seniorityHistory.start_date).toEqual(new Date('2023-01-01'));
+      expect(seniorityHistory.end_date).toEqual(new Date('2024-01-01'));
       expect(seniorityHistory.createdBy).toEqual(creatorInfo);
     });
   });

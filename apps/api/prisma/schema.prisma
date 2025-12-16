@@ -177,12 +177,13 @@ model Assignment {
 }
 
 model SeniorityHistory {
-  id             String   @id @default(uuid())
+  id             String    @id @default(uuid())
   profileId      String
   seniorityLevel String
-  effectiveDate  DateTime
+  start_date     DateTime
+  end_date       DateTime?
   createdById    String?
-  createdAt      DateTime @default(now())
+  createdAt      DateTime  @default(now())
   // Note: No updatedAt field - this is an append-only model
 
   // Relations

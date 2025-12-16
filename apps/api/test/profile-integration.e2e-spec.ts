@@ -143,7 +143,8 @@ describe('Profile API Integration (e2e)', () => {
       data: {
         profileId: teamMemberId,
         seniorityLevel: 'Junior Developer',
-        effectiveDate: new Date('2024-01-01'),
+        start_date: new Date('2024-01-01'),
+        end_date: null,
         createdById: adminId,
       },
     });
@@ -398,7 +399,8 @@ describe('Profile API Integration (e2e)', () => {
                 }
                 seniorityHistory {
                   seniorityLevel
-                  effectiveDate
+                  start_date
+                  end_date
                   createdBy {
                     id
                     name

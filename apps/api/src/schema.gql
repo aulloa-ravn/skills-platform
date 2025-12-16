@@ -108,8 +108,9 @@ enum Role {
 
 type SeniorityHistoryResponse {
   createdBy: ValidatorInfo
-  effectiveDate: DateTime!
+  end_date: DateTime
   seniorityLevel: String!
+  start_date: DateTime!
 }
 
 type SkillsTiersResponse {

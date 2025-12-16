@@ -210,13 +210,15 @@ function generateSeniorityHistory(
 ): Array<{
   profileId: string;
   seniorityLevel: string;
-  effectiveDate: Date;
+  start_date: Date;
+  end_date: Date | null;
   createdById: string | null;
 }> {
   const seniorityHistoryRecords: Array<{
     profileId: string;
     seniorityLevel: string;
-    effectiveDate: Date;
+    start_date: Date;
+    end_date: Date | null;
     createdById: string | null;
   }> = [];
 
@@ -266,25 +268,29 @@ function generateSeniorityHistory(
     const threeYearsAgo = new Date();
     threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
 
+    const tempDates: Date[] = [];
     progressionPath.forEach((level, index) => {
-      let effectiveDate: Date;
+      let startDate: Date;
 
       if (index === 0) {
         // First record: 1-3 years ago
-        effectiveDate = generateDateInRange(threeYearsAgo, new Date());
+        startDate = generateDateInRange(threeYearsAgo, new Date());
       } else {
         // Subsequent records: after previous promotion
-        const previousDate = seniorityHistoryRecords[
-          seniorityHistoryRecords.length - 1
-        ].effectiveDate;
+        const previousDate = tempDates[tempDates.length - 1];
         const minMonthsLater = 12; // At least 1 year between promotions
         const maxMonthsLater = 24; // At most 2 years
         const monthsLater = getRandomInt(minMonthsLater, maxMonthsLater);
 
-        effectiveDate = new Date(previousDate);
-        effectiveDate.setMonth(effectiveDate.getMonth() + monthsLater);
+        startDate = new Date(previousDate);
+        startDate.setMonth(startDate.getMonth() + monthsLater);
       }
 
+      tempDates.push(startDate);
+    });
+
+    // Now create records with end_date set to next promotion's start_date
+    progressionPath.forEach((level, index) => {
       const createdById =
         seniorProfiles.length > 0 && Math.random() > 0.3
           ? getRandomItem(seniorProfiles).id
@@ -293,7 +299,8 @@ function generateSeniorityHistory(
       seniorityHistoryRecords.push({
         profileId: profile.id,
         seniorityLevel: level,
-        effectiveDate,
+        start_date: tempDates[index],
+        end_date: index < tempDates.length - 1 ? tempDates[index + 1] : null,
         createdById,
       });
     });

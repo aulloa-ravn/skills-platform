@@ -308,7 +308,7 @@ describe('ProfileService', () => {
   });
 
   describe('Seniority History', () => {
-    it('should return seniority history sorted by effectiveDate descending', async () => {
+    it('should return seniority history sorted by start_date descending', async () => {
       const userId = 'user-123';
       const profileId = 'user-123';
 
@@ -328,7 +328,8 @@ describe('ProfileService', () => {
         {
           id: 'history-1',
           seniorityLevel: 'Senior Developer',
-          effectiveDate: new Date('2024-01-01'),
+          start_date: new Date('2024-01-01'),
+          end_date: null,
           createdBy: {
             id: 'admin-1',
             name: 'Admin User',
@@ -337,7 +338,8 @@ describe('ProfileService', () => {
         {
           id: 'history-2',
           seniorityLevel: 'Developer',
-          effectiveDate: new Date('2023-01-01'),
+          start_date: new Date('2023-01-01'),
+          end_date: new Date('2023-12-31'),
           createdBy: {
             id: 'admin-1',
             name: 'Admin User',

@@ -115,7 +115,8 @@ describe('ProfileResolver', () => {
         seniorityHistory: [
           {
             seniorityLevel: 'Lead Developer',
-            effectiveDate: new Date('2024-01-01'),
+            start_date: new Date('2024-01-01'),
+            end_date: undefined,
             createdBy: {
               id: 'admin-1',
               name: 'Admin User',

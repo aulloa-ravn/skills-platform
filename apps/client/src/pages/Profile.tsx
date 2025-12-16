@@ -311,7 +311,7 @@ const Profile: React.FC = () => {
                   <div className="flex gap-6 min-w-max">
                     {seniorityToShow.map((entry, index) => (
                       <div
-                        key={`seniority-${index}-${entry.effectiveDate}`}
+                        key={`seniority-${index}-${entry.start_date}`}
                         className="flex items-center"
                       >
                         <div className="flex flex-col items-center">
@@ -325,13 +325,16 @@ const Profile: React.FC = () => {
                               {entry.seniorityLevel}
                             </span>
                             <p className="text-xs text-gray-400">
-                              {formatDate(entry.effectiveDate)}
+                              {formatDate(entry.start_date)}
+                              {entry.end_date &&
+                                ` - ${formatDate(entry.end_date)}`}
+                              {!entry.end_date && " - Present"}
                             </p>
-                            {entry.createdBy && (
+                            {/* {entry.createdBy && (
                               <p className="text-xs text-gray-500 mt-1">
                                 by {entry.createdBy.name}
                               </p>
-                            )}
+                            )} */}
                           </div>
                         </div>
                         {index < seniorityToShow.length - 1 && (

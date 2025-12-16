@@ -63,7 +63,8 @@ describe('GraphQL Queries - GET_PROFILE_QUERY', () => {
     const queryString = GET_PROFILE_QUERY.loc?.source.body;
 
     expect(queryString).toContain('seniorityLevel');
-    expect(queryString).toContain('effectiveDate');
+    expect(queryString).toContain('start_date');
+    expect(queryString).toContain('end_date');
     expect(queryString).toContain('createdBy');
   });
 

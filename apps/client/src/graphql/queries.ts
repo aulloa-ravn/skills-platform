@@ -24,7 +24,8 @@ export interface PendingSkill {
 
 export interface SeniorityHistoryEntry {
   seniorityLevel: string;
-  effectiveDate: string;
+  start_date: string;
+  end_date: string | null;
   createdBy: {
     id: string;
     name: string;
@@ -114,7 +115,8 @@ export const GET_PROFILE_QUERY = gql`
       }
       seniorityHistory {
         seniorityLevel
-        effectiveDate
+        start_date
+        end_date
         createdBy {
           id
           name

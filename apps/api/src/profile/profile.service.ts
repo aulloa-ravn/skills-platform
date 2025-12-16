@@ -164,7 +164,7 @@ export class ProfileService {
   }
 
   /**
-   * Get seniority history sorted by effective date descending
+   * Get seniority history sorted by start date descending
    * @param profileId Profile ID
    * @returns Array of seniority history records
    */
@@ -182,13 +182,14 @@ export class ProfileService {
         },
       },
       orderBy: {
-        effectiveDate: 'desc',
+        start_date: 'desc',
       },
     });
 
     return history.map((record) => ({
       seniorityLevel: record.seniorityLevel,
-      effectiveDate: record.effectiveDate,
+      start_date: record.start_date,
+      end_date: record.end_date || undefined,
       createdBy: record.createdBy
         ? {
             id: record.createdBy.id,

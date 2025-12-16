@@ -56,7 +56,8 @@ describe('Profile UI Components', () => {
       {
         id: '1',
         seniorityLevel: 'SENIOR',
-        effectiveDate: '2024-01-01',
+        start_date: '2024-01-01',
+        end_date: null,
         createdBy: { id: '2', name: 'Manager' },
       },
     ],
@@ -143,9 +144,9 @@ describe('Profile UI Components', () => {
       ...mockProfile,
       seniorityHistory: [
         ...mockProfile.seniorityHistory,
-        { id: '2', seniorityLevel: 'MID', effectiveDate: '2023-01-01', createdBy: null },
-        { id: '3', seniorityLevel: 'JUNIOR', effectiveDate: '2022-01-01', createdBy: null },
-        { id: '4', seniorityLevel: 'INTERN', effectiveDate: '2021-01-01', createdBy: null },
+        { id: '2', seniorityLevel: 'MID', start_date: '2023-01-01', end_date: '2023-12-31', createdBy: null },
+        { id: '3', seniorityLevel: 'JUNIOR', start_date: '2022-01-01', end_date: '2022-12-31', createdBy: null },
+        { id: '4', seniorityLevel: 'INTERN', start_date: '2021-01-01', end_date: '2021-12-31', createdBy: null },
       ],
     };
 

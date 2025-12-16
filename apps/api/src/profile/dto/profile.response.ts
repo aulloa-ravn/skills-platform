@@ -78,7 +78,10 @@ export class SeniorityHistoryResponse {
   seniorityLevel: string;
 
   @Field(() => GraphQLISODateTime)
-  effectiveDate: Date;
+  start_date: Date;
+
+  @Field(() => GraphQLISODateTime, { nullable: true })
+  end_date?: Date;
 
   @Field(() => ValidatorInfo, { nullable: true })
   createdBy?: ValidatorInfo;
