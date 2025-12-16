@@ -16,10 +16,12 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('/graphql (POST) - should respond to schema introspection', () => {
     return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+      .post('/graphql')
+      .send({
+        query: '{ __schema { types { name } } }',
+      })
+      .expect(200);
   });
 });

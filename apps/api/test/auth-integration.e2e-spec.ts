@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { hashPassword } from '../src/auth/utils/password.util';
@@ -33,6 +33,8 @@ describe('Authentication Integration (e2e)', () => {
         email: 'testuser@ravn.com',
         password: hashedPassword,
         role: Role.EMPLOYEE,
+        missionBoardId: 'test-user-mission-board',
+        currentSeniorityLevel: 'JUNIOR',
       },
     });
     testUserId = testUser.id;
@@ -108,7 +110,9 @@ describe('Authentication Integration (e2e)', () => {
         .expect(200);
 
       expect(response.body.errors).toBeDefined();
-      expect(response.body.errors[0].extensions.code).toBe('INVALID_CREDENTIALS');
+      expect(response.body.errors[0].extensions.code).toBe(
+        'INVALID_CREDENTIALS',
+      );
     });
 
     it('should return INVALID_CREDENTIALS error for non-existent user', async () => {
@@ -132,7 +136,9 @@ describe('Authentication Integration (e2e)', () => {
         .expect(200);
 
       expect(response.body.errors).toBeDefined();
-      expect(response.body.errors[0].extensions.code).toBe('INVALID_CREDENTIALS');
+      expect(response.body.errors[0].extensions.code).toBe(
+        'INVALID_CREDENTIALS',
+      );
     });
   });
 
