@@ -11,12 +11,12 @@ Feature: GraphQL query returning hierarchical inbox data (Projects → Employees
 #### Task Group 1: GraphQL DTOs and Response Types
 **Dependencies:** None
 
-- [ ] 1.0 Complete GraphQL response type definitions
-  - [ ] 1.1 Write 2-8 focused tests for DTO structure validation
+- [x] 1.0 Complete GraphQL response type definitions
+  - [x] 1.1 Write 2-8 focused tests for DTO structure validation
     - Limit to 2-8 highly focused tests maximum
     - Test only critical DTO behaviors (e.g., enum registration, field nullability, type validation)
     - Skip exhaustive testing of all field combinations
-  - [ ] 1.2 Create `/Users/anthonyulloa/Desktop/Projects/personal/skills-platform/apps/api/src/profile/dto/inbox.response.ts`
+  - [x] 1.2 Create `/Users/anthonyulloa/Desktop/Projects/personal/skills-platform/apps/api/src/profile/dto/inbox.response.ts`
     - Register enums: `SuggestionSource`, `SuggestionStatus` (in addition to existing `ProficiencyLevel`, `Discipline`)
     - Create `PendingSuggestion` ObjectType:
       - Fields: `id` (String), `skillName` (String), `discipline` (Discipline enum), `suggestedProficiency` (ProficiencyLevel enum), `source` (SuggestionSource enum), `createdAt` (GraphQLISODateTime), `currentProficiency` (ProficiencyLevel enum, nullable)
@@ -27,7 +27,7 @@ Feature: GraphQL query returning hierarchical inbox data (Projects → Employees
     - Create `InboxResponse` ObjectType:
       - Fields: `projects` (array of ProjectInbox)
     - Follow pattern from: `/Users/anthonyulloa/Desktop/Projects/personal/skills-platform/apps/api/src/profile/dto/profile.response.ts`
-  - [ ] 1.3 Ensure DTO tests pass
+  - [x] 1.3 Ensure DTO tests pass
     - Run ONLY the 2-8 tests written in 1.1
     - Verify enum registration works correctly
     - Verify nullable fields are properly configured
@@ -44,8 +44,8 @@ Feature: GraphQL query returning hierarchical inbox data (Projects → Employees
 #### Task Group 2: Inbox Service Layer
 **Dependencies:** Task Group 1
 
-- [ ] 2.0 Complete inbox business logic service
-  - [ ] 2.1 Write 2-8 focused tests for InboxService
+- [x] 2.0 Complete inbox business logic service
+  - [x] 2.1 Write 2-8 focused tests for InboxService
     - Limit to 2-8 highly focused tests maximum
     - Test only critical service behaviors:
       - Authorization check for EMPLOYEE role (should throw ForbiddenException)
@@ -55,7 +55,7 @@ Feature: GraphQL query returning hierarchical inbox data (Projects → Employees
       - Empty state handling (no pending suggestions)
     - Mock PrismaService using Jest mocks
     - Skip exhaustive testing of all data transformation scenarios
-  - [ ] 2.2 Create `/Users/anthonyulloa/Desktop/Projects/personal/skills-platform/apps/api/src/profile/inbox.service.ts`
+  - [x] 2.2 Create `/Users/anthonyulloa/Desktop/Projects/personal/skills-platform/apps/api/src/profile/inbox.service.ts`
     - Injectable service class with PrismaService constructor injection
     - Implement main method: `getValidationInbox(userId: string, userRole: Role): Promise<InboxResponse>`
     - Implement private method: `checkAuthorization(userRole: Role): void`
@@ -78,7 +78,7 @@ Feature: GraphQL query returning hierarchical inbox data (Projects → Employees
       - Filter out employees with zero pending suggestions
       - Sort employees alphabetically by name within each project
     - Follow async/await pattern for all database operations
-  - [ ] 2.3 Ensure InboxService tests pass
+  - [x] 2.3 Ensure InboxService tests pass
     - Run ONLY the 2-8 tests written in 2.1
     - Verify authorization logic works for all roles
     - Verify Prisma query structure is correct (via mocks)
@@ -97,8 +97,8 @@ Feature: GraphQL query returning hierarchical inbox data (Projects → Employees
 #### Task Group 3: GraphQL Resolver
 **Dependencies:** Task Group 2
 
-- [ ] 3.0 Complete GraphQL resolver
-  - [ ] 3.1 Write 2-8 focused tests for InboxResolver
+- [x] 3.0 Complete GraphQL resolver
+  - [x] 3.1 Write 2-8 focused tests for InboxResolver
     - Limit to 2-8 highly focused tests maximum
     - Test only critical resolver behaviors:
       - JWT guard is applied (verify @UseGuards decorator)
@@ -107,7 +107,7 @@ Feature: GraphQL query returning hierarchical inbox data (Projects → Employees
       - Query returns InboxResponse type
     - Mock InboxService using Jest mocks
     - Skip exhaustive testing of all user scenarios
-  - [ ] 3.2 Create `/Users/anthonyulloa/Desktop/Projects/personal/skills-platform/apps/api/src/profile/inbox.resolver.ts`
+  - [x] 3.2 Create `/Users/anthonyulloa/Desktop/Projects/personal/skills-platform/apps/api/src/profile/inbox.resolver.ts`
     - @Resolver() decorator on class
     - Constructor inject InboxService
     - Implement query method with decorators:
@@ -118,11 +118,11 @@ Feature: GraphQL query returning hierarchical inbox data (Projects → Employees
     - Import CurrentUser decorator from: `/Users/anthonyulloa/Desktop/Projects/personal/skills-platform/apps/api/src/auth/decorators/current-user.decorator.ts`
     - Import JwtAuthGuard from: `/Users/anthonyulloa/Desktop/Projects/personal/skills-platform/apps/api/src/auth/guards/jwt-auth.guard.ts`
     - Follow pattern from: `/Users/anthonyulloa/Desktop/Projects/personal/skills-platform/apps/api/src/profile/profile.resolver.ts`
-  - [ ] 3.3 Update `/Users/anthonyulloa/Desktop/Projects/personal/skills-platform/apps/api/src/profile/profile.module.ts`
+  - [x] 3.3 Update `/Users/anthonyulloa/Desktop/Projects/personal/skills-platform/apps/api/src/profile/profile.module.ts`
     - Add `InboxService` to providers array
     - Add `InboxResolver` to providers array
     - Ensure PrismaModule is already imported (should be from existing ProfileModule setup)
-  - [ ] 3.4 Ensure InboxResolver tests pass
+  - [x] 3.4 Ensure InboxResolver tests pass
     - Run ONLY the 2-8 tests written in 3.1
     - Verify resolver properly delegates to service
     - Verify decorators are applied correctly
@@ -141,13 +141,13 @@ Feature: GraphQL query returning hierarchical inbox data (Projects → Employees
 #### Task Group 4: Integration Tests and Gap Analysis
 **Dependencies:** Task Groups 1-3
 
-- [ ] 4.0 Review existing tests and fill critical gaps only
-  - [ ] 4.1 Review tests from Task Groups 1-3
+- [x] 4.0 Review existing tests and fill critical gaps only
+  - [x] 4.1 Review tests from Task Groups 1-3
     - Review the 2-8 tests written for DTOs (Task 1.1)
     - Review the 2-8 tests written for InboxService (Task 2.1)
     - Review the 2-8 tests written for InboxResolver (Task 3.1)
     - Total existing tests: approximately 6-24 tests
-  - [ ] 4.2 Analyze test coverage gaps for THIS feature only
+  - [x] 4.2 Analyze test coverage gaps for THIS feature only
     - Identify critical end-to-end workflows that lack test coverage:
       - GraphQL query execution with real JWT token
       - Full data hierarchy transformation with real database data
@@ -156,7 +156,7 @@ Feature: GraphQL query returning hierarchical inbox data (Projects → Employees
     - Focus ONLY on gaps related to this spec's feature requirements
     - Do NOT assess entire application test coverage
     - Prioritize integration tests over additional unit tests
-  - [ ] 4.3 Write up to 10 additional strategic tests maximum
+  - [x] 4.3 Write up to 10 additional strategic tests maximum
     - Add maximum of 10 new integration tests to fill identified critical gaps:
       - Integration test: TECH_LEAD user queries inbox, verifies only own projects returned
       - Integration test: ADMIN user queries inbox, verifies all projects returned
@@ -172,7 +172,7 @@ Feature: GraphQL query returning hierarchical inbox data (Projects → Employees
     - Use GraphQL query execution with mocked JWT authentication
     - Do NOT write comprehensive coverage for all edge cases
     - Focus on business-critical workflows only
-  - [ ] 4.4 Run feature-specific tests only
+  - [x] 4.4 Run feature-specific tests only
     - Run ONLY tests related to this spec's feature (tests from 1.1, 2.1, 3.1, and 4.3)
     - Expected total: approximately 16-34 tests maximum
     - Do NOT run the entire application test suite

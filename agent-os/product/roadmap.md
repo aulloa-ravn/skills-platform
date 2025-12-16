@@ -26,7 +26,7 @@
 
 8. [ ] Self-Report Skills UI — Build skill suggestion form with taxonomy autocomplete, proficiency selector, and submission confirmation `S`
 
-9. [ ] Validation Inbox API — Create GraphQL queries returning hierarchical inbox data (projects -> members -> suggestions) filtered by logged-in Tech Lead `M`
+9. [x] Validation Inbox API — Create GraphQL queries returning hierarchical inbox data (projects -> members -> suggestions) filtered by logged-in Tech Lead `M`
 
 10. [ ] Validation Inbox UI — Build master-detail interface with project-grouped sidebar, person review cards, and navigation between team members `L`
 

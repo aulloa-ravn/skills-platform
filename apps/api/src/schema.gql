@@ -37,6 +37,18 @@ enum Discipline {
   TOOLS
 }
 
+type EmployeeInbox {
+  employeeEmail: String!
+  employeeId: String!
+  employeeName: String!
+  pendingSuggestionsCount: Int!
+  suggestions: [PendingSuggestion!]!
+}
+
+type InboxResponse {
+  projects: [ProjectInbox!]!
+}
+
 input LoginInput {
   email: String!
   password: String!
@@ -57,6 +69,16 @@ type PendingSkillResponse {
   createdAt: DateTime!
   discipline: Discipline!
   skillName: String!
+  suggestedProficiency: ProficiencyLevel!
+}
+
+type PendingSuggestion {
+  createdAt: DateTime!
+  currentProficiency: ProficiencyLevel
+  discipline: Discipline!
+  id: String!
+  skillName: String!
+  source: SuggestionSource!
   suggestedProficiency: ProficiencyLevel!
 }
 
@@ -86,8 +108,16 @@ type ProfileResponse {
   skills: SkillsTiersResponse!
 }
 
+type ProjectInbox {
+  employees: [EmployeeInbox!]!
+  pendingSuggestionsCount: Int!
+  projectId: String!
+  projectName: String!
+}
+
 type Query {
   getProfile(id: String!): ProfileResponse!
+  getValidationInbox: InboxResponse!
   health: String!
 }
 
@@ -117,6 +147,12 @@ type SkillsTiersResponse {
   coreStack: [ValidatedSkillResponse!]!
   pending: [PendingSkillResponse!]!
   validatedInventory: [ValidatedSkillResponse!]!
+}
+
+"""Source of the skill suggestion"""
+enum SuggestionSource {
+  SELF_REPORT
+  SYSTEM_FLAG
 }
 
 type TechLeadInfo {
