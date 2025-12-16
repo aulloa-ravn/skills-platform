@@ -20,22 +20,19 @@ const LogoutButton: React.FC = () => {
 
   return (
     <div className="flex items-center gap-4">
-      {profile && (
+      {/* {profile && (
         <div className="flex items-center gap-3">
-          {/* User Avatar */}
           <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center">
             <span className="text-white font-semibold text-sm">
               {profile.name?.charAt(0).toUpperCase()}
             </span>
           </div>
-
-          {/* User Info */}
           <div className="hidden sm:block">
             <p className="text-sm font-medium text-gray-200">{profile.name}</p>
             <p className="text-xs text-gray-400">{profile.role}</p>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Logout Button */}
       <button

@@ -20,7 +20,7 @@
 
 5. [x] Employee Profile API — Build GraphQL queries to fetch profile data including validated skills (tiered), seniority timeline, and current assignments `M`
 
-6. [ ] Employee Profile UI — Create profile dashboard displaying employee header, seniority timeline visualization, and tiered skills display (Core Stack, Validated Inventory, Pending) `M`
+6. [x] Employee Profile UI — Create profile dashboard displaying employee header, seniority timeline visualization, and tiered skills display (Core Stack, Validated Inventory, Pending) `M`
 
 7. [ ] Self-Report Skills API — Implement mutation for employees to submit new skill suggestions with proficiency level, creating pending validation requests `S`
 
