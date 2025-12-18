@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Role, useAuth } from "../contexts/AuthContext";
+import Button from "../components/Button";
+import Card from "../components/Card";
 
 const Home: React.FC = () => {
   const { profile } = useAuth();
@@ -8,7 +10,7 @@ const Home: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto">
       {/* Welcome Card */}
-      <div className="backdrop-blur-xl bg-gray-800/40 rounded-2xl shadow-2xl border border-gray-700/50 p-8 mb-6">
+      <Card className="mb-6 p-8" noPadding>
         <div className="flex items-start gap-6">
           {/* Large Avatar */}
           <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center flex-shrink-0">
@@ -39,26 +41,24 @@ const Home: React.FC = () => {
               </div>
               <div className="flex items-center gap-2">
                 {profile?.role === Role.TECH_LEAD && (
-                  <button
+                  <Button
                     onClick={() => navigate("/validation-inbox")}
-                    className="px-4 py-2 bg-gray-700/50 hover:bg-gray-600/50 text-white rounded-lg font-medium transition-all duration-200 border border-gray-600/50 text-sm"
                     data-testid="view-profile-button"
                   >
                     Validation Inbox
-                  </button>
+                  </Button>
                 )}
-                <button
+                <Button
                   onClick={() => navigate("/profile")}
-                  className="px-4 py-2 bg-gray-700/50 hover:bg-gray-600/50 text-white rounded-lg font-medium transition-all duration-200 border border-gray-600/50 text-sm"
                   data-testid="view-profile-button"
                 >
                   Employee Profile
-                </button>
+                </Button>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

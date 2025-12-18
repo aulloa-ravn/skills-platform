@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useQuery } from "@apollo/client/react";
 import { useAuth } from "../contexts/AuthContext";
+import Button from "../components/Button";
+import Card from "../components/Card";
 import {
   GET_PROFILE_QUERY,
   type GetProfileResponse,
@@ -108,7 +110,7 @@ const Profile: React.FC = () => {
     const hasMore = skills.length > 10;
 
     return (
-      <div className="backdrop-blur-xl bg-gray-800/40 rounded-2xl border border-gray-700/50 p-6">
+      <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold text-white">{title}</h3>
           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-600/30 text-gray-300">
@@ -120,9 +122,9 @@ const Profile: React.FC = () => {
           <div className="text-center py-8">
             <p className="text-gray-400 mb-4">{emptyMessage}</p>
             {showActionButton && (
-              <button className="bg-gray-700/30 hover:bg-gray-600/30 border border-gray-600/50 px-4 py-2 rounded-lg text-sm text-gray-300 transition-colors">
+              <Button variant="secondary" size="sm">
                 Suggest a new skill
-              </button>
+              </Button>
             )}
           </div>
         ) : (
@@ -133,18 +135,19 @@ const Profile: React.FC = () => {
               )}
             </div>
             {hasMore && (
-              <button
+              <Button
+                variant="secondary"
                 onClick={() => toggleTier(tierKey)}
-                className="w-full py-2 px-4 bg-gray-700/30 hover:bg-gray-600/30 border border-gray-600/50 rounded-lg text-sm text-gray-300 transition-colors"
+                className="w-full"
               >
                 {isExpanded
                   ? "View Less"
                   : `View More (${skills.length - 10} more)`}
-              </button>
+              </Button>
             )}
           </>
         )}
-      </div>
+      </Card>
     );
   };
 
@@ -234,15 +237,32 @@ const Profile: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-white">My Profile</h1>
-        <p className="text-gray-400 mt-2">
-          Review Seniority Timeline, current projects, and skills
-        </p>
-      </div>
+      <Card className="p-8">
+        <div className="flex flex-col md:flex-row items-center gap-6">
+          <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg border-4 border-gray-700/50">
+            <span className="text-white font-bold text-3xl">
+              {profileData.name.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div className="text-center md:text-left space-y-2">
+            <h1 className="text-3xl font-bold text-white">
+              {profileData.name}
+            </h1>
+            <p className="text-gray-400">{profileData.email}</p>
+            <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                {profileData.currentSeniorityLevel}
+              </span>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-600/30 text-gray-300 border border-gray-600/50">
+                {profileData.skills.validatedInventory.length} Validated Skills
+              </span>
+            </div>
+          </div>
+        </div>
+      </Card>
 
       {/* Seniority Timeline */}
-      <div className="backdrop-blur-xl bg-gray-800/40 rounded-2xl border border-gray-700/50 p-6">
+      <Card className="p-6">
         <h2 className="text-2xl font-semibold text-white mb-6">
           Seniority Timeline
         </h2>
@@ -274,11 +294,6 @@ const Profile: React.FC = () => {
                           {entry.end_date && ` - ${formatDate(entry.end_date)}`}
                           {!entry.end_date && " - Present"}
                         </p>
-                        {/* {entry.createdBy && (
-                              <p className="text-xs text-gray-500 mt-1">
-                                by {entry.createdBy.name}
-                              </p>
-                            )} */}
                       </div>
                     </div>
                     {index < seniorityToShow.length - 1 && (
@@ -289,19 +304,20 @@ const Profile: React.FC = () => {
               </div>
             </div>
             {profileData.seniorityHistory.length > 3 && (
-              <button
+              <Button
+                variant="secondary"
                 onClick={() => setShowFullHistory(!showFullHistory)}
-                className="w-full mt-4 py-2 px-4 bg-gray-700/30 hover:bg-gray-600/30 border border-gray-600/50 rounded-lg text-sm text-gray-300 transition-colors"
+                className="w-full mt-4"
               >
                 {showFullHistory ? "Show Less" : "Show Full History"}
-              </button>
+              </Button>
             )}
           </>
         )}
-      </div>
+      </Card>
 
       {/* Current Projects */}
-      <div className="backdrop-blur-xl bg-gray-800/40 rounded-2xl border border-gray-700/50 p-6">
+      <Card className="p-6">
         <h2 className="text-2xl font-semibold text-white mb-6">
           Current Projects
         </h2>
@@ -355,7 +371,7 @@ const Profile: React.FC = () => {
             ))}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Three-Tier Skills Display */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

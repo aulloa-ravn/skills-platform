@@ -2,6 +2,8 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@apollo/client/react";
 import { useAuth, Role } from "../contexts/AuthContext";
+import Button from "../components/Button";
+import Card from "../components/Card";
 import {
   GET_VALIDATION_INBOX_QUERY,
   type GetValidationInboxResponse,
@@ -246,7 +248,7 @@ const Inbox: React.FC = () => {
       <div className="flex flex-col md:flex-row gap-6">
         {/* Left sidebar */}
         <div className="w-full md:w-[30%] overflow-y-auto max-h-[calc(100vh-200px)]">
-          <div className="backdrop-blur-xl bg-gray-800/40 rounded-2xl border border-gray-700/50 p-6">
+          <Card className="p-6">
             <h2 className="text-xl font-semibold text-white mb-4">Projects</h2>
 
             {projects.length === 0 ? (
@@ -330,12 +332,12 @@ const Inbox: React.FC = () => {
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         </div>
 
         {/* Right content */}
         <div className="w-full md:w-[70%] overflow-y-auto max-h-[calc(100vh-200px)]">
-          <div className="backdrop-blur-xl bg-gray-800/40 rounded-2xl border border-gray-700/50 p-8">
+          <Card className="p-8">
             {!selectedEmployee || !currentSuggestion ? (
               <div className="text-center py-16">
                 <p className="text-gray-400 text-lg">
@@ -382,7 +384,9 @@ const Inbox: React.FC = () => {
                       <div>
                         <p className="text-sm text-gray-400 mb-1">Discipline</p>
                         <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getDisciplineColor(currentSuggestion.discipline)}`}
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getDisciplineColor(
+                            currentSuggestion.discipline
+                          )}`}
                         >
                           {currentSuggestion.discipline}
                         </span>
@@ -418,7 +422,9 @@ const Inbox: React.FC = () => {
                       <div>
                         <p className="text-sm text-gray-400 mb-1">Source</p>
                         <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getSourceColor(currentSuggestion.source)}`}
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getSourceColor(
+                            currentSuggestion.source
+                          )}`}
                         >
                           {currentSuggestion.source}
                         </span>
@@ -435,49 +441,49 @@ const Inbox: React.FC = () => {
 
                     {/* Suggestion navigation */}
                     <div className="flex gap-3 mt-6 pt-6 border-t border-gray-700/50">
-                      <button
+                      <Button
                         onClick={goToPreviousSuggestion}
                         disabled={currentSuggestionIndex === 0}
-                        className="flex-1 px-4 py-2 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-700/20 disabled:text-gray-500 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors border border-gray-600/50"
+                        className="flex-1"
                       >
                         Previous Suggestion
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={goToNextSuggestion}
                         disabled={
                           currentSuggestionIndex ===
                           selectedEmployee.employee.suggestions.length - 1
                         }
-                        className="flex-1 px-4 py-2 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-700/20 disabled:text-gray-500 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors border border-gray-600/50"
+                        className="flex-1"
                       >
                         Next Suggestion
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
 
                 {/* Cross-person navigation */}
                 <div className="flex gap-3 pt-6 border-t border-gray-700/50">
-                  <button
+                  <Button
                     onClick={goToPreviousPerson}
                     disabled={currentEmployeeIndex === 0}
-                    className="flex-1 px-4 py-2 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-700/20 disabled:text-gray-500 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors border border-gray-600/50"
+                    className="flex-1"
                   >
                     Previous Person
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={goToNextPerson}
                     disabled={
                       currentEmployeeIndex === flattenedEmployees.length - 1
                     }
-                    className="flex-1 px-4 py-2 bg-gray-700/50 hover:bg-gray-600/50 disabled:bg-gray-700/20 disabled:text-gray-500 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors border border-gray-600/50"
+                    className="flex-1"
                   >
                     Next Person
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
-          </div>
+          </Card>
         </div>
       </div>
     </div>
