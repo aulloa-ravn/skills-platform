@@ -28,3 +28,27 @@ export const REFRESH_TOKEN_MUTATION = gql`
     }
   }
 `;
+
+/**
+ * Resolve Suggestions mutation for batch processing validation decisions
+ * Allows tech leads and admins to approve, adjust, or reject skill suggestions
+ */
+export const RESOLVE_SUGGESTIONS_MUTATION = gql`
+  mutation ResolveSuggestions($input: ResolveSuggestionsInput!) {
+    resolveSuggestions(input: $input) {
+      success
+      processed {
+        suggestionId
+        action
+        employeeName
+        skillName
+        proficiencyLevel
+      }
+      errors {
+        suggestionId
+        message
+        code
+      }
+    }
+  }
+`;

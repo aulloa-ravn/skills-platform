@@ -30,7 +30,7 @@
 
 10. [x] Validation Inbox UI — Build master-detail interface with project-grouped sidebar, person review cards, and navigation between team members `L`
 
-11. [ ] Skill Resolution API — Implement mutation for batch processing validation decisions (Approve, Adjust Level, Reject) with proper database updates `M`
+11. [x] Skill Resolution API — Implement mutation for batch processing validation decisions (Approve, Adjust Level, Reject) with proper database updates `M`
 
 12. [ ] Skill Resolution UI — Add action buttons and proficiency adjustment controls to review cards with optimistic updates and success feedback `S`
 

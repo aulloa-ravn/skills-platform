@@ -10,38 +10,38 @@ Total Tasks: 4 major task groups with 18 sub-tasks
 #### Task Group 1: GraphQL Input/Output Type Definitions
 **Dependencies:** None
 
-- [ ] 1.0 Complete GraphQL type definitions for mutation
-  - [ ] 1.1 Write 2-8 focused tests for DTO validation
+- [x] 1.0 Complete GraphQL type definitions for mutation
+  - [x] 1.1 Write 2-8 focused tests for DTO validation
     - Limit to 2-8 highly focused tests maximum
     - Test only critical validation behaviors (e.g., ResolutionAction enum validation, adjustedProficiency requirement for ADJUST_LEVEL, invalid proficiency level rejection)
     - Skip exhaustive coverage of all validation combinations
-  - [ ] 1.2 Create ResolutionAction enum type
+  - [x] 1.2 Create ResolutionAction enum type
     - Values: APPROVE, ADJUST_LEVEL, REJECT
     - Register with GraphQL using registerEnumType
     - Follow pattern from: `/Users/anthonyulloa/Desktop/Projects/personal/skills-platform/apps/client/src/graphql/mutations.ts` SuggestionSource enum
-  - [ ] 1.3 Create DecisionInput DTO class
+  - [x] 1.3 Create DecisionInput DTO class
     - Fields: suggestionId (String!), action (ResolutionAction!), adjustedProficiency (String, optional)
     - Use @InputType() and @Field() decorators
     - Apply class-validator decorators: @IsNotEmpty, @IsString, @IsEnum
     - Follow pattern from: login.input.ts
-  - [ ] 1.4 Create ResolveSuggestionsInput DTO class
+  - [x] 1.4 Create ResolveSuggestionsInput DTO class
     - Field: decisions (DecisionInput[] array)
     - Use @InputType() with @Field(() => [DecisionInput]) decorator
     - Apply @IsArray and @ValidateNested decorators
     - Follow pattern from: login.input.ts
-  - [ ] 1.5 Create ResolvedSuggestion response type
+  - [x] 1.5 Create ResolvedSuggestion response type
     - Fields: suggestionId (String!), action (ResolutionAction!), employeeName (String!), skillName (String!), proficiencyLevel (String!)
     - Use @ObjectType() and @Field() decorators
     - Follow pattern from: inbox.response.ts
-  - [ ] 1.6 Create ResolutionError response type
+  - [x] 1.6 Create ResolutionError response type
     - Fields: suggestionId (String!), message (String!), code (String! - error type identifier)
     - Use @ObjectType() and @Field() decorators
     - Error codes: NOT_FOUND, ALREADY_PROCESSED, MISSING_PROFICIENCY, INVALID_PROFICIENCY, UNAUTHORIZED, VALIDATION_FAILED
-  - [ ] 1.7 Create ResolveSuggestionsResponse type
+  - [x] 1.7 Create ResolveSuggestionsResponse type
     - Fields: success (Boolean!), processed (ResolvedSuggestion[] array), errors (ResolutionError[] array)
     - Use @ObjectType() with @Field() decorators for all fields
     - Follow pattern from: login.response.ts and inbox.response.ts
-  - [ ] 1.8 Ensure DTO layer tests pass
+  - [x] 1.8 Ensure DTO layer tests pass
     - Run ONLY the 2-8 tests written in 1.1
     - Verify enum registration works correctly
     - Verify class-validator decorators function properly
@@ -59,47 +59,47 @@ Total Tasks: 4 major task groups with 18 sub-tasks
 #### Task Group 2: Resolution Service Implementation
 **Dependencies:** Task Group 1
 
-- [ ] 2.0 Complete resolution service logic
-  - [ ] 2.1 Write 2-8 focused tests for service layer
+- [x] 2.0 Complete resolution service logic
+  - [x] 2.1 Write 2-8 focused tests for service layer
     - Limit to 2-8 highly focused tests maximum
     - Test only critical service behaviors (e.g., APPROVE action creates EmployeeSkill, REJECT action updates status only, authorization check for TECH_LEAD, batch processing with partial failures)
     - Skip exhaustive testing of all edge cases and combinations
-  - [ ] 2.2 Create ResolutionService class
+  - [x] 2.2 Create ResolutionService class
     - Inject PrismaService in constructor
     - Create resolveSuggestions method accepting (userId: string, role: UserRole, input: ResolveSuggestionsInput)
     - Return Promise<ResolveSuggestionsResponse>
     - Follow service pattern from: InboxService
-  - [ ] 2.3 Implement authorization check method
+  - [x] 2.3 Implement authorization check method
     - Method: checkSuggestionAuthorization(userId: string, role: UserRole, suggestionId: string)
     - ADMIN role: return true immediately
     - TECH_LEAD role: query Suggestion with nested includes to verify suggestion's employee has assignment where project.techLeadId = userId
     - Throw ForbiddenException with suggestionId in error if unauthorized
     - Follow pattern from: InboxService.buildProjectsQuery role-based filtering
-  - [ ] 2.4 Implement validation helper methods
+  - [x] 2.4 Implement validation helper methods
     - Method: validateSuggestionExists(suggestionId: string) - verify suggestion exists and status is PENDING
     - Method: validateProficiencyLevel(proficiency: string) - verify matches ProficiencyLevel enum
     - Method: validateDecisionInput(decision: DecisionInput) - verify adjustedProficiency present for ADJUST_LEVEL
     - Return validation errors with appropriate error codes (NOT_FOUND, ALREADY_PROCESSED, INVALID_PROFICIENCY, MISSING_PROFICIENCY)
-  - [ ] 2.5 Implement APPROVE action handler
+  - [x] 2.5 Implement APPROVE action handler
     - Use Prisma transaction: prisma.$transaction
     - Update Suggestion: set status to APPROVED, set resolvedAt to current timestamp
     - Create EmployeeSkill: profileId from suggestion, skillId from suggestion, proficiencyLevel = suggestion.suggestedProficiency
     - Set validatedById = userId, validatedAt = current timestamp
     - Return ResolvedSuggestion object with employee name, skill name, proficiency level
     - Use try-catch to handle database errors
-  - [ ] 2.6 Implement ADJUST_LEVEL action handler
+  - [x] 2.6 Implement ADJUST_LEVEL action handler
     - Same flow as APPROVE but use adjustedProficiency from input
     - Update Suggestion: set status to APPROVED (treat same as approval), set resolvedAt
     - Create EmployeeSkill with adjusted proficiency value
     - Validate adjustedProficiency against ProficiencyLevel enum before processing
     - Return ResolvedSuggestion object with adjusted proficiency
-  - [ ] 2.7 Implement REJECT action handler
+  - [x] 2.7 Implement REJECT action handler
     - Single Prisma update operation (no transaction needed)
     - Update Suggestion: set status to REJECTED, set resolvedAt to current timestamp
     - Do NOT create EmployeeSkill record
     - Do NOT delete Suggestion record (maintain audit trail)
     - Return ResolvedSuggestion object indicating rejection
-  - [ ] 2.8 Implement batch processing orchestration
+  - [x] 2.8 Implement batch processing orchestration
     - Track processed suggestionIds in Set to detect duplicates
     - Iterate through decisions array
     - For each decision: validate, authorize, process action
@@ -108,7 +108,7 @@ Total Tasks: 4 major task groups with 18 sub-tasks
     - Collect failures in errors array with suggestionId, message, code
     - Return success = true only if ALL processed successfully, false if any failures
     - Skip duplicate suggestionIds silently (process only first occurrence)
-  - [ ] 2.9 Ensure service layer tests pass
+  - [x] 2.9 Ensure service layer tests pass
     - Run ONLY the 2-8 tests written in 2.1
     - Verify critical action handlers work correctly
     - Verify authorization logic functions properly
@@ -129,16 +129,16 @@ Total Tasks: 4 major task groups with 18 sub-tasks
 #### Task Group 3: Mutation Resolver Implementation
 **Dependencies:** Task Groups 1, 2
 
-- [ ] 3.0 Complete GraphQL resolver
-  - [ ] 3.1 Write 2-8 focused tests for resolver layer
+- [x] 3.0 Complete GraphQL resolver
+  - [x] 3.1 Write 2-8 focused tests for resolver layer
     - Limit to 2-8 highly focused tests maximum
     - Test only critical resolver behaviors (e.g., authentication guard enforcement, CurrentUser injection, successful mutation response, authorization error handling)
     - Skip exhaustive integration testing (covered in Task Group 4)
-  - [ ] 3.2 Create ResolutionResolver class
+  - [x] 3.2 Create ResolutionResolver class
     - Inject ResolutionService in constructor
     - Use @Resolver() decorator
     - Follow resolver pattern from: auth.resolver.ts
-  - [ ] 3.3 Implement resolveSuggestions mutation method
+  - [x] 3.3 Implement resolveSuggestions mutation method
     - Method signature: resolveSuggestions(@Args('input') input: ResolveSuggestionsInput, @CurrentUser() user)
     - Return type: Promise<ResolveSuggestionsResponse>
     - Use @Mutation(() => ResolveSuggestionsResponse) decorator
@@ -146,17 +146,17 @@ Total Tasks: 4 major task groups with 18 sub-tasks
     - Extract user.id and user.role from CurrentUser decorator
     - Call resolutionService.resolveSuggestions(user.id, user.role, input)
     - Return service response directly
-  - [ ] 3.4 Add error handling for resolver
+  - [x] 3.4 Add error handling for resolver
     - Catch and transform ForbiddenException to GraphQL error
     - Catch and transform ValidationException to GraphQL error
     - Allow service-level errors to propagate with proper formatting
     - Follow error handling pattern from existing resolvers
-  - [ ] 3.5 Register resolver in module
+  - [x] 3.5 Register resolver in module
     - Add ResolutionResolver to providers array in appropriate module
     - Add ResolutionService to providers array
     - Ensure PrismaService is available for injection
     - Follow module registration pattern from existing features
-  - [ ] 3.6 Ensure resolver layer tests pass
+  - [x] 3.6 Ensure resolver layer tests pass
     - Run ONLY the 2-8 tests written in 3.1
     - Verify mutation can be invoked with proper authentication
     - Verify CurrentUser decorator provides user data
@@ -175,20 +175,20 @@ Total Tasks: 4 major task groups with 18 sub-tasks
 #### Task Group 4: Frontend Mutation and Comprehensive Testing
 **Dependencies:** Task Groups 1, 2, 3
 
-- [ ] 4.0 Complete frontend mutation and testing
-  - [ ] 4.1 Create frontend mutation definition
+- [x] 4.0 Complete frontend mutation and testing
+  - [x] 4.1 Create frontend mutation definition
     - File: `/Users/anthonyulloa/Desktop/Projects/personal/skills-platform/apps/client/src/graphql/mutations.ts`
     - Export RESOLVE_SUGGESTIONS_MUTATION constant
     - Use gql template literal: mutation ResolveSuggestions($input: ResolveSuggestionsInput!)
     - Request fields: success, processed (suggestionId, action, employeeName, skillName, proficiencyLevel), errors (suggestionId, message, code)
     - Follow pattern from: LOGIN_MUTATION and REFRESH_TOKEN_MUTATION
-  - [ ] 4.2 Review existing tests and identify critical gaps
+  - [x] 4.2 Review existing tests and identify critical gaps
     - Review the 2-8 tests written by dto-engineer (Task 1.1)
     - Review the 2-8 tests written by service-engineer (Task 2.1)
     - Review the 2-8 tests written by resolver-engineer (Task 3.1)
     - Total existing tests: approximately 6-24 tests
     - Identify critical integration gaps: end-to-end mutation flow, authorization edge cases, transaction rollback scenarios
-  - [ ] 4.3 Write up to 10 additional integration tests maximum
+  - [x] 4.3 Write up to 10 additional integration tests maximum
     - End-to-end test: APPROVE action successfully creates EmployeeSkill
     - End-to-end test: ADJUST_LEVEL action uses adjusted proficiency
     - End-to-end test: REJECT action does not create EmployeeSkill
@@ -200,7 +200,7 @@ Total Tasks: 4 major task groups with 18 sub-tasks
     - Edge case test: Missing adjustedProficiency for ADJUST_LEVEL returns error
     - Edge case test: Invalid proficiency level returns INVALID_PROFICIENCY error
     - Maximum 10 tests - focus on critical workflows and authorization scenarios
-  - [ ] 4.4 Run feature-specific test suite
+  - [x] 4.4 Run feature-specific test suite
     - Run ONLY tests related to Skill Resolution API feature
     - Expected total: approximately 16-34 tests maximum (existing + new integration tests)
     - Verify all critical workflows pass: APPROVE, ADJUST_LEVEL, REJECT

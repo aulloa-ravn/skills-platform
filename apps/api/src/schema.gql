@@ -14,6 +14,12 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+input DecisionInput {
+  action: ResolutionAction!
+  adjustedProficiency: String
+  suggestionId: String!
+}
+
 """Skill discipline category"""
 enum Discipline {
   ANDROID
@@ -63,6 +69,7 @@ type LoginResponse {
 type Mutation {
   login(input: LoginInput!): LoginResponse!
   refreshToken(input: RefreshTokenInput!): RefreshTokenResponse!
+  resolveSuggestions(input: ResolveSuggestionsInput!): ResolveSuggestionsResponse!
 }
 
 type PendingSkillResponse {
@@ -127,6 +134,37 @@ input RefreshTokenInput {
 
 type RefreshTokenResponse {
   accessToken: String!
+}
+
+"""Action to take on a skill suggestion"""
+enum ResolutionAction {
+  ADJUST_LEVEL
+  APPROVE
+  REJECT
+}
+
+type ResolutionError {
+  code: String!
+  message: String!
+  suggestionId: String!
+}
+
+input ResolveSuggestionsInput {
+  decisions: [DecisionInput!]!
+}
+
+type ResolveSuggestionsResponse {
+  errors: [ResolutionError!]!
+  processed: [ResolvedSuggestion!]!
+  success: Boolean!
+}
+
+type ResolvedSuggestion {
+  action: ResolutionAction!
+  employeeName: String!
+  proficiencyLevel: String!
+  skillName: String!
+  suggestionId: String!
 }
 
 """User role in the system"""
