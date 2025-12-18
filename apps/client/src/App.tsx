@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { apolloClient } from "./apollo/client";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import Inbox from "./pages/Inbox";
 import LogoutButton from "./components/LogoutButton";
 import "./App.css";
 
@@ -19,7 +20,16 @@ import "./App.css";
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isInitializing } = useAuth();
+
+  // Wait for auth initialization before redirecting
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+        <div className="text-white text-lg">Loading...</div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -160,6 +170,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/inbox"
+              element={
+                <ProtectedRoute>
+                  <Inbox />
                 </ProtectedRoute>
               }
             />

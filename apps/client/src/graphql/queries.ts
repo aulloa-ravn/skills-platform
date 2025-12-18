@@ -69,6 +69,43 @@ export interface GetProfileVariables {
 }
 
 /**
+ * TypeScript interfaces for validation inbox query response types
+ */
+
+export interface PendingSuggestion {
+  id: string;
+  skillName: string;
+  discipline: string;
+  suggestedProficiency: string;
+  source: string;
+  createdAt: string;
+  currentProficiency: string | null;
+}
+
+export interface EmployeeInbox {
+  employeeId: string;
+  employeeName: string;
+  employeeEmail: string;
+  pendingSuggestionsCount: number;
+  suggestions: PendingSuggestion[];
+}
+
+export interface ProjectInbox {
+  projectId: string;
+  projectName: string;
+  pendingSuggestionsCount: number;
+  employees: EmployeeInbox[];
+}
+
+export interface InboxResponse {
+  projects: ProjectInbox[];
+}
+
+export interface GetValidationInboxResponse {
+  getValidationInbox: InboxResponse;
+}
+
+/**
  * GET_PROFILE_QUERY for fetching comprehensive employee profile data
  *
  * Fetches:
@@ -130,6 +167,41 @@ export const GET_PROFILE_QUERY = gql`
           id
           name
           email
+        }
+      }
+    }
+  }
+`;
+
+/**
+ * GET_VALIDATION_INBOX_QUERY for fetching pending skill suggestions
+ *
+ * Fetches hierarchical data:
+ * - Projects containing team members with pending suggestions
+ * - Filtered by role on backend (TECH_LEAD sees their projects, ADMIN sees all)
+ * - Organized as Projects → Employees → Pending Suggestions
+ */
+export const GET_VALIDATION_INBOX_QUERY = gql`
+  query GetValidationInbox {
+    getValidationInbox {
+      projects {
+        projectId
+        projectName
+        pendingSuggestionsCount
+        employees {
+          employeeId
+          employeeName
+          employeeEmail
+          pendingSuggestionsCount
+          suggestions {
+            id
+            skillName
+            discipline
+            suggestedProficiency
+            source
+            createdAt
+            currentProficiency
+          }
         }
       }
     }

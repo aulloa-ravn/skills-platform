@@ -39,6 +39,7 @@ vi.mock('./contexts/AuthContext', async () => {
       logout: vi.fn(),
       loading: false,
       error: null,
+      isInitializing: false,
     }),
   };
 });

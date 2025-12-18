@@ -38,6 +38,7 @@ interface AuthContextValue {
   logout: () => void;
   loading: boolean;
   error: string | null;
+  isInitializing: boolean;
 }
 
 /**
@@ -72,19 +73,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isInitializing, setIsInitializing] = useState<boolean>(true);
 
   const [loginMutation, { loading }] = useMutation<
     LoginResponse,
     LoginVariables
   >(LOGIN_MUTATION);
 
-  // Check for existing tokens on mount
+  // Check for existing tokens and profile on mount
   useEffect(() => {
     const checkAuth = () => {
       const hasAuth = hasTokens();
-      setIsAuthenticated(hasAuth);
-      // Note: We don't have profile info until next login
-      // In production, you might want to fetch current user on mount
+      if (hasAuth) {
+        setIsAuthenticated(true);
+
+        // Try to restore profile from localStorage
+        const savedProfile = localStorage.getItem("userProfile");
+        if (savedProfile) {
+          try {
+            setProfile(JSON.parse(savedProfile));
+          } catch {
+            // If profile is corrupted, clear it
+            localStorage.removeItem("userProfile");
+          }
+        }
+      } else {
+        setIsAuthenticated(false);
+        setProfile(null);
+      }
+
+      // Mark initialization as complete
+      setIsInitializing(false);
     };
 
     checkAuth();
@@ -113,6 +132,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         // Store tokens in localStorage
         setTokens(accessToken, refreshToken);
 
+        // Store profile in localStorage for persistence
+        localStorage.setItem("userProfile", JSON.stringify(userProfile));
+
         // Update authentication state
         setIsAuthenticated(true);
         setProfile(userProfile);
@@ -131,6 +153,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
    */
   const logout = (): void => {
     clearTokens();
+    localStorage.removeItem("userProfile");
     setIsAuthenticated(false);
     setProfile(null);
     setError(null);
@@ -143,6 +166,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     logout,
     loading,
     error,
+    isInitializing,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

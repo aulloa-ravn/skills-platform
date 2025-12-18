@@ -28,7 +28,7 @@
 
 9. [x] Validation Inbox API — Create GraphQL queries returning hierarchical inbox data (projects -> members -> suggestions) filtered by logged-in Tech Lead `M`
 
-10. [ ] Validation Inbox UI — Build master-detail interface with project-grouped sidebar, person review cards, and navigation between team members `L`
+10. [x] Validation Inbox UI — Build master-detail interface with project-grouped sidebar, person review cards, and navigation between team members `L`
 
 11. [ ] Skill Resolution API — Implement mutation for batch processing validation decisions (Approve, Adjust Level, Reject) with proper database updates `M`
 
