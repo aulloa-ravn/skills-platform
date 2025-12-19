@@ -1,6 +1,7 @@
 import { RouterProvider } from "react-router-dom";
 import { ApolloProvider } from "@apollo/client/react";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ToastNotificationProvider } from "./contexts/ToastNotificationContext";
 import { apolloClient } from "./apollo/client";
 import { router } from "./routing/routes";
 import "./App.css";
@@ -12,7 +13,9 @@ function App() {
   return (
     <ApolloProvider client={apolloClient}>
       <AuthProvider>
-        <RouterProvider router={router} />
+        <ToastNotificationProvider>
+          <RouterProvider router={router} />
+        </ToastNotificationProvider>
       </AuthProvider>
     </ApolloProvider>
   );
