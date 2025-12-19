@@ -2,6 +2,11 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input CreateSkillInput {
+  discipline: Discipline!
+  name: String!
+}
+
 type CurrentAssignmentResponse {
   projectName: String!
   role: String!
@@ -67,9 +72,13 @@ type LoginResponse {
 }
 
 type Mutation {
+  createSkill(input: CreateSkillInput!): Skill!
+  disableSkill(id: String!): Skill!
+  enableSkill(id: String!): Skill!
   login(input: LoginInput!): LoginResponse!
   refreshToken(input: RefreshTokenInput!): RefreshTokenResponse!
   resolveSuggestions(input: ResolveSuggestionsInput!): ResolveSuggestionsResponse!
+  updateSkill(input: UpdateSkillInput!): Skill!
 }
 
 type PendingSkillResponse {
@@ -181,6 +190,15 @@ type SeniorityHistoryResponse {
   start_date: DateTime!
 }
 
+type Skill {
+  createdAt: DateTime!
+  discipline: Discipline!
+  id: String!
+  isActive: Boolean!
+  name: String!
+  updatedAt: DateTime!
+}
+
 type SkillsTiersResponse {
   coreStack: [ValidatedSkillResponse!]!
   pending: [PendingSkillResponse!]!
@@ -196,6 +214,12 @@ enum SuggestionSource {
 type TechLeadInfo {
   email: String
   id: String
+  name: String
+}
+
+input UpdateSkillInput {
+  discipline: Discipline
+  id: String!
   name: String
 }
 
