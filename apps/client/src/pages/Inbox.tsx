@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@apollo/client/react";
+import { useQuery, useMutation } from "@apollo/client/react";
 import { useAuth, Role } from "../contexts/AuthContext";
+import { useToast } from "../contexts/ToastNotificationContext";
 import Button from "../components/Button";
 import Card from "../components/Card";
+import RadioGroup from "../components/RadioGroup";
 import {
   GET_VALIDATION_INBOX_QUERY,
   type GetValidationInboxResponse,
@@ -11,6 +13,7 @@ import {
   type EmployeeInbox,
   type PendingSuggestion,
 } from "../graphql/queries";
+import { RESOLVE_SUGGESTIONS_MUTATION } from "../graphql/mutations";
 
 /**
  * Validation Inbox page component for TECH_LEAD and ADMIN roles
@@ -19,10 +22,18 @@ import {
 const Inbox: React.FC = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   // GraphQL query for inbox data
   const { loading, error, data, refetch } =
     useQuery<GetValidationInboxResponse>(GET_VALIDATION_INBOX_QUERY);
+
+  // GraphQL mutation for resolving suggestions
+  const [resolveSuggestions] = useMutation(RESOLVE_SUGGESTIONS_MUTATION, {
+    onError: (error) => {
+      console.error("Mutation error:", error);
+    },
+  });
 
   // Client-side state management
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(
@@ -36,6 +47,17 @@ const Inbox: React.FC = () => {
   );
   const [currentSuggestionIndex, setCurrentSuggestionIndex] =
     useState<number>(0);
+  const [loadingSuggestionId, setLoadingSuggestionId] = useState<string | null>(
+    null
+  );
+
+  // State for proficiency adjustment UI
+  const [adjustingSuggestionId, setAdjustingSuggestionId] = useState<string | null>(
+    null
+  );
+  const [adjustedProficiency, setAdjustedProficiency] = useState<string | null>(
+    null
+  );
 
   // Redirect EMPLOYEE role to home page
   useEffect(() => {
@@ -118,6 +140,9 @@ const Inbox: React.FC = () => {
     setSelectedProjectId(projectId);
     setSelectedEmployeeId(employeeId);
     setCurrentSuggestionIndex(0);
+    // Reset adjustment state when changing employees
+    setAdjustingSuggestionId(null);
+    setAdjustedProficiency(null);
   };
 
   const goToNextSuggestion = () => {
@@ -129,12 +154,18 @@ const Inbox: React.FC = () => {
       currentSuggestionIndex < selectedEmployee.employee.suggestions.length - 1
     ) {
       setCurrentSuggestionIndex(currentSuggestionIndex + 1);
+      // Reset adjustment state when changing suggestions
+      setAdjustingSuggestionId(null);
+      setAdjustedProficiency(null);
     }
   };
 
   const goToPreviousSuggestion = () => {
     if (currentSuggestionIndex > 0) {
       setCurrentSuggestionIndex(currentSuggestionIndex - 1);
+      // Reset adjustment state when changing suggestions
+      setAdjustingSuggestionId(null);
+      setAdjustedProficiency(null);
     }
   };
 
@@ -157,6 +188,461 @@ const Inbox: React.FC = () => {
       selectEmployee(prev.projectId, prev.employee.employeeId);
     }
   };
+
+  // Navigation helper after resolving a suggestion
+  const handleNavigationAfterResolution = () => {
+    if (!data?.getValidationInbox.projects || !selectedEmployeeId || !selectedProjectId) {
+      return;
+    }
+
+    // Find current employee in current project
+    const currentProject = data.getValidationInbox.projects.find(
+      (p) => p.projectId === selectedProjectId
+    );
+
+    if (!currentProject) return;
+
+    // Find current employee index in the project
+    const currentEmployeeIndex = currentProject.employees.findIndex(
+      (e) => e.employeeId === selectedEmployeeId
+    );
+
+    // Try to find next employee in same project
+    if (currentEmployeeIndex < currentProject.employees.length - 1) {
+      const nextEmployee = currentProject.employees[currentEmployeeIndex + 1];
+      selectEmployee(selectedProjectId, nextEmployee.employeeId);
+      return;
+    }
+
+    // Try to find next project
+    const currentProjectIndex = data.getValidationInbox.projects.findIndex(
+      (p) => p.projectId === selectedProjectId
+    );
+
+    if (currentProjectIndex < data.getValidationInbox.projects.length - 1) {
+      const nextProject = data.getValidationInbox.projects[currentProjectIndex + 1];
+      if (nextProject.employees.length > 0) {
+        selectEmployee(nextProject.projectId, nextProject.employees[0].employeeId);
+        return;
+      }
+    }
+
+    // No more suggestions, clear selection
+    setSelectedProjectId(null);
+    setSelectedEmployeeId(null);
+    setCurrentSuggestionIndex(0);
+  };
+
+  // Action handlers for Approve
+  const handleApprove = async (suggestionId: string, skillName: string, employeeName: string) => {
+    setLoadingSuggestionId(suggestionId);
+
+    try {
+      const result = await resolveSuggestions({
+        variables: {
+          input: {
+            decisions: [
+              {
+                suggestionId,
+                action: "APPROVE",
+              },
+            ],
+          },
+        },
+        optimisticResponse: {
+          resolveSuggestions: {
+            success: true,
+            processed: [
+              {
+                suggestionId,
+                action: "APPROVE",
+                employeeName,
+                skillName,
+                proficiencyLevel: "ADVANCED",
+                __typename: "ProcessedSuggestion",
+              },
+            ],
+            errors: [],
+            __typename: "ResolveSuggestionsResponse",
+          },
+        },
+        update: (cache) => {
+          // Read current inbox data
+          const existingData = cache.readQuery<GetValidationInboxResponse>({
+            query: GET_VALIDATION_INBOX_QUERY,
+          });
+
+          if (!existingData) return;
+
+          // Create updated projects array
+          const updatedProjects = existingData.getValidationInbox.projects
+            .map((project) => {
+              const updatedEmployees = project.employees
+                .map((employee) => {
+                  // Filter out the resolved suggestion
+                  const updatedSuggestions = employee.suggestions.filter(
+                    (s) => s.id !== suggestionId
+                  );
+
+                  // If no more suggestions for this employee, remove them
+                  if (updatedSuggestions.length === 0) {
+                    return null;
+                  }
+
+                  return {
+                    ...employee,
+                    suggestions: updatedSuggestions,
+                    pendingSuggestionsCount: updatedSuggestions.length,
+                  };
+                })
+                .filter((e) => e !== null);
+
+              // If no more employees in this project, remove it
+              if (updatedEmployees.length === 0) {
+                return null;
+              }
+
+              return {
+                ...project,
+                employees: updatedEmployees,
+                pendingSuggestionsCount: updatedEmployees.reduce(
+                  (sum, emp) => sum + emp.pendingSuggestionsCount,
+                  0
+                ),
+              };
+            })
+            .filter((p) => p !== null);
+
+          // Write updated data back to cache
+          cache.writeQuery({
+            query: GET_VALIDATION_INBOX_QUERY,
+            data: {
+              getValidationInbox: {
+                ...existingData.getValidationInbox,
+                projects: updatedProjects,
+              },
+            },
+          });
+        },
+      });
+
+      setLoadingSuggestionId(null);
+
+      // Show success toast
+      if (result.data?.resolveSuggestions.success) {
+        addToast({
+          title: "Success",
+          message: `Successfully approved ${skillName} for ${employeeName}`,
+          variant: "success",
+        });
+
+        // Navigate to next suggestion/employee/project
+        handleNavigationAfterResolution();
+      }
+
+      // Handle errors from API
+      if (result.data?.resolveSuggestions.errors && result.data.resolveSuggestions.errors.length > 0) {
+        const errorMessage = result.data.resolveSuggestions.errors[0].message;
+        addToast({
+          title: "Error",
+          message: errorMessage || "Failed to resolve suggestion. Please try again.",
+          variant: "error",
+        });
+      }
+    } catch (err: any) {
+      setLoadingSuggestionId(null);
+      addToast({
+        title: "Error",
+        message: err.message || "Failed to resolve suggestion. Please try again.",
+        variant: "error",
+      });
+    }
+  };
+
+  // Action handlers for Reject
+  const handleReject = async (suggestionId: string, skillName: string, employeeName: string) => {
+    setLoadingSuggestionId(suggestionId);
+
+    try {
+      const result = await resolveSuggestions({
+        variables: {
+          input: {
+            decisions: [
+              {
+                suggestionId,
+                action: "REJECT",
+              },
+            ],
+          },
+        },
+        optimisticResponse: {
+          resolveSuggestions: {
+            success: true,
+            processed: [
+              {
+                suggestionId,
+                action: "REJECT",
+                employeeName,
+                skillName,
+                proficiencyLevel: null,
+                __typename: "ProcessedSuggestion",
+              },
+            ],
+            errors: [],
+            __typename: "ResolveSuggestionsResponse",
+          },
+        },
+        update: (cache) => {
+          // Read current inbox data
+          const existingData = cache.readQuery<GetValidationInboxResponse>({
+            query: GET_VALIDATION_INBOX_QUERY,
+          });
+
+          if (!existingData) return;
+
+          // Create updated projects array
+          const updatedProjects = existingData.getValidationInbox.projects
+            .map((project) => {
+              const updatedEmployees = project.employees
+                .map((employee) => {
+                  // Filter out the resolved suggestion
+                  const updatedSuggestions = employee.suggestions.filter(
+                    (s) => s.id !== suggestionId
+                  );
+
+                  // If no more suggestions for this employee, remove them
+                  if (updatedSuggestions.length === 0) {
+                    return null;
+                  }
+
+                  return {
+                    ...employee,
+                    suggestions: updatedSuggestions,
+                    pendingSuggestionsCount: updatedSuggestions.length,
+                  };
+                })
+                .filter((e) => e !== null);
+
+              // If no more employees in this project, remove it
+              if (updatedEmployees.length === 0) {
+                return null;
+              }
+
+              return {
+                ...project,
+                employees: updatedEmployees,
+                pendingSuggestionsCount: updatedEmployees.reduce(
+                  (sum, emp) => sum + emp.pendingSuggestionsCount,
+                  0
+                ),
+              };
+            })
+            .filter((p) => p !== null);
+
+          // Write updated data back to cache
+          cache.writeQuery({
+            query: GET_VALIDATION_INBOX_QUERY,
+            data: {
+              getValidationInbox: {
+                ...existingData.getValidationInbox,
+                projects: updatedProjects,
+              },
+            },
+          });
+        },
+      });
+
+      setLoadingSuggestionId(null);
+
+      // Show success toast
+      if (result.data?.resolveSuggestions.success) {
+        addToast({
+          title: "Success",
+          message: `Rejected ${skillName} for ${employeeName}`,
+          variant: "success",
+        });
+
+        // Navigate to next suggestion/employee/project
+        handleNavigationAfterResolution();
+      }
+
+      // Handle errors from API
+      if (result.data?.resolveSuggestions.errors && result.data.resolveSuggestions.errors.length > 0) {
+        const errorMessage = result.data.resolveSuggestions.errors[0].message;
+        addToast({
+          title: "Error",
+          message: errorMessage || "Failed to resolve suggestion. Please try again.",
+          variant: "error",
+        });
+      }
+    } catch (err: any) {
+      setLoadingSuggestionId(null);
+      addToast({
+        title: "Error",
+        message: err.message || "Failed to resolve suggestion. Please try again.",
+        variant: "error",
+      });
+    }
+  };
+
+  // Action handler for Adjust Level button click
+  const handleAdjustLevel = (suggestionId: string, suggestedProficiency: string) => {
+    setAdjustingSuggestionId(suggestionId);
+    setAdjustedProficiency(suggestedProficiency);
+  };
+
+  // Action handler for Cancel adjustment
+  const handleCancelAdjustment = () => {
+    setAdjustingSuggestionId(null);
+    setAdjustedProficiency(null);
+  };
+
+  // Action handler for Confirm adjustment
+  const handleConfirmAdjustment = async (suggestionId: string, skillName: string, employeeName: string) => {
+    if (!adjustedProficiency) return;
+
+    setLoadingSuggestionId(suggestionId);
+
+    try {
+      const result = await resolveSuggestions({
+        variables: {
+          input: {
+            decisions: [
+              {
+                suggestionId,
+                action: "ADJUST_LEVEL",
+                adjustedProficiency: adjustedProficiency,
+              },
+            ],
+          },
+        },
+        optimisticResponse: {
+          resolveSuggestions: {
+            success: true,
+            processed: [
+              {
+                suggestionId,
+                action: "ADJUST_LEVEL",
+                employeeName,
+                skillName,
+                proficiencyLevel: adjustedProficiency,
+                __typename: "ProcessedSuggestion",
+              },
+            ],
+            errors: [],
+            __typename: "ResolveSuggestionsResponse",
+          },
+        },
+        update: (cache) => {
+          // Read current inbox data
+          const existingData = cache.readQuery<GetValidationInboxResponse>({
+            query: GET_VALIDATION_INBOX_QUERY,
+          });
+
+          if (!existingData) return;
+
+          // Create updated projects array
+          const updatedProjects = existingData.getValidationInbox.projects
+            .map((project) => {
+              const updatedEmployees = project.employees
+                .map((employee) => {
+                  // Filter out the resolved suggestion
+                  const updatedSuggestions = employee.suggestions.filter(
+                    (s) => s.id !== suggestionId
+                  );
+
+                  // If no more suggestions for this employee, remove them
+                  if (updatedSuggestions.length === 0) {
+                    return null;
+                  }
+
+                  return {
+                    ...employee,
+                    suggestions: updatedSuggestions,
+                    pendingSuggestionsCount: updatedSuggestions.length,
+                  };
+                })
+                .filter((e) => e !== null);
+
+              // If no more employees in this project, remove it
+              if (updatedEmployees.length === 0) {
+                return null;
+              }
+
+              return {
+                ...project,
+                employees: updatedEmployees,
+                pendingSuggestionsCount: updatedEmployees.reduce(
+                  (sum, emp) => sum + emp.pendingSuggestionsCount,
+                  0
+                ),
+              };
+            })
+            .filter((p) => p !== null);
+
+          // Write updated data back to cache
+          cache.writeQuery({
+            query: GET_VALIDATION_INBOX_QUERY,
+            data: {
+              getValidationInbox: {
+                ...existingData.getValidationInbox,
+                projects: updatedProjects,
+              },
+            },
+          });
+        },
+      });
+
+      setLoadingSuggestionId(null);
+      setAdjustingSuggestionId(null);
+      setAdjustedProficiency(null);
+
+      // Show success toast
+      if (result.data?.resolveSuggestions.success) {
+        const processedItem = result.data.resolveSuggestions.processed[0];
+        const newLevel = processedItem?.proficiencyLevel || adjustedProficiency;
+
+        // Format proficiency level for display (capitalize first letter, lowercase rest)
+        const formattedLevel = newLevel.charAt(0).toUpperCase() + newLevel.slice(1).toLowerCase();
+
+        addToast({
+          title: "Success",
+          message: `Adjusted ${skillName} to ${formattedLevel} for ${employeeName}`,
+          variant: "success",
+        });
+
+        // Navigate to next suggestion/employee/project
+        handleNavigationAfterResolution();
+      }
+
+      // Handle errors from API
+      if (result.data?.resolveSuggestions.errors && result.data.resolveSuggestions.errors.length > 0) {
+        const errorMessage = result.data.resolveSuggestions.errors[0].message;
+        addToast({
+          title: "Error",
+          message: errorMessage || "Failed to resolve suggestion. Please try again.",
+          variant: "error",
+        });
+      }
+    } catch (err: any) {
+      setLoadingSuggestionId(null);
+      setAdjustingSuggestionId(null);
+      setAdjustedProficiency(null);
+      addToast({
+        title: "Error",
+        message: err.message || "Failed to resolve suggestion. Please try again.",
+        variant: "error",
+      });
+    }
+  };
+
+  // Proficiency level options for RadioGroup
+  const proficiencyOptions = [
+    { value: "NOVICE", label: "Novice" },
+    { value: "INTERMEDIATE", label: "Intermediate" },
+    { value: "ADVANCED", label: "Advanced" },
+    { value: "EXPERT", label: "Expert" },
+  ];
 
   // Don't render for EMPLOYEE users
   if (profile?.role === Role.EMPLOYEE) {
@@ -252,9 +738,11 @@ const Inbox: React.FC = () => {
             <h2 className="text-xl font-semibold text-white mb-4">Projects</h2>
 
             {projects.length === 0 ? (
-              <p className="text-gray-400 text-center py-8">
-                No pending validations at this time
-              </p>
+              <div className="text-center py-16">
+                <p className="text-gray-400 text-lg">
+                  All suggestions resolved! Great work.
+                </p>
+              </div>
             ) : (
               <div className="space-y-3">
                 {projects.map((project) => (
@@ -341,7 +829,9 @@ const Inbox: React.FC = () => {
             {!selectedEmployee || !currentSuggestion ? (
               <div className="text-center py-16">
                 <p className="text-gray-400 text-lg">
-                  Select a team member to review suggestions
+                  {projects.length === 0
+                    ? "All suggestions resolved! Great work."
+                    : "Select a team member to review suggestions"}
                 </p>
               </div>
             ) : (
@@ -438,6 +928,106 @@ const Inbox: React.FC = () => {
                         </p>
                       </div>
                     </div>
+
+                    {/* Inline Adjustment Controls - Conditionally Rendered */}
+                    {adjustingSuggestionId === currentSuggestion.id && (
+                      <div className="mt-6 pt-6 border-t border-gray-700/50 bg-gray-800/30 rounded-lg p-4">
+                        <p className="text-sm text-gray-400 mb-3">
+                          Suggested: <span className="text-purple-300 font-medium">
+                            {currentSuggestion.suggestedProficiency.charAt(0).toUpperCase() +
+                             currentSuggestion.suggestedProficiency.slice(1).toLowerCase()}
+                          </span>
+                        </p>
+
+                        <RadioGroup
+                          label="Select Proficiency Level"
+                          value={adjustedProficiency || ""}
+                          onChange={setAdjustedProficiency}
+                          options={proficiencyOptions}
+                          layout="vertical"
+                        />
+
+                        <div className="flex gap-3 mt-4">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={handleCancelAdjustment}
+                            disabled={loadingSuggestionId !== null}
+                            className="flex-1"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() =>
+                              handleConfirmAdjustment(
+                                currentSuggestion.id,
+                                currentSuggestion.skillName,
+                                selectedEmployee.employee.employeeName
+                              )
+                            }
+                            isLoading={loadingSuggestionId === currentSuggestion.id}
+                            disabled={loadingSuggestionId !== null || !adjustedProficiency}
+                            className="flex-1"
+                          >
+                            Confirm
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Buttons - Hidden when in adjustment mode */}
+                    {adjustingSuggestionId !== currentSuggestion.id && (
+                      <div className="flex gap-3 mt-6 pt-6 border-t border-gray-700/50">
+                        <Button
+                          variant="danger"
+                          size="md"
+                          onClick={() =>
+                            handleReject(
+                              currentSuggestion.id,
+                              currentSuggestion.skillName,
+                              selectedEmployee.employee.employeeName
+                            )
+                          }
+                          isLoading={loadingSuggestionId === currentSuggestion.id}
+                          disabled={loadingSuggestionId !== null}
+                          className="flex-1"
+                        >
+                          Reject
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="md"
+                          onClick={() =>
+                            handleAdjustLevel(
+                              currentSuggestion.id,
+                              currentSuggestion.suggestedProficiency
+                            )
+                          }
+                          disabled={loadingSuggestionId !== null}
+                          className="flex-1"
+                        >
+                          Adjust Level
+                        </Button>
+                        <Button
+                          variant="primary"
+                          size="md"
+                          onClick={() =>
+                            handleApprove(
+                              currentSuggestion.id,
+                              currentSuggestion.skillName,
+                              selectedEmployee.employee.employeeName
+                            )
+                          }
+                          isLoading={loadingSuggestionId === currentSuggestion.id}
+                          disabled={loadingSuggestionId !== null}
+                          className="flex-1"
+                        >
+                          Approve
+                        </Button>
+                      </div>
+                    )}
 
                     {/* Suggestion navigation */}
                     <div className="flex gap-3 mt-6 pt-6 border-t border-gray-700/50">
