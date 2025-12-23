@@ -96,27 +96,42 @@ const ROLE_TEMPLATES: Record<ProjectType, string[]> = {
   ],
 };
 
-// Tag templates by project type
+// Tag templates by project type (using exact skill names for Core Stack matching)
 const TAG_TEMPLATES: Record<ProjectType, string[]> = {
   MOBILE: [
-    'react-native',
-    'ios',
-    'android',
-    'mobile-ui',
-    'app-store',
-    'swift',
-    'kotlin',
+    'React Native',
+    'Swift',
+    'Kotlin',
+    'iOS',
+    'Android',
+    'TypeScript',
+    'JavaScript',
   ],
-  BACKEND: ['api', 'rest', 'graphql', 'postgresql', 'redis', 'docker', 'node'],
-  FRONTEND: ['react', 'typescript', 'tailwind', 'nextjs', 'ui-ux', 'css'],
+  BACKEND: [
+    'Node.js',
+    'Express.js',
+    'PostgreSQL',
+    'Redis',
+    'Docker',
+    'GraphQL',
+    'REST API',
+  ],
+  FRONTEND: [
+    'React',
+    'TypeScript',
+    'Tailwind CSS',
+    'Next.js',
+    'CSS',
+    'JavaScript',
+  ],
   FULLSTACK: [
-    'fullstack',
-    'typescript',
-    'react',
-    'node',
-    'postgresql',
-    'docker',
-    'api',
+    'TypeScript',
+    'React',
+    'Node.js',
+    'PostgreSQL',
+    'Docker',
+    'GraphQL',
+    'Next.js',
   ],
 };
 
