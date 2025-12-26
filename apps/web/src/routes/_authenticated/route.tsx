@@ -37,7 +37,7 @@ function RouteComponent() {
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
-          <ThemeToggle />
+          <ThemeToggle className="-mr-1" />
         </header>
         <Outlet />
       </SidebarInset>

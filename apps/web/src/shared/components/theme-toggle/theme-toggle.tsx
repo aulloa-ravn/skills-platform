@@ -2,7 +2,7 @@ import { Moon, Sun } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { useTheme } from '@/shared/hooks/use-theme'
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }: { className?: string }) {
   const { theme, toggleTheme } = useTheme()
 
   const getIcon = () => {
@@ -30,6 +30,7 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
       title={getLabel()}
+      className={className}
     >
       {getIcon()}
       <span className="sr-only">{getLabel()}</span>

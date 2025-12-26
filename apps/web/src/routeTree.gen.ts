@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedValidationInboxRouteImport } from './routes/_authenticated/validation-inbox'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -22,6 +23,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedValidationInboxRoute =
+  AuthenticatedValidationInboxRouteImport.update({
+    id: '/validation-inbox',
+    path: '/validation-inbox',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -31,23 +38,31 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/validation-inbox': typeof AuthenticatedValidationInboxRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/validation-inbox': typeof AuthenticatedValidationInboxRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/validation-inbox': typeof AuthenticatedValidationInboxRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/profile'
+  fullPaths: '/' | '/profile' | '/validation-inbox'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/profile'
-  id: '__root__' | '/' | '/_authenticated' | '/_authenticated/profile'
+  to: '/' | '/profile' | '/validation-inbox'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/_authenticated/profile'
+    | '/_authenticated/validation-inbox'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -71,6 +86,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/validation-inbox': {
+      id: '/_authenticated/validation-inbox'
+      path: '/validation-inbox'
+      fullPath: '/validation-inbox'
+      preLoaderRoute: typeof AuthenticatedValidationInboxRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
@@ -83,10 +105,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedValidationInboxRoute: typeof AuthenticatedValidationInboxRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedValidationInboxRoute: AuthenticatedValidationInboxRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
