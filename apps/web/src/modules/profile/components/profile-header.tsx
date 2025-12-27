@@ -18,11 +18,9 @@ export function ProfileHeader() {
 
   return (
     <Card className="overflow-hidden border-0 shadow-lg">
-      {/* <div className="bg-gradient-to-r from-primary to-primary/80 h-32" /> */}
-
-      <div className="px-6 py-2">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:gap-4 mb-4">
-          <Avatar className="h-24 w-24 border-4 border-background">
+      <div className="px-4 sm:px-6 py-2">
+        <div className="flex flex-row items-center gap-4 mb-4">
+          <Avatar className="h-16 sm:h-24 w-16 sm:w-24 border-4 border-background flex-shrink-0">
             <AvatarImage
               src={employee.avatar || '/placeholder.svg'}
               alt={employee.name}
@@ -31,27 +29,27 @@ export function ProfileHeader() {
           </Avatar>
 
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
               {employee.name}
             </h1>
-            <p className="text-lg text-primary font-semibold">
+            <p className="text-base sm:text-lg text-primary font-semibold">
               {employee.role}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Since {employee.joinDate}
             </p>
           </div>
         </div>
 
         {/* Contact Info */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-border">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border">
           <div className="flex items-center gap-3">
             <Mail className="w-5 h-5 text-primary flex-shrink-0" />
-            <div>
+            <div className="min-w-0">
               <p className="text-xs text-muted-foreground">Email</p>
               <a
                 href={`mailto:${employee.email}`}
-                className="text-sm font-medium hover:underline"
+                className="text-sm font-medium hover:underline truncate block"
               >
                 {employee.email}
               </a>
@@ -60,7 +58,7 @@ export function ProfileHeader() {
 
           <div className="flex items-center gap-3">
             <Linkedin className="w-5 h-5 text-primary flex-shrink-0" />
-            <div>
+            <div className="min-w-0">
               <p className="text-xs text-muted-foreground">LinkedIn</p>
               <a href="#" className="text-sm font-medium hover:underline">
                 View Profile
@@ -70,9 +68,12 @@ export function ProfileHeader() {
 
           <div className="flex items-center gap-3">
             <Github className="w-5 h-5 text-primary flex-shrink-0" />
-            <div>
+            <div className="min-w-0">
               <p className="text-xs text-muted-foreground">GitHub</p>
-              <a href="#" className="text-sm font-medium hover:underline">
+              <a
+                href="#"
+                className="text-sm font-medium hover:underline truncate block"
+              >
                 @sarahchen
               </a>
             </div>

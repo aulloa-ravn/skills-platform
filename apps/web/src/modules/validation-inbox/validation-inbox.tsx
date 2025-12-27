@@ -433,7 +433,7 @@ export function ValidationInbox() {
                     <div className="flex flex-col sm:flex-row gap-2 mb-4 sm:mb-6">
                       <Button
                         onClick={handleApprove}
-                        className="flex-1 bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
+                        className="sm:flex-1 bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
                         size="sm"
                       >
                         <CheckCircle2Icon className="h-4 w-4 mr-2" />
@@ -442,7 +442,7 @@ export function ValidationInbox() {
                       <Button
                         onClick={handleReject}
                         variant="outline"
-                        className="flex-1 bg-transparent text-xs sm:text-sm"
+                        className="sm:flex-1 bg-transparent text-xs sm:text-sm"
                         size="sm"
                       >
                         <XCircleIcon className="h-4 w-4 mr-2" />
