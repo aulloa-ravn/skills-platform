@@ -13,6 +13,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedValidationInboxRouteImport } from './routes/_authenticated/validation-inbox'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as authLoginRouteImport } from './routes/(auth)/login'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -34,14 +35,21 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const authLoginRoute = authLoginRouteImport.update({
+  id: '/(auth)/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof authLoginRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/validation-inbox': typeof AuthenticatedValidationInboxRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof authLoginRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/validation-inbox': typeof AuthenticatedValidationInboxRoute
 }
@@ -49,18 +57,20 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/(auth)/login': typeof authLoginRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/validation-inbox': typeof AuthenticatedValidationInboxRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/profile' | '/validation-inbox'
+  fullPaths: '/' | '/login' | '/profile' | '/validation-inbox'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/profile' | '/validation-inbox'
+  to: '/' | '/login' | '/profile' | '/validation-inbox'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/(auth)/login'
     | '/_authenticated/profile'
     | '/_authenticated/validation-inbox'
   fileRoutesById: FileRoutesById
@@ -68,6 +78,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  authLoginRoute: typeof authLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -100,6 +111,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/(auth)/login': {
+      id: '/(auth)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof authLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -119,6 +137,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  authLoginRoute: authLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
