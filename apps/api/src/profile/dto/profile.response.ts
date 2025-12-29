@@ -103,6 +103,9 @@ export class TechLeadInfo {
 
   @Field({ nullable: true })
   email?: string;
+
+  @Field({ nullable: true })
+  avatarUrl?: string;
 }
 
 // Current Assignment Response

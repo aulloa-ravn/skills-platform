@@ -1,0 +1,53 @@
+query GetProfile($id: String!) {
+  getProfile(id: $id) {
+    id
+    name
+    email
+    avatarUrl
+    currentSeniorityLevel
+    skills {
+      coreStack {
+        skillName
+        discipline
+        proficiencyLevel
+        validatedAt
+        validator {
+          id
+          name
+        }
+      }
+      validatedInventory {
+        skillName
+        discipline
+        proficiencyLevel
+        validatedAt
+        validator {
+          id
+          name
+        }
+      }
+      pending {
+        skillName
+        discipline
+        suggestedProficiency
+        createdAt
+      }
+    }
+    seniorityHistory {
+      seniorityLevel
+      startDate
+      endDate
+    }
+    currentAssignments {
+      projectName
+      role
+      tags
+      techLead {
+        id
+        name
+        email
+        avatarUrl
+      }
+    }
+  }
+}

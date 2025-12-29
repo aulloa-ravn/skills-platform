@@ -295,6 +295,7 @@ export enum SuggestionSource {
 
 export type TechLeadInfo = {
   __typename?: 'TechLeadInfo'
+  avatarUrl?: Maybe<Scalars['String']['output']>
   email?: Maybe<Scalars['String']['output']>
   id?: Maybe<Scalars['String']['output']>
   name?: Maybe<Scalars['String']['output']>

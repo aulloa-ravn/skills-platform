@@ -203,6 +203,7 @@ export class ProfileService {
                 id: true,
                 name: true,
                 email: true,
+                avatarUrl: true,
               },
             },
           },
@@ -219,6 +220,7 @@ export class ProfileService {
             id: assignment.project.techLead.id,
             name: assignment.project.techLead.name,
             email: assignment.project.techLead.email,
+            avatarUrl: assignment.project.techLead.avatarUrl || undefined,
           }
         : undefined,
     }));

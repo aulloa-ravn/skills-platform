@@ -221,6 +221,7 @@ enum SuggestionSource {
 }
 
 type TechLeadInfo {
+  avatarUrl: String
   email: String
   id: String
   name: String
