@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useForm } from '@tanstack/react-form'
+import { toast } from 'sonner'
+import * as z from 'zod'
 import {
   Card,
   CardContent,
@@ -7,35 +9,55 @@ import {
 } from '@/shared/components/ui/card'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { Label } from '@/shared/components/ui/label'
 import { RavnLogoShort } from '@/shared/components/logos/ravn-logo-short'
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/shared/components/ui/field'
+
+const formSchema = z.object({
+  email: z.email('Invalid email address.'),
+  password: z.string().min(8, 'Password must be at least 8 characters.'),
+})
 
 export function LoginScreen() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
+  const loginForm = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async ({ value }) => {
+      toast('You submitted the following values:', {
+        description: (
+          <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
+            <code>{JSON.stringify(value, null, 2)}</code>
+          </pre>
+        ),
+        position: 'bottom-right',
+        classNames: {
+          content: 'flex flex-col gap-2',
+        },
+        style: {
+          '--border-radius': 'calc(var(--radius)  + 4px)',
+        } as React.CSSProperties,
+      })
+    },
+  })
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
-    setIsLoading(true)
-
-    try {
-      console.log('Login attempt:', { email, password })
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500))
-    } catch (err) {
-      setError('Invalid credentials. Please try again.')
-    } finally {
-      setIsLoading(false)
-    }
+    loginForm.handleSubmit()
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
-        <Card className="p-4 sm:p-6 shadow-lg gap-6">
+        <Card className="p-4 sm:p-6 shadow-lg gap-8">
           <CardHeader className="flex items-center justify-center p-0 gap-4">
             <RavnLogoShort className="fill-primary h-6 w-6 dark:fill-white" />
             <CardTitle className="text-2xl font-bold">
@@ -43,60 +65,86 @@ export function LoginScreen() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-              {error && (
-                <div className="bg-destructive/10 text-destructive text-sm px-3 py-2 rounded-md border border-destructive/20">
-                  {error}
-                </div>
-              )}
-
-              {/* Email Input */}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm sm:text-base">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
-                  required
-                  className="text-sm sm:text-base"
+            <form
+              id="login-form"
+              onSubmit={handleSubmit}
+              className="space-y-4 sm:space-y-5"
+            >
+              <FieldGroup>
+                <loginForm.Field
+                  name="email"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-sm sm:text-base"
+                        >
+                          Email
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          placeholder="Enter your email"
+                          className="text-sm sm:text-base"
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    )
+                  }}
                 />
-              </div>
-
-              {/* Password Input */}
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm sm:text-base">
-                  Password
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
-                  required
-                  className="text-sm sm:text-base"
+                <loginForm.Field
+                  name="password"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-sm sm:text-base"
+                        >
+                          Password
+                        </FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type="password"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          placeholder="Enter your password"
+                          className="text-sm sm:text-base"
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    )
+                  }}
                 />
-              </div>
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                className="w-full text-sm sm:text-base"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Signing in...' : 'Sign In'}
-              </Button>
+              </FieldGroup>
             </form>
-
-            <p className="text-center text-sm text-gray-400 mt-6">
-              Internal use only - Ravn employees
-            </p>
           </CardContent>
+          <Button
+            type="submit"
+            form="login-form"
+            className="w-full text-sm sm:text-base"
+          >
+            Sign In
+          </Button>
+          <p className="text-center text-sm text-muted-foreground">
+            Internal use only - Ravn employees
+          </p>
         </Card>
       </div>
     </div>

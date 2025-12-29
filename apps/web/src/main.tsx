@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
+import { Toaster } from '@/shared/components/ui/sonner'
 import reportWebVitals from './reportWebVitals.ts'
 import { App } from './app.tsx'
 import './styles.css'
@@ -11,6 +12,7 @@ if (rootElement && !rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <App />
+      <Toaster />
     </StrictMode>,
   )
 }
