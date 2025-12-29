@@ -1,7 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProfileResolver } from './profile.resolver';
 import { ProfileService } from './profile.service';
-import { Role, ProficiencyLevel, Discipline } from '@prisma/client';
+import {
+  ProficiencyLevel,
+  Discipline,
+  ProfileType,
+  SeniorityLevel,
+} from '@prisma/client';
 import { CurrentUserType } from '../auth/decorators/current-user.decorator';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 
@@ -16,7 +21,7 @@ describe('ProfileResolver', () => {
   const mockCurrentUser: CurrentUserType = {
     id: 'user-123',
     email: 'user@example.com',
-    role: Role.EMPLOYEE,
+    type: ProfileType.EMPLOYEE,
   };
 
   beforeEach(async () => {
@@ -47,7 +52,7 @@ describe('ProfileResolver', () => {
         id: profileId,
         name: 'John Doe',
         email: 'john@example.com',
-        currentSeniorityLevel: 'Senior Developer',
+        currentSeniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
         avatarUrl: 'https://example.com/avatar.png',
         skills: {
           coreStack: [],
@@ -64,7 +69,7 @@ describe('ProfileResolver', () => {
 
       expect(profileService.getProfile).toHaveBeenCalledWith(
         mockCurrentUser.id,
-        mockCurrentUser.role,
+        mockCurrentUser.type,
         profileId,
       );
       expect(result).toEqual(mockProfile);
@@ -76,7 +81,7 @@ describe('ProfileResolver', () => {
         id: profileId,
         name: 'Jane Smith',
         email: 'jane@example.com',
-        currentSeniorityLevel: 'Lead Developer',
+        currentSeniorityLevel: SeniorityLevel.STAFF_ENGINEER,
         avatarUrl: undefined,
         skills: {
           coreStack: [
@@ -114,7 +119,7 @@ describe('ProfileResolver', () => {
         },
         seniorityHistory: [
           {
-            seniorityLevel: 'Lead Developer',
+            seniorityLevel: SeniorityLevel.STAFF_ENGINEER,
             start_date: new Date('2024-01-01'),
             end_date: undefined,
             createdBy: {
@@ -187,7 +192,7 @@ describe('ProfileResolver', () => {
       const techLeadUser: CurrentUserType = {
         id: 'lead-123',
         email: 'lead@example.com',
-        role: Role.TECH_LEAD,
+        type: ProfileType.TECH_LEAD,
       };
 
       const profileId = 'team-member-123';
@@ -195,7 +200,7 @@ describe('ProfileResolver', () => {
         id: profileId,
         name: 'Team Member',
         email: 'member@example.com',
-        currentSeniorityLevel: 'Developer',
+        currentSeniorityLevel: SeniorityLevel.MID_ENGINEER,
         skills: {
           coreStack: [],
           validatedInventory: [],
@@ -211,7 +216,7 @@ describe('ProfileResolver', () => {
 
       expect(profileService.getProfile).toHaveBeenCalledWith(
         techLeadUser.id,
-        techLeadUser.role,
+        techLeadUser.type,
         profileId,
       );
     });

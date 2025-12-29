@@ -8,7 +8,8 @@ import {
   ProficiencyLevel,
   SuggestionStatus,
   SuggestionSource,
-  Role,
+  ProfileType,
+  SeniorityLevel,
 } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
@@ -25,26 +26,21 @@ import {
   generateRecentDate,
   generateDateInRange,
 } from './seed-utils';
-import {
-  ProjectType,
-  getRelevantSkillsForProjectTypes,
-} from './skill-context';
+import { ProjectType, getRelevantSkillsForProjectTypes } from './skill-context';
 
 // Constants for data generation
 const PROFILE_COUNT = 25; // Between 20-30
 const PROJECT_COUNT = 7; // Between 5-10
-const MIN_LEAD_PROFILES = 7; // Ensure enough for all projects
+const MIN_STAFF_PROFILES = 5; // Ensure enough for all projects
 const BCRYPT_SALT_ROUNDS = 10; // Standard salt rounds for bcrypt
 const DEFAULT_PASSWORD = 'password123'; // Default password for all seeded profiles
 
 // Seniority levels
-type SeniorityLevel = 'JUNIOR' | 'MID' | 'SENIOR' | 'LEAD';
-
 const SENIORITY_DISTRIBUTION = {
-  JUNIOR: 40,
-  MID: 30,
-  SENIOR: 20,
-  LEAD: 10,
+  [SeniorityLevel.JUNIOR_ENGINEER]: 40,
+  [SeniorityLevel.MID_ENGINEER]: 30,
+  [SeniorityLevel.SENIOR_ENGINEER]: 20,
+  [SeniorityLevel.STAFF_ENGINEER]: 10,
 };
 
 // Assignment distribution percentages
@@ -168,20 +164,22 @@ async function generateProfiles(count: number): Promise<
     Object.values(SENIORITY_DISTRIBUTION),
   );
 
-  // Ensure minimum Lead profiles
-  if (distribution[3] < MIN_LEAD_PROFILES) {
-    const deficit = MIN_LEAD_PROFILES - distribution[3];
-    distribution[3] = MIN_LEAD_PROFILES;
+  // Ensure minimum Staff profiles
+  if (distribution[3] < MIN_STAFF_PROFILES) {
+    const deficit = MIN_STAFF_PROFILES - distribution[3];
+    distribution[3] = MIN_STAFF_PROFILES;
     // Take from Junior and Mid proportionally
     distribution[0] -= Math.ceil(deficit / 2);
     distribution[1] -= Math.floor(deficit / 2);
   }
 
   // Hash the default password once (reused for all profiles)
-  const hashedPassword = await bcrypt.hash(DEFAULT_PASSWORD, BCRYPT_SALT_ROUNDS);
+  const hashedPassword = await bcrypt.hash(
+    DEFAULT_PASSWORD,
+    BCRYPT_SALT_ROUNDS,
+  );
 
   let profileIndex = 0;
-  let adminAssigned = false; // Ensure at least one admin
 
   seniorityLevels.forEach((level, levelIndex) => {
     for (let i = 0; i < distribution[levelIndex]; i++) {
@@ -189,13 +187,6 @@ async function generateProfiles(count: number): Promise<
       const lastName = faker.person.lastName();
       const email = generateEmail(firstName, lastName);
       const name = `${firstName} ${lastName}`;
-
-      // Assign ADMIN role to first SENIOR or LEAD profile for testing
-      let role: Role = Role.EMPLOYEE;
-      if (!adminAssigned && (level === 'SENIOR' || level === 'LEAD')) {
-        role = Role.ADMIN;
-        adminAssigned = true;
-      }
 
       profiles.push({
         data: {
@@ -205,7 +196,7 @@ async function generateProfiles(count: number): Promise<
           avatarUrl: faker.image.avatar(),
           currentSeniorityLevel: level,
           password: hashedPassword,
-          role,
+          type: ProfileType.EMPLOYEE,
         },
         seniorityLevel: level,
       });
@@ -220,32 +211,24 @@ async function generateProfiles(count: number): Promise<
 /**
  * Generate seniority history for profiles
  */
-function generateSeniorityHistory(
-  profiles: GeneratedProfile[],
-): Array<{
+function generateSeniorityHistory(profiles: GeneratedProfile[]): Array<{
   profileId: string;
-  seniorityLevel: string;
-  start_date: Date;
-  end_date: Date | null;
-  createdById: string | null;
+  seniorityLevel: SeniorityLevel;
+  startDate: Date;
+  endDate: Date | null;
 }> {
   const seniorityHistoryRecords: Array<{
     profileId: string;
-    seniorityLevel: string;
-    start_date: Date;
-    end_date: Date | null;
-    createdById: string | null;
+    seniorityLevel: SeniorityLevel;
+    startDate: Date;
+    endDate: Date | null;
   }> = [];
-
-  const seniorProfiles = profiles.filter(
-    (p) => p.seniorityLevel === 'SENIOR' || p.seniorityLevel === 'LEAD',
-  );
 
   profiles.forEach((profile) => {
     const recordCount =
-      profile.seniorityLevel === 'JUNIOR'
+      profile.seniorityLevel === 'JUNIOR_ENGINEER'
         ? 1
-        : profile.seniorityLevel === 'MID'
+        : profile.seniorityLevel === 'MID_ENGINEER'
           ? getRandomInt(1, 2)
           : getRandomInt(2, 3);
 
@@ -253,28 +236,37 @@ function generateSeniorityHistory(
 
     // Build progression path
     switch (profile.seniorityLevel) {
-      case 'JUNIOR':
-        progressionPath.push('JUNIOR');
+      case 'JUNIOR_ENGINEER':
+        progressionPath.push('JUNIOR_ENGINEER');
         break;
-      case 'MID':
+      case 'MID_ENGINEER':
         if (recordCount === 1) {
-          progressionPath.push('MID');
+          progressionPath.push('MID_ENGINEER');
         } else {
-          progressionPath.push('JUNIOR', 'MID');
+          progressionPath.push('JUNIOR_ENGINEER', 'MID_ENGINEER');
         }
         break;
-      case 'SENIOR':
+      case 'SENIOR_ENGINEER':
         if (recordCount === 2) {
-          progressionPath.push('MID', 'SENIOR');
+          progressionPath.push('MID_ENGINEER', 'SENIOR_ENGINEER');
         } else {
-          progressionPath.push('JUNIOR', 'MID', 'SENIOR');
+          progressionPath.push(
+            'JUNIOR_ENGINEER',
+            'MID_ENGINEER',
+            'SENIOR_ENGINEER',
+          );
         }
         break;
-      case 'LEAD':
+      case 'STAFF_ENGINEER':
         if (recordCount === 2) {
-          progressionPath.push('SENIOR', 'LEAD');
+          progressionPath.push('SENIOR_ENGINEER', 'STAFF_ENGINEER');
         } else {
-          progressionPath.push('MID', 'SENIOR', 'LEAD');
+          progressionPath.push(
+            'JUNIOR_ENGINEER',
+            'MID_ENGINEER',
+            'SENIOR_ENGINEER',
+            'STAFF_ENGINEER',
+          );
         }
         break;
     }
@@ -304,19 +296,13 @@ function generateSeniorityHistory(
       tempDates.push(startDate);
     });
 
-    // Now create records with end_date set to next promotion's start_date
+    // Now create records with endDate set to next promotion's startDate
     progressionPath.forEach((level, index) => {
-      const createdById =
-        seniorProfiles.length > 0 && Math.random() > 0.3
-          ? getRandomItem(seniorProfiles).id
-          : null;
-
       seniorityHistoryRecords.push({
         profileId: profile.id,
         seniorityLevel: level,
-        start_date: tempDates[index],
-        end_date: index < tempDates.length - 1 ? tempDates[index + 1] : null,
-        createdById,
+        startDate: tempDates[index],
+        endDate: index < tempDates.length - 1 ? tempDates[index + 1] : null,
       });
     });
   });
@@ -469,7 +455,7 @@ function generateEmployeeSkills(
   const employeeSkills: EmployeeSkillData[] = [];
   const skillsByProfile = new Map<
     string,
-    Map<string, { level: ProficiencyLevel; validatedById: string | null }>
+    Map<number, { level: ProficiencyLevel; validatedById: string | null }>
   >();
 
   // Helper function to determine proficiency based on seniority
@@ -477,19 +463,19 @@ function generateEmployeeSkills(
     seniorityLevel: SeniorityLevel,
   ): ProficiencyLevel => {
     switch (seniorityLevel) {
-      case 'JUNIOR':
+      case 'JUNIOR_ENGINEER':
         return Math.random() < 0.7
           ? ProficiencyLevel.NOVICE
           : ProficiencyLevel.INTERMEDIATE;
-      case 'MID':
+      case 'MID_ENGINEER':
         return Math.random() < 0.6
           ? ProficiencyLevel.INTERMEDIATE
           : ProficiencyLevel.ADVANCED;
-      case 'SENIOR':
+      case 'SENIOR_ENGINEER':
         return Math.random() < 0.5
           ? ProficiencyLevel.ADVANCED
           : ProficiencyLevel.EXPERT;
-      case 'LEAD':
+      case 'STAFF_ENGINEER':
         return Math.random() < 0.3
           ? ProficiencyLevel.ADVANCED
           : ProficiencyLevel.EXPERT;
@@ -526,16 +512,16 @@ function generateEmployeeSkills(
     // Determine how many skills this profile should have based on seniority
     let skillCount: number;
     switch (profile.seniorityLevel) {
-      case 'JUNIOR':
+      case 'JUNIOR_ENGINEER':
         skillCount = getRandomInt(3, 6);
         break;
-      case 'MID':
+      case 'MID_ENGINEER':
         skillCount = getRandomInt(5, 10);
         break;
-      case 'SENIOR':
+      case 'SENIOR_ENGINEER':
         skillCount = getRandomInt(8, 15);
         break;
-      case 'LEAD':
+      case 'STAFF_ENGINEER':
         skillCount = getRandomInt(12, 20);
         break;
       default:
@@ -564,7 +550,8 @@ function generateEmployeeSkills(
       if (Math.random() < 0.8) {
         const validators = profiles.filter(
           (p) =>
-            (p.seniorityLevel === 'SENIOR' || p.seniorityLevel === 'LEAD') &&
+            (p.seniorityLevel === 'SENIOR_ENGINEER' ||
+              p.seniorityLevel === 'STAFF_ENGINEER') &&
             p.id !== profile.id,
         );
         if (validators.length > 0) {
@@ -586,8 +573,8 @@ function generateEmployeeSkills(
         profileId,
         skillId,
         proficiencyLevel: skillData.level,
-        validatedAt: generatePastDate(90),
-        validatedById: skillData.validatedById,
+        lastValidatedAt: generatePastDate(90),
+        lastValidatedById: skillData.validatedById,
         createdAt: generatePastDate(120),
         updatedAt: generateRecentDate(60),
       });
@@ -606,7 +593,7 @@ function generateSuggestions(
   existingSkills: EmployeeSkillData[],
 ): Array<{
   profileId: string;
-  skillId: string;
+  skillId: number;
   suggestedProficiency: ProficiencyLevel;
   status: SuggestionStatus;
   source: SuggestionSource;
@@ -614,7 +601,7 @@ function generateSuggestions(
 }> {
   const suggestions: Array<{
     profileId: string;
-    skillId: string;
+    skillId: number;
     suggestedProficiency: ProficiencyLevel;
     status: SuggestionStatus;
     source: SuggestionSource;
@@ -675,20 +662,20 @@ function generateSuggestions(
       } else {
         // New skill - suggest based on seniority
         switch (profile.seniorityLevel) {
-          case 'JUNIOR':
+          case 'JUNIOR_ENGINEER':
             suggestedProficiency =
               Math.random() < 0.7
                 ? ProficiencyLevel.NOVICE
                 : ProficiencyLevel.INTERMEDIATE;
             break;
-          case 'MID':
+          case 'MID_ENGINEER':
             suggestedProficiency =
               Math.random() < 0.5
                 ? ProficiencyLevel.INTERMEDIATE
                 : ProficiencyLevel.ADVANCED;
             break;
-          case 'SENIOR':
-          case 'LEAD':
+          case 'SENIOR_ENGINEER':
+          case 'STAFF_ENGINEER':
             suggestedProficiency =
               Math.random() < 0.6
                 ? ProficiencyLevel.ADVANCED
@@ -779,24 +766,25 @@ export async function seedSampleData(prisma: PrismaClient): Promise<void> {
 
         const seniorityStats = {
           JUNIOR: profilesWithSeniority.filter(
-            (p) => p.seniorityLevel === 'JUNIOR',
+            (p) => p.seniorityLevel === 'JUNIOR_ENGINEER',
           ).length,
-          MID: profilesWithSeniority.filter((p) => p.seniorityLevel === 'MID')
-            .length,
+          MID: profilesWithSeniority.filter(
+            (p) => p.seniorityLevel === 'MID_ENGINEER',
+          ).length,
           SENIOR: profilesWithSeniority.filter(
-            (p) => p.seniorityLevel === 'SENIOR',
+            (p) => p.seniorityLevel === 'SENIOR_ENGINEER',
           ).length,
-          LEAD: profilesWithSeniority.filter(
-            (p) => p.seniorityLevel === 'LEAD',
+          STAFF: profilesWithSeniority.filter(
+            (p) => p.seniorityLevel === 'STAFF_ENGINEER',
           ).length,
         };
 
         const adminCount = profilesWithSeniority.filter(
-          (p) => p.role === Role.ADMIN,
+          (p) => p.type === ProfileType.ADMIN,
         ).length;
 
         console.log(
-          `  Created ${profilesWithSeniority.length} profiles (${seniorityStats.JUNIOR} Junior, ${seniorityStats.MID} Mid, ${seniorityStats.SENIOR} Senior, ${seniorityStats.LEAD} Lead)`,
+          `  Created ${profilesWithSeniority.length} profiles (${seniorityStats.JUNIOR} Junior, ${seniorityStats.MID} Mid, ${seniorityStats.SENIOR} Senior, ${seniorityStats.STAFF} Staff)`,
         );
         console.log(
           `  Assigned ${adminCount} ADMIN role(s), remaining profiles have EMPLOYEE role`,
@@ -805,8 +793,9 @@ export async function seedSampleData(prisma: PrismaClient): Promise<void> {
 
         // ===== SENIORITY HISTORY GENERATION =====
         console.log('[3/7] Generating seniority history...');
-        const seniorityHistoryData =
-          generateSeniorityHistory(profilesWithSeniority);
+        const seniorityHistoryData = generateSeniorityHistory(
+          profilesWithSeniority,
+        );
 
         await tx.seniorityHistory.createMany({
           data: seniorityHistoryData,
@@ -819,7 +808,9 @@ export async function seedSampleData(prisma: PrismaClient): Promise<void> {
         // ===== PROJECT GENERATION =====
         console.log('[4/7] Generating projects...');
         const leadProfiles = profilesWithSeniority.filter(
-          (p) => p.seniorityLevel === 'LEAD',
+          (p) =>
+            p.seniorityLevel === 'STAFF_ENGINEER' ||
+            p.seniorityLevel === 'SENIOR_ENGINEER',
         );
 
         const projectSpecs = generateProjects(PROJECT_COUNT, leadProfiles);
@@ -853,7 +844,7 @@ export async function seedSampleData(prisma: PrismaClient): Promise<void> {
           `  Created ${projectsWithTypes.length} projects (${projectStats.MOBILE} Mobile, ${projectStats.BACKEND} Backend, ${projectStats.FRONTEND} Frontend, ${projectStats.FULLSTACK} Fullstack)`,
         );
         console.log(
-          `  All projects have Tech Leads assigned from LEAD profiles\n`,
+          `  All projects have Tech Leads assigned from STAFF and SENIOR profiles\n`,
         );
 
         // ===== ASSIGNMENT GENERATION =====
@@ -869,13 +860,16 @@ export async function seedSampleData(prisma: PrismaClient): Promise<void> {
 
         const assignmentStats = {
           oneProject: profilesWithSeniority.filter(
-            (p) => assignmentData.filter((a) => a.profileId === p.id).length === 1,
+            (p) =>
+              assignmentData.filter((a) => a.profileId === p.id).length === 1,
           ).length,
           twoProjects: profilesWithSeniority.filter(
-            (p) => assignmentData.filter((a) => a.profileId === p.id).length === 2,
+            (p) =>
+              assignmentData.filter((a) => a.profileId === p.id).length === 2,
           ).length,
           threeProjects: profilesWithSeniority.filter(
-            (p) => assignmentData.filter((a) => a.profileId === p.id).length === 3,
+            (p) =>
+              assignmentData.filter((a) => a.profileId === p.id).length === 3,
           ).length,
         };
 
@@ -904,7 +898,7 @@ export async function seedSampleData(prisma: PrismaClient): Promise<void> {
         });
 
         const validatedSkills = employeeSkillData.filter(
-          (es) => es.validatedById !== null,
+          (es) => es.lastValidatedById !== null,
         ).length;
         const validationRate = (
           (validatedSkills / employeeSkillData.length) *
@@ -928,9 +922,7 @@ export async function seedSampleData(prisma: PrismaClient): Promise<void> {
           data: suggestionData,
         });
 
-        console.log(
-          `  Created ${suggestionData.length} pending suggestions\n`,
-        );
+        console.log(`  Created ${suggestionData.length} pending suggestions\n`);
       },
       {
         timeout: 60000, // 60 seconds timeout for the transaction

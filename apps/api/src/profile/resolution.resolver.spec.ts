@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ResolutionResolver } from './resolution.resolver';
 import { ResolutionService } from './resolution.service';
-import { Role } from '@prisma/client';
+import { ProfileType, SeniorityLevel } from '@prisma/client';
 import { ResolutionAction } from './dto/resolution.input';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -42,7 +42,7 @@ describe('ResolutionResolver', () => {
       const mockUser = {
         id: 'user-1',
         email: 'user@example.com',
-        role: Role.ADMIN,
+        type: ProfileType.ADMIN,
       };
 
       const mockInput = {
@@ -74,7 +74,7 @@ describe('ResolutionResolver', () => {
 
       expect(service.resolveSuggestions).toHaveBeenCalledWith(
         mockUser.id,
-        mockUser.role,
+        mockUser.type,
         mockInput,
       );
       expect(result).toEqual(mockResponse);
@@ -84,7 +84,7 @@ describe('ResolutionResolver', () => {
       const mockUser = {
         id: 'tech-lead-1',
         email: 'lead@example.com',
-        role: Role.TECH_LEAD,
+        type: ProfileType.TECH_LEAD,
       };
 
       const mockInput = {
@@ -123,7 +123,7 @@ describe('ResolutionResolver', () => {
       const mockUser = {
         id: 'admin-1',
         email: 'admin@example.com',
-        role: Role.ADMIN,
+        type: ProfileType.ADMIN,
       };
 
       const mockInput = {
@@ -185,7 +185,7 @@ describe('ResolutionResolver', () => {
       const mockUser = {
         id: 'admin-1',
         email: 'admin@example.com',
-        role: Role.ADMIN,
+        type: ProfileType.ADMIN,
       };
 
       const mockInput = {
@@ -235,7 +235,7 @@ describe('ResolutionResolver', () => {
       const mockUser = {
         id: 'user-123',
         email: 'test@example.com',
-        role: Role.TECH_LEAD,
+        type: ProfileType.TECH_LEAD,
       };
 
       const mockInput = {
@@ -257,7 +257,7 @@ describe('ResolutionResolver', () => {
 
       expect(service.resolveSuggestions).toHaveBeenCalledWith(
         'user-123',
-        Role.TECH_LEAD,
+        ProfileType.TECH_LEAD,
         mockInput,
       );
     });

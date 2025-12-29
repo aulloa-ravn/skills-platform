@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ForbiddenException } from '@nestjs/common';
 import { ResolutionService } from './resolution.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { Role, SuggestionStatus, ProficiencyLevel } from '@prisma/client';
+import { ProfileType, SuggestionStatus, ProficiencyLevel } from '@prisma/client';
 import { ResolutionAction } from './dto/resolution.input';
 
 describe('ResolutionService', () => {
@@ -63,7 +63,7 @@ describe('ResolutionService', () => {
         });
       });
 
-      const result = await service.resolveSuggestions('admin-1', Role.ADMIN, {
+      const result = await service.resolveSuggestions('admin-1', ProfileType.ADMIN, {
         decisions: [
           {
             suggestionId: 'suggestion-1',
@@ -98,7 +98,7 @@ describe('ResolutionService', () => {
         status: SuggestionStatus.REJECTED,
       });
 
-      const result = await service.resolveSuggestions('admin-1', Role.ADMIN, {
+      const result = await service.resolveSuggestions('admin-1', ProfileType.ADMIN, {
         decisions: [
           {
             suggestionId: 'suggestion-1',
@@ -154,7 +154,7 @@ describe('ResolutionService', () => {
         status: SuggestionStatus.REJECTED,
       });
 
-      const result = await service.resolveSuggestions('tech-lead-1', Role.TECH_LEAD, {
+      const result = await service.resolveSuggestions('tech-lead-1', ProfileType.TECH_LEAD, {
         decisions: [
           {
             suggestionId: 'suggestion-1',
@@ -190,7 +190,7 @@ describe('ResolutionService', () => {
 
       mockPrismaService.suggestion.findUnique.mockResolvedValue(mockSuggestion);
 
-      const result = await service.resolveSuggestions('tech-lead-1', Role.TECH_LEAD, {
+      const result = await service.resolveSuggestions('tech-lead-1', ProfileType.TECH_LEAD, {
         decisions: [
           {
             suggestionId: 'suggestion-1',
@@ -230,7 +230,7 @@ describe('ResolutionService', () => {
         status: SuggestionStatus.REJECTED,
       });
 
-      const result = await service.resolveSuggestions('admin-1', Role.ADMIN, {
+      const result = await service.resolveSuggestions('admin-1', ProfileType.ADMIN, {
         decisions: [
           {
             suggestionId: 'suggestion-1',
@@ -252,7 +252,7 @@ describe('ResolutionService', () => {
 
   describe('Validation', () => {
     it('should return error when adjustedProficiency is missing for ADJUST_LEVEL', async () => {
-      const result = await service.resolveSuggestions('admin-1', Role.ADMIN, {
+      const result = await service.resolveSuggestions('admin-1', ProfileType.ADMIN, {
         decisions: [
           {
             suggestionId: 'suggestion-1',
@@ -268,7 +268,7 @@ describe('ResolutionService', () => {
     });
 
     it('should return error for invalid proficiency level', async () => {
-      const result = await service.resolveSuggestions('admin-1', Role.ADMIN, {
+      const result = await service.resolveSuggestions('admin-1', ProfileType.ADMIN, {
         decisions: [
           {
             suggestionId: 'suggestion-1',
@@ -291,7 +291,7 @@ describe('ResolutionService', () => {
 
       mockPrismaService.suggestion.findUnique.mockResolvedValue(processedSuggestion);
 
-      const result = await service.resolveSuggestions('admin-1', Role.ADMIN, {
+      const result = await service.resolveSuggestions('admin-1', ProfileType.ADMIN, {
         decisions: [
           {
             suggestionId: 'suggestion-1',
@@ -324,7 +324,7 @@ describe('ResolutionService', () => {
         status: SuggestionStatus.REJECTED,
       });
 
-      const result = await service.resolveSuggestions('admin-1', Role.ADMIN, {
+      const result = await service.resolveSuggestions('admin-1', ProfileType.ADMIN, {
         decisions: [
           {
             suggestionId: 'suggestion-1',

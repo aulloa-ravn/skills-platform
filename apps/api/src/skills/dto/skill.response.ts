@@ -1,4 +1,4 @@
-import { ObjectType, Field, registerEnumType } from '@nestjs/graphql';
+import { ObjectType, Field, Int, registerEnumType } from '@nestjs/graphql';
 import { Discipline } from '@prisma/client';
 import { GraphQLISODateTime } from '@nestjs/graphql';
 
@@ -10,8 +10,8 @@ registerEnumType(Discipline, {
 
 @ObjectType()
 export class Skill {
-  @Field()
-  id: string;
+  @Field(() => Int)
+  id: number;
 
   @Field()
   name: string;

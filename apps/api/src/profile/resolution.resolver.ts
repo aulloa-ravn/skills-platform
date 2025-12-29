@@ -19,7 +19,7 @@ export class ResolutionResolver {
   ): Promise<ResolveSuggestionsResponse> {
     return this.resolutionService.resolveSuggestions(
       user.id,
-      user.role,
+      user.type,
       input,
     );
   }

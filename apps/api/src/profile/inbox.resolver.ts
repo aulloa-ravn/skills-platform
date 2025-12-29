@@ -15,6 +15,6 @@ export class InboxResolver {
   async getValidationInbox(
     @CurrentUser() user: CurrentUserType,
   ): Promise<InboxResponse> {
-    return this.inboxService.getValidationInbox(user.id, user.role);
+    return this.inboxService.getValidationInbox(user.id, user.type);
   }
 }

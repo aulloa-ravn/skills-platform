@@ -1,6 +1,10 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Role, SuggestionStatus, ProficiencyLevel } from '@prisma/client';
+import {
+  ProfileType,
+  SuggestionStatus,
+  ProficiencyLevel,
+} from '@prisma/client';
 import {
   ResolveSuggestionsInput,
   DecisionInput,
@@ -19,22 +23,22 @@ export class ResolutionService {
   /**
    * Check if user is authorized to resolve a specific suggestion
    * @param userId Authenticated user's ID
-   * @param userRole Authenticated user's role
+   * @param userType Authenticated user's type
    * @param suggestionId Suggestion ID to check
    * @throws ForbiddenException if user lacks permission
    */
   private async checkSuggestionAuthorization(
     userId: string,
-    userRole: Role,
-    suggestionId: string,
+    userType: ProfileType,
+    suggestionId: number,
   ): Promise<void> {
     // ADMIN can resolve any suggestion
-    if (userRole === Role.ADMIN) {
+    if (userType === ProfileType.ADMIN) {
       return;
     }
 
     // TECH_LEAD can only resolve suggestions for their team members
-    if (userRole === Role.TECH_LEAD) {
+    if (userType === ProfileType.TECH_LEAD) {
       // Query suggestion with nested includes to verify tech lead has access
       const suggestion = await this.prisma.suggestion.findUnique({
         where: { id: suggestionId },
@@ -95,7 +99,7 @@ export class ResolutionService {
    * @returns Validation error or null if valid
    */
   private async validateSuggestionExists(
-    suggestionId: string,
+    suggestionId: number,
   ): Promise<ResolutionError | null> {
     const suggestion = await this.prisma.suggestion.findUnique({
       where: { id: suggestionId },
@@ -175,7 +179,7 @@ export class ResolutionService {
    * @returns ResolvedSuggestion object
    */
   private async handleApprove(
-    suggestionId: string,
+    suggestionId: number,
     userId: string,
   ): Promise<ResolvedSuggestion> {
     // Use transaction to ensure atomicity
@@ -214,13 +218,13 @@ export class ResolutionService {
           profileId: suggestion.profileId,
           skillId: suggestion.skillId,
           proficiencyLevel: suggestion.suggestedProficiency,
-          validatedById: userId,
-          validatedAt: new Date(),
+          lastValidatedById: userId,
+          lastValidatedAt: new Date(),
         },
         update: {
           proficiencyLevel: suggestion.suggestedProficiency,
-          validatedById: userId,
-          validatedAt: new Date(),
+          lastValidatedById: userId,
+          lastValidatedAt: new Date(),
         },
       });
 
@@ -247,7 +251,7 @@ export class ResolutionService {
    * @returns ResolvedSuggestion object
    */
   private async handleAdjustLevel(
-    suggestionId: string,
+    suggestionId: number,
     userId: string,
     adjustedProficiency: string,
   ): Promise<ResolvedSuggestion> {
@@ -287,13 +291,13 @@ export class ResolutionService {
           profileId: suggestion.profileId,
           skillId: suggestion.skillId,
           proficiencyLevel: adjustedProficiency as ProficiencyLevel,
-          validatedById: userId,
-          validatedAt: new Date(),
+          lastValidatedById: userId,
+          lastValidatedAt: new Date(),
         },
         update: {
           proficiencyLevel: adjustedProficiency as ProficiencyLevel,
-          validatedById: userId,
-          validatedAt: new Date(),
+          lastValidatedById: userId,
+          lastValidatedAt: new Date(),
         },
       });
 
@@ -317,7 +321,9 @@ export class ResolutionService {
    * @param suggestionId Suggestion ID to reject
    * @returns ResolvedSuggestion object
    */
-  private async handleReject(suggestionId: string): Promise<ResolvedSuggestion> {
+  private async handleReject(
+    suggestionId: number,
+  ): Promise<ResolvedSuggestion> {
     // Get suggestion with related data
     const suggestion = await this.prisma.suggestion.findUnique({
       where: { id: suggestionId },
@@ -352,18 +358,18 @@ export class ResolutionService {
   /**
    * Resolve suggestions in batch with partial failure handling
    * @param userId Authenticated user's ID
-   * @param userRole Authenticated user's role
+   * @param userType Authenticated user's type
    * @param input Input containing decisions
    * @returns Response with processed suggestions and errors
    */
   async resolveSuggestions(
     userId: string,
-    userRole: Role,
+    userType: ProfileType,
     input: ResolveSuggestionsInput,
   ): Promise<ResolveSuggestionsResponse> {
     const processed: ResolvedSuggestion[] = [];
     const errors: ResolutionError[] = [];
-    const processedIds = new Set<string>();
+    const processedIds = new Set<number>();
 
     for (const decision of input.decisions) {
       try {
@@ -393,7 +399,7 @@ export class ResolutionService {
         // Check authorization
         await this.checkSuggestionAuthorization(
           userId,
-          userRole,
+          userType,
           decision.suggestionId,
         );
 
@@ -430,7 +436,8 @@ export class ResolutionService {
           // Handle other errors
           errors.push({
             suggestionId: decision.suggestionId,
-            message: error.message || 'An error occurred processing this suggestion',
+            message:
+              error.message || 'An error occurred processing this suggestion',
             code: 'VALIDATION_FAILED',
           });
         }

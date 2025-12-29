@@ -3,11 +3,12 @@ import { ForbiddenException } from '@nestjs/common';
 import { InboxService } from './inbox.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
-  Role,
+  ProfileType,
   ProficiencyLevel,
   Discipline,
   SuggestionSource,
   SuggestionStatus,
+  SeniorityLevel,
 } from '@prisma/client';
 
 describe('InboxService', () => {
@@ -39,18 +40,18 @@ describe('InboxService', () => {
   describe('getValidationInbox - Authorization', () => {
     it('should throw ForbiddenException when EMPLOYEE role attempts access', async () => {
       await expect(
-        service.getValidationInbox('user-123', Role.EMPLOYEE),
+        service.getValidationInbox('user-123', ProfileType.EMPLOYEE),
       ).rejects.toThrow(ForbiddenException);
 
       await expect(
-        service.getValidationInbox('user-123', Role.EMPLOYEE),
+        service.getValidationInbox('user-123', ProfileType.EMPLOYEE),
       ).rejects.toThrow('You do not have permission to access the validation inbox');
     });
 
     it('should allow TECH_LEAD role to access inbox', async () => {
       mockPrismaService.project.findMany.mockResolvedValue([]);
 
-      const result = await service.getValidationInbox('user-123', Role.TECH_LEAD);
+      const result = await service.getValidationInbox('user-123', ProfileType.TECH_LEAD);
 
       expect(result).toBeDefined();
       expect(result.projects).toEqual([]);
@@ -59,7 +60,7 @@ describe('InboxService', () => {
     it('should allow ADMIN role to access inbox', async () => {
       mockPrismaService.project.findMany.mockResolvedValue([]);
 
-      const result = await service.getValidationInbox('user-123', Role.ADMIN);
+      const result = await service.getValidationInbox('user-123', ProfileType.ADMIN);
 
       expect(result).toBeDefined();
       expect(result.projects).toEqual([]);
@@ -70,7 +71,7 @@ describe('InboxService', () => {
     it('should filter projects by techLeadId for TECH_LEAD role', async () => {
       mockPrismaService.project.findMany.mockResolvedValue([]);
 
-      await service.getValidationInbox('tech-lead-id', Role.TECH_LEAD);
+      await service.getValidationInbox('tech-lead-id', ProfileType.TECH_LEAD);
 
       expect(mockPrismaService.project.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -84,7 +85,7 @@ describe('InboxService', () => {
     it('should NOT filter by techLeadId for ADMIN role', async () => {
       mockPrismaService.project.findMany.mockResolvedValue([]);
 
-      await service.getValidationInbox('admin-id', Role.ADMIN);
+      await service.getValidationInbox('admin-id', ProfileType.ADMIN);
 
       expect(mockPrismaService.project.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -136,7 +137,7 @@ describe('InboxService', () => {
 
       mockPrismaService.project.findMany.mockResolvedValue(mockProjects);
 
-      const result = await service.getValidationInbox('user-123', Role.ADMIN);
+      const result = await service.getValidationInbox('user-123', ProfileType.ADMIN);
 
       expect(result.projects[0].employees[0].suggestions[0].currentProficiency).toBe(
         ProficiencyLevel.INTERMEDIATE,
@@ -177,7 +178,7 @@ describe('InboxService', () => {
 
       mockPrismaService.project.findMany.mockResolvedValue(mockProjects);
 
-      const result = await service.getValidationInbox('user-123', Role.ADMIN);
+      const result = await service.getValidationInbox('user-123', ProfileType.ADMIN);
 
       expect(result.projects[0].employees[0].suggestions[0].currentProficiency).toBeUndefined();
     });
@@ -187,7 +188,7 @@ describe('InboxService', () => {
     it('should return empty projects array when no pending suggestions exist', async () => {
       mockPrismaService.project.findMany.mockResolvedValue([]);
 
-      const result = await service.getValidationInbox('user-123', Role.ADMIN);
+      const result = await service.getValidationInbox('user-123', ProfileType.ADMIN);
 
       expect(result.projects).toEqual([]);
     });
@@ -213,7 +214,7 @@ describe('InboxService', () => {
 
       mockPrismaService.project.findMany.mockResolvedValue(mockProjects);
 
-      const result = await service.getValidationInbox('user-123', Role.ADMIN);
+      const result = await service.getValidationInbox('user-123', ProfileType.ADMIN);
 
       expect(result.projects).toEqual([]);
     });

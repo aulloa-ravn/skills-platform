@@ -55,10 +55,17 @@ enum Discipline {
   NO_CODE
 }
 
-enum Role {
+enum ProfileType {
   EMPLOYEE
   TECH_LEAD
   ADMIN
+}
+
+enum SeniorityLevel {
+  JUNIOR_ENGINEER
+  MID_ENGINEER
+  SENIOR_ENGINEER
+  STAFF_ENGINEER
 }
 
 // ============================================================================
@@ -66,29 +73,28 @@ enum Role {
 // ============================================================================
 
 model Profile {
-  id                    String   @id @default(uuid())
-  missionBoardId        String   @unique
-  email                 String   @unique
+  id                    String      @id @default(uuid())
+  missionBoardId        String      @unique
+  email                 String      @unique
   name                  String
   avatarUrl             String?
-  currentSeniorityLevel String
-  password              String?  // bcrypt-hashed password with salt round 10, nullable for migration compatibility
-  role                  Role     @default(EMPLOYEE)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  currentSeniorityLevel SeniorityLevel
+  password              String?     // bcrypt-hashed password with salt round 10, nullable for migration compatibility
+  type                  ProfileType @default(EMPLOYEE)
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
 
   // Relations
   employeeSkills   EmployeeSkill[]    @relation("ProfileEmployeeSkills")
   validatedSkills  EmployeeSkill[]    @relation("ValidatedByProfile")
   seniorityHistory SeniorityHistory[] @relation("ProfileSeniorityHistory")
-  createdHistories SeniorityHistory[] @relation("CreatedBySeniorityHistory")
   suggestions      Suggestion[]
   assignments      Assignment[]
   techLeadProjects Project[]          @relation("TechLeadProjects")
 }
 
 model Skill {
-  id         String     @id @default(uuid())
+  id         Int        @id @default(autoincrement())
   name       String     @unique
   discipline Discipline
   isActive   Boolean    @default(true)
@@ -116,23 +122,23 @@ model Project {
 }
 
 // ============================================================================
-// JUNCTION & HISTORY MODELS (placeholders for Task Group 3)
+// JUNCTION & HISTORY MODELS
 // ============================================================================
 
 model EmployeeSkill {
-  id               String           @id @default(uuid())
-  profileId        String
-  skillId          String
-  proficiencyLevel ProficiencyLevel
-  validatedAt      DateTime
-  validatedById    String?
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  id                Int           @id @default(autoincrement())
+  profileId         String
+  skillId           Int
+  proficiencyLevel  ProficiencyLevel
+  lastValidatedAt   DateTime
+  lastValidatedById String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
 
   // Relations
   profile     Profile  @relation("ProfileEmployeeSkills", fields: [profileId], references: [id])
   skill       Skill    @relation(fields: [skillId], references: [id])
-  validatedBy Profile? @relation("ValidatedByProfile", fields: [validatedById], references: [id])
+  validatedBy Profile? @relation("ValidatedByProfile", fields: [lastValidatedById], references: [id])
 
   @@unique([profileId, skillId])
   @@index([profileId])
@@ -140,9 +146,9 @@ model EmployeeSkill {
 }
 
 model Suggestion {
-  id                   String           @id @default(uuid())
+  id                   Int           @id @default(autoincrement())
   profileId            String
-  skillId              String
+  skillId              Int
   suggestedProficiency ProficiencyLevel
   status               SuggestionStatus
   source               SuggestionSource
@@ -155,7 +161,6 @@ model Suggestion {
 
   @@index([profileId])
   @@index([skillId])
-  @@index([status])
 }
 
 model Assignment {
@@ -177,18 +182,16 @@ model Assignment {
 }
 
 model SeniorityHistory {
-  id             String    @id @default(uuid())
+  id             Int       @id @default(autoincrement())
   profileId      String
-  seniorityLevel String
-  start_date     DateTime
-  end_date       DateTime?
-  createdById    String?
+  seniorityLevel SeniorityLevel
+  startDate      DateTime
+  endDate        DateTime?
   createdAt      DateTime  @default(now())
   // Note: No updatedAt field - this is an append-only model
 
   // Relations
-  profile   Profile  @relation("ProfileSeniorityHistory", fields: [profileId], references: [id])
-  createdBy Profile? @relation("CreatedBySeniorityHistory", fields: [createdById], references: [id])
+  profile Profile @relation("ProfileSeniorityHistory", fields: [profileId], references: [id])
 
   @@index([profileId])
 }

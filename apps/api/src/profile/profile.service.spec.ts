@@ -2,7 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { Role, ProficiencyLevel, Discipline } from '@prisma/client';
+import {
+  ProficiencyLevel,
+  Discipline,
+  ProfileType,
+  SeniorityLevel,
+} from '@prisma/client';
 
 describe('ProfileService', () => {
   let service: ProfileService;
@@ -58,7 +63,7 @@ describe('ProfileService', () => {
         id: profileId,
         name: 'John Doe',
         email: 'john@example.com',
-        currentSeniorityLevel: 'Senior Developer',
+        currentSeniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
         avatarUrl: null,
       });
 
@@ -68,7 +73,11 @@ describe('ProfileService', () => {
       mockPrismaService.suggestion.findMany.mockResolvedValue([]);
       mockPrismaService.seniorityHistory.findMany.mockResolvedValue([]);
 
-      const result = await service.getProfile(userId, Role.EMPLOYEE, profileId);
+      const result = await service.getProfile(
+        userId,
+        ProfileType.EMPLOYEE,
+        profileId,
+      );
 
       expect(result).toBeDefined();
       expect(result.id).toBe(profileId);
@@ -82,12 +91,12 @@ describe('ProfileService', () => {
         id: otherProfileId,
         name: 'Jane Doe',
         email: 'jane@example.com',
-        currentSeniorityLevel: 'Developer',
+        currentSeniorityLevel: SeniorityLevel.MID_ENGINEER,
         avatarUrl: null,
       });
 
       await expect(
-        service.getProfile(userId, Role.EMPLOYEE, otherProfileId),
+        service.getProfile(userId, ProfileType.EMPLOYEE, otherProfileId),
       ).rejects.toThrow(ForbiddenException);
     });
   });
@@ -101,7 +110,7 @@ describe('ProfileService', () => {
         id: teamMemberId,
         name: 'Team Member',
         email: 'member@example.com',
-        currentSeniorityLevel: 'Developer',
+        currentSeniorityLevel: SeniorityLevel.MID_ENGINEER,
         avatarUrl: null,
       });
 
@@ -118,7 +127,7 @@ describe('ProfileService', () => {
 
       const result = await service.getProfile(
         techLeadId,
-        Role.TECH_LEAD,
+        ProfileType.TECH_LEAD,
         teamMemberId,
       );
 
@@ -134,14 +143,14 @@ describe('ProfileService', () => {
         id: nonTeamMemberId,
         name: 'Non Team Member',
         email: 'other@example.com',
-        currentSeniorityLevel: 'Developer',
+        currentSeniorityLevel: SeniorityLevel.MID_ENGINEER,
         avatarUrl: null,
       });
 
       mockPrismaService.assignment.findFirst.mockResolvedValue(null);
 
       await expect(
-        service.getProfile(techLeadId, Role.TECH_LEAD, nonTeamMemberId),
+        service.getProfile(techLeadId, ProfileType.TECH_LEAD, nonTeamMemberId),
       ).rejects.toThrow(ForbiddenException);
     });
   });
@@ -155,7 +164,7 @@ describe('ProfileService', () => {
         id: anyProfileId,
         name: 'Any User',
         email: 'user@example.com',
-        currentSeniorityLevel: 'Developer',
+        currentSeniorityLevel: SeniorityLevel.MID_ENGINEER,
         avatarUrl: null,
       });
 
@@ -166,7 +175,7 @@ describe('ProfileService', () => {
 
       const result = await service.getProfile(
         adminId,
-        Role.ADMIN,
+        ProfileType.ADMIN,
         anyProfileId,
       );
 
@@ -183,7 +192,7 @@ describe('ProfileService', () => {
       mockPrismaService.profile.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.getProfile(userId, Role.ADMIN, nonExistentProfileId),
+        service.getProfile(userId, ProfileType.ADMIN, nonExistentProfileId),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -197,7 +206,7 @@ describe('ProfileService', () => {
         id: profileId,
         name: 'John Doe',
         email: 'john@example.com',
-        currentSeniorityLevel: 'Senior Developer',
+        currentSeniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
         avatarUrl: null,
       });
 
@@ -256,7 +265,11 @@ describe('ProfileService', () => {
       mockPrismaService.suggestion.findMany.mockResolvedValue([]);
       mockPrismaService.seniorityHistory.findMany.mockResolvedValue([]);
 
-      const result = await service.getProfile(userId, Role.EMPLOYEE, profileId);
+      const result = await service.getProfile(
+        userId,
+        ProfileType.EMPLOYEE,
+        profileId,
+      );
 
       // TypeScript should be in Core Stack (matches assignment tag)
       expect(result.skills.coreStack).toHaveLength(1);
@@ -275,7 +288,7 @@ describe('ProfileService', () => {
         id: profileId,
         name: 'John Doe',
         email: 'john@example.com',
-        currentSeniorityLevel: 'Senior Developer',
+        currentSeniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
         avatarUrl: null,
       });
 
@@ -297,7 +310,11 @@ describe('ProfileService', () => {
 
       mockPrismaService.seniorityHistory.findMany.mockResolvedValue([]);
 
-      const result = await service.getProfile(userId, Role.EMPLOYEE, profileId);
+      const result = await service.getProfile(
+        userId,
+        ProfileType.EMPLOYEE,
+        profileId,
+      );
 
       expect(result.skills.pending).toHaveLength(1);
       expect(result.skills.pending[0].skillName).toBe('Python');
@@ -316,7 +333,7 @@ describe('ProfileService', () => {
         id: profileId,
         name: 'John Doe',
         email: 'john@example.com',
-        currentSeniorityLevel: 'Senior Developer',
+        currentSeniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
         avatarUrl: null,
       });
 
@@ -327,7 +344,7 @@ describe('ProfileService', () => {
       mockPrismaService.seniorityHistory.findMany.mockResolvedValue([
         {
           id: 'history-1',
-          seniorityLevel: 'Senior Developer',
+          seniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
           start_date: new Date('2024-01-01'),
           end_date: null,
           createdBy: {
@@ -337,7 +354,7 @@ describe('ProfileService', () => {
         },
         {
           id: 'history-2',
-          seniorityLevel: 'Developer',
+          seniorityLevel: SeniorityLevel.MID_ENGINEER,
           start_date: new Date('2023-01-01'),
           end_date: new Date('2023-12-31'),
           createdBy: {
@@ -347,7 +364,11 @@ describe('ProfileService', () => {
         },
       ]);
 
-      const result = await service.getProfile(userId, Role.EMPLOYEE, profileId);
+      const result = await service.getProfile(
+        userId,
+        ProfileType.EMPLOYEE,
+        profileId,
+      );
 
       expect(result.seniorityHistory).toHaveLength(2);
       // Verify that seniority history maintains descending order

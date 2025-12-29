@@ -3,7 +3,12 @@ import { INestApplication } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ResolutionService } from './resolution.service';
 import { ResolutionResolver } from './resolution.resolver';
-import { Role, ProficiencyLevel, SuggestionStatus } from '@prisma/client';
+import {
+  ProfileType,
+  ProficiencyLevel,
+  SuggestionStatus,
+  SeniorityLevel,
+} from '@prisma/client';
 import { ResolutionAction } from './dto/resolution.input';
 
 describe('Resolution Integration Tests', () => {
@@ -35,7 +40,7 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-e2e-approve',
           email: 'e2e-approve@test.com',
           name: 'E2E Approve Test',
-          currentSeniorityLevel: 'Mid',
+          currentSeniorityLevel: SeniorityLevel.MID_ENGINEER,
         },
       });
 
@@ -61,20 +66,24 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-admin-approve',
           email: 'admin-approve@test.com',
           name: 'Admin Approver',
-          currentSeniorityLevel: 'Senior',
-          role: Role.ADMIN,
+          currentSeniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
+          type: ProfileType.ADMIN,
         },
       });
 
       // Execute APPROVE action
-      const result = await service.resolveSuggestions(admin.id, Role.ADMIN, {
-        decisions: [
-          {
-            suggestionId: suggestion.id,
-            action: ResolutionAction.APPROVE,
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        admin.id,
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: suggestion.id,
+              action: ResolutionAction.APPROVE,
+            },
+          ],
+        },
+      );
 
       // Verify response
       expect(result.success).toBe(true);
@@ -98,7 +107,7 @@ describe('Resolution Integration Tests', () => {
       });
       expect(employeeSkill).toBeDefined();
       expect(employeeSkill?.proficiencyLevel).toBe(ProficiencyLevel.ADVANCED);
-      expect(employeeSkill?.validatedById).toBe(admin.id);
+      expect(employeeSkill?.lastValidatedById).toBe(admin.id);
 
       // Cleanup
       await prisma.employeeSkill.delete({
@@ -119,7 +128,7 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-e2e-adjust',
           email: 'e2e-adjust@test.com',
           name: 'E2E Adjust Test',
-          currentSeniorityLevel: 'Mid',
+          currentSeniorityLevel: SeniorityLevel.MID_ENGINEER,
         },
       });
 
@@ -145,21 +154,25 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-admin-adjust',
           email: 'admin-adjust@test.com',
           name: 'Admin Adjuster',
-          currentSeniorityLevel: 'Senior',
-          role: Role.ADMIN,
+          currentSeniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
+          type: ProfileType.ADMIN,
         },
       });
 
       // Execute ADJUST_LEVEL action
-      const result = await service.resolveSuggestions(admin.id, Role.ADMIN, {
-        decisions: [
-          {
-            suggestionId: suggestion.id,
-            action: ResolutionAction.ADJUST_LEVEL,
-            adjustedProficiency: 'EXPERT',
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        admin.id,
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: suggestion.id,
+              action: ResolutionAction.ADJUST_LEVEL,
+              adjustedProficiency: 'EXPERT',
+            },
+          ],
+        },
+      );
 
       // Verify response
       expect(result.success).toBe(true);
@@ -195,7 +208,7 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-e2e-reject',
           email: 'e2e-reject@test.com',
           name: 'E2E Reject Test',
-          currentSeniorityLevel: 'Mid',
+          currentSeniorityLevel: SeniorityLevel.MID_ENGINEER,
         },
       });
 
@@ -221,20 +234,24 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-admin-reject',
           email: 'admin-reject@test.com',
           name: 'Admin Rejecter',
-          currentSeniorityLevel: 'Senior',
-          role: Role.ADMIN,
+          currentSeniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
+          type: ProfileType.ADMIN,
         },
       });
 
       // Execute REJECT action
-      const result = await service.resolveSuggestions(admin.id, Role.ADMIN, {
-        decisions: [
-          {
-            suggestionId: suggestion.id,
-            action: ResolutionAction.REJECT,
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        admin.id,
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: suggestion.id,
+              action: ResolutionAction.REJECT,
+            },
+          ],
+        },
+      );
 
       // Verify response
       expect(result.success).toBe(true);
@@ -271,8 +288,8 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-tech-lead',
           email: 'tech-lead@test.com',
           name: 'Tech Lead',
-          currentSeniorityLevel: 'Senior',
-          role: Role.TECH_LEAD,
+          currentSeniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
+          type: ProfileType.TECH_LEAD,
         },
       });
 
@@ -281,7 +298,7 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-employee',
           email: 'employee@test.com',
           name: 'Team Employee',
-          currentSeniorityLevel: 'Mid',
+          currentSeniorityLevel: SeniorityLevel.MID_ENGINEER,
         },
       });
 
@@ -323,7 +340,7 @@ describe('Resolution Integration Tests', () => {
       // Execute as TECH_LEAD
       const result = await service.resolveSuggestions(
         techLead.id,
-        Role.TECH_LEAD,
+        ProfileType.TECH_LEAD,
         {
           decisions: [
             {
@@ -356,8 +373,8 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-admin-any',
           email: 'admin-any@test.com',
           name: 'Admin Any',
-          currentSeniorityLevel: 'Senior',
-          role: Role.ADMIN,
+          currentSeniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
+          type: ProfileType.ADMIN,
         },
       });
 
@@ -366,7 +383,7 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-employee-any',
           email: 'employee-any@test.com',
           name: 'Random Employee',
-          currentSeniorityLevel: 'Mid',
+          currentSeniorityLevel: SeniorityLevel.MID_ENGINEER,
         },
       });
 
@@ -388,14 +405,18 @@ describe('Resolution Integration Tests', () => {
       });
 
       // Execute as ADMIN (no project association needed)
-      const result = await service.resolveSuggestions(admin.id, Role.ADMIN, {
-        decisions: [
-          {
-            suggestionId: suggestion.id,
-            action: ResolutionAction.REJECT,
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        admin.id,
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: suggestion.id,
+              action: ResolutionAction.REJECT,
+            },
+          ],
+        },
+      );
 
       // Verify access granted
       expect(result.success).toBe(true);
@@ -417,8 +438,8 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-admin-batch',
           email: 'admin-batch@test.com',
           name: 'Admin Batch',
-          currentSeniorityLevel: 'Senior',
-          role: Role.ADMIN,
+          currentSeniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
+          type: ProfileType.ADMIN,
         },
       });
 
@@ -427,7 +448,7 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-employee-batch',
           email: 'employee-batch@test.com',
           name: 'Batch Employee',
-          currentSeniorityLevel: 'Mid',
+          currentSeniorityLevel: SeniorityLevel.MID_ENGINEER,
         },
       });
 
@@ -449,18 +470,22 @@ describe('Resolution Integration Tests', () => {
       });
 
       // Execute with one valid and one invalid suggestion
-      const result = await service.resolveSuggestions(admin.id, Role.ADMIN, {
-        decisions: [
-          {
-            suggestionId: validSuggestion.id,
-            action: ResolutionAction.REJECT,
-          },
-          {
-            suggestionId: 'non-existent-id',
-            action: ResolutionAction.APPROVE,
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        admin.id,
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: validSuggestion.id,
+              action: ResolutionAction.REJECT,
+            },
+            {
+              suggestionId: 0,
+              action: ResolutionAction.APPROVE,
+            },
+          ],
+        },
+      );
 
       // Verify partial success
       expect(result.success).toBe(false);
@@ -484,8 +509,8 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-admin-dup',
           email: 'admin-dup@test.com',
           name: 'Admin Duplicate',
-          currentSeniorityLevel: 'Senior',
-          role: Role.ADMIN,
+          currentSeniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
+          type: ProfileType.ADMIN,
         },
       });
 
@@ -494,7 +519,7 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-employee-dup',
           email: 'employee-dup@test.com',
           name: 'Duplicate Employee',
-          currentSeniorityLevel: 'Mid',
+          currentSeniorityLevel: SeniorityLevel.MID_ENGINEER,
         },
       });
 
@@ -516,18 +541,22 @@ describe('Resolution Integration Tests', () => {
       });
 
       // Execute with duplicate suggestionIds
-      const result = await service.resolveSuggestions(admin.id, Role.ADMIN, {
-        decisions: [
-          {
-            suggestionId: suggestion.id,
-            action: ResolutionAction.REJECT,
-          },
-          {
-            suggestionId: suggestion.id,
-            action: ResolutionAction.APPROVE,
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        admin.id,
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: suggestion.id,
+              action: ResolutionAction.REJECT,
+            },
+            {
+              suggestionId: suggestion.id,
+              action: ResolutionAction.APPROVE,
+            },
+          ],
+        },
+      );
 
       // Verify only first processed
       expect(result.success).toBe(true);
@@ -550,8 +579,8 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-admin-processed',
           email: 'admin-processed@test.com',
           name: 'Admin Processed',
-          currentSeniorityLevel: 'Senior',
-          role: Role.ADMIN,
+          currentSeniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
+          type: ProfileType.ADMIN,
         },
       });
 
@@ -560,7 +589,7 @@ describe('Resolution Integration Tests', () => {
           missionBoardId: 'mb-employee-processed',
           email: 'employee-processed@test.com',
           name: 'Processed Employee',
-          currentSeniorityLevel: 'Mid',
+          currentSeniorityLevel: SeniorityLevel.MID_ENGINEER,
         },
       });
 
@@ -583,14 +612,18 @@ describe('Resolution Integration Tests', () => {
       });
 
       // Try to process already approved suggestion
-      const result = await service.resolveSuggestions(admin.id, Role.ADMIN, {
-        decisions: [
-          {
-            suggestionId: suggestion.id,
-            action: ResolutionAction.APPROVE,
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        admin.id,
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: suggestion.id,
+              action: ResolutionAction.APPROVE,
+            },
+          ],
+        },
+      );
 
       // Verify error
       expect(result.success).toBe(false);
@@ -607,15 +640,19 @@ describe('Resolution Integration Tests', () => {
 
   describe('Missing adjustedProficiency for ADJUST_LEVEL', () => {
     it('should return MISSING_PROFICIENCY error', async () => {
-      const result = await service.resolveSuggestions('admin-id', Role.ADMIN, {
-        decisions: [
-          {
-            suggestionId: 'any-id',
-            action: ResolutionAction.ADJUST_LEVEL,
-            // Missing adjustedProficiency
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        'admin-id',
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: 0,
+              action: ResolutionAction.ADJUST_LEVEL,
+              // Missing adjustedProficiency
+            },
+          ],
+        },
+      );
 
       expect(result.success).toBe(false);
       expect(result.errors).toHaveLength(1);
@@ -625,15 +662,19 @@ describe('Resolution Integration Tests', () => {
 
   describe('Invalid proficiency level', () => {
     it('should return INVALID_PROFICIENCY error', async () => {
-      const result = await service.resolveSuggestions('admin-id', Role.ADMIN, {
-        decisions: [
-          {
-            suggestionId: 'any-id',
-            action: ResolutionAction.ADJUST_LEVEL,
-            adjustedProficiency: 'INVALID_LEVEL',
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        'admin-id',
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: 0,
+              action: ResolutionAction.ADJUST_LEVEL,
+              adjustedProficiency: 'INVALID_LEVEL',
+            },
+          ],
+        },
+      );
 
       expect(result.success).toBe(false);
       expect(result.errors).toHaveLength(1);

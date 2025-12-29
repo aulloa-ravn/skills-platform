@@ -1,5 +1,5 @@
 import { ObjectType, Field, registerEnumType } from '@nestjs/graphql';
-import { ProficiencyLevel, Discipline } from '@prisma/client';
+import { ProficiencyLevel, Discipline, SeniorityLevel } from '@prisma/client';
 import { GraphQLISODateTime } from '@nestjs/graphql';
 
 // Register Prisma enums for GraphQL
@@ -11,6 +11,11 @@ registerEnumType(ProficiencyLevel, {
 registerEnumType(Discipline, {
   name: 'Discipline',
   description: 'Skill discipline category',
+});
+
+registerEnumType(SeniorityLevel, {
+  name: 'SeniorityLevel',
+  description: 'Seniority level',
 });
 
 // Validator Info (reused for both validated skills and seniority history creator)
@@ -74,14 +79,14 @@ export class SkillsTiersResponse {
 // Seniority History Response
 @ObjectType()
 export class SeniorityHistoryResponse {
-  @Field()
-  seniorityLevel: string;
+  @Field(() => SeniorityLevel)
+  seniorityLevel: SeniorityLevel;
 
   @Field(() => GraphQLISODateTime)
-  start_date: Date;
+  startDate: Date;
 
   @Field(() => GraphQLISODateTime, { nullable: true })
-  end_date?: Date;
+  endDate?: Date;
 
   @Field(() => ValidatorInfo, { nullable: true })
   createdBy?: ValidatorInfo;
@@ -128,8 +133,8 @@ export class ProfileResponse {
   @Field()
   email: string;
 
-  @Field()
-  currentSeniorityLevel: string;
+  @Field(() => SeniorityLevel)
+  currentSeniorityLevel: SeniorityLevel;
 
   @Field({ nullable: true })
   avatarUrl?: string;

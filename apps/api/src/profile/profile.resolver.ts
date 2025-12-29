@@ -13,6 +13,6 @@ export class ProfileResolver {
     @CurrentUser() user: CurrentUserType,
     @Args('id') profileId: string,
   ): Promise<ProfileResponse> {
-    return this.profileService.getProfile(user.id, user.role, profileId);
+    return this.profileService.getProfile(user.id, user.type, profileId);
   }
 }

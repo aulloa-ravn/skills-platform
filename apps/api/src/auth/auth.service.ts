@@ -2,12 +2,12 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { comparePassword } from './utils/password.util';
-import { Profile, Role } from '@prisma/client';
+import { Profile, ProfileType } from '@prisma/client';
 
 interface JwtPayload {
   sub: string; // Profile ID
   email: string;
-  role: Role;
+  type: ProfileType;
 }
 
 interface LoginResult {
@@ -17,7 +17,7 @@ interface LoginResult {
     id: string;
     name: string;
     email: string;
-    role: Role;
+    type: ProfileType;
   };
 }
 
@@ -29,15 +29,15 @@ export class AuthService {
   ) {}
 
   /**
-   * Get computed role for a user based on their profile and project assignments
+   * Get computed type for a user based on their profile and project assignments
    * @param profileId Profile ID
-   * @param currentRole Current role from database
-   * @returns Computed role (ADMIN, TECH_LEAD, or EMPLOYEE)
+   * @param currentType Current type from database
+   * @returns Computed type (ADMIN, TECH_LEAD, or EMPLOYEE)
    */
-  async getRoleForUser(profileId: string, currentRole: Role): Promise<Role> {
-    // ADMIN role takes precedence over computed roles
-    if (currentRole === Role.ADMIN) {
-      return Role.ADMIN;
+  async getTypeForUser(profileId: string, currentType: ProfileType): Promise<ProfileType> {
+    // ADMIN type takes precedence over computed types
+    if (currentType === ProfileType.ADMIN) {
+      return ProfileType.ADMIN;
     }
 
     // Check if user is tech lead on any project
@@ -47,13 +47,13 @@ export class AuthService {
       },
     });
 
-    // If user is tech lead on at least one project, assign TECH_LEAD role
+    // If user is tech lead on at least one project, assign TECH_LEAD type
     if (techLeadProjects > 0) {
-      return Role.TECH_LEAD;
+      return ProfileType.TECH_LEAD;
     }
 
-    // Default to EMPLOYEE role
-    return Role.EMPLOYEE;
+    // Default to EMPLOYEE type
+    return ProfileType.EMPLOYEE;
   }
 
   /**
@@ -82,14 +82,14 @@ export class AuthService {
 
   /**
    * Generate access and refresh tokens
-   * @param profile User profile with computed role
+   * @param profile User profile with computed type
    * @returns Access and refresh tokens
    */
   private generateTokens(profile: Profile) {
     const payload: JwtPayload = {
       sub: profile.id,
       email: profile.email,
-      role: profile.role,
+      type: profile.type,
     };
 
     const accessToken = this.jwtService.sign(payload, {
@@ -107,7 +107,7 @@ export class AuthService {
    * Login user with email and password
    * @param email User email
    * @param password Plain text password
-   * @returns Login result with tokens and profile info (with computed role)
+   * @returns Login result with tokens and profile info (with computed type)
    * @throws UnauthorizedException if credentials are invalid
    */
   async login(email: string, password: string): Promise<LoginResult> {
@@ -122,16 +122,16 @@ export class AuthService {
       });
     }
 
-    // Compute role based on project assignments
-    const computedRole = await this.getRoleForUser(profile.id, profile.role);
+    // Compute type based on project assignments
+    const computedType = await this.getTypeForUser(profile.id, profile.type);
 
-    // Create profile with computed role for token generation
-    const profileWithComputedRole = {
+    // Create profile with computed type for token generation
+    const profileWithComputedType = {
       ...profile,
-      role: computedRole,
+      type: computedType,
     };
 
-    const tokens = this.generateTokens(profileWithComputedRole);
+    const tokens = this.generateTokens(profileWithComputedType);
 
     return {
       ...tokens,
@@ -139,15 +139,15 @@ export class AuthService {
         id: profile.id,
         name: profile.name,
         email: profile.email,
-        role: computedRole, // Return computed role
+        type: computedType, // Return computed type
       },
     };
   }
 
   /**
    * Refresh access token using refresh token
-   * Note: Refresh token keeps the role from original token.
-   * For real-time role updates, user should re-login.
+   * Note: Refresh token keeps the type from original token.
+   * For real-time type updates, user should re-login.
    * @param refreshToken Refresh token
    * @returns New access token
    * @throws UnauthorizedException if refresh token is invalid
@@ -157,12 +157,12 @@ export class AuthService {
       const payload = this.jwtService.verify<JwtPayload>(refreshToken);
 
       // Generate new access token with same payload
-      // Note: Role is NOT recomputed on refresh for performance
-      // Users will get updated roles on next login
+      // Note: Type is NOT recomputed on refresh for performance
+      // Users will get updated types on next login
       const newPayload: JwtPayload = {
         sub: payload.sub,
         email: payload.email,
-        role: payload.role,
+        type: payload.type,
       };
 
       return this.jwtService.sign(newPayload, {

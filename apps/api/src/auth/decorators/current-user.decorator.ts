@@ -1,11 +1,11 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { Role } from '@prisma/client';
+import { ProfileType } from '@prisma/client';
 
 export interface CurrentUserType {
   id: string;
   email: string;
-  role: Role;
+  type: ProfileType;
 }
 
 export const CurrentUser = createParamDecorator(

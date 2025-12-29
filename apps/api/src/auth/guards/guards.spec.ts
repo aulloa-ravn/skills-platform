@@ -3,7 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RolesGuard } from './roles.guard';
-import { Role } from '@prisma/client';
+import { ProfileType, SeniorityLevel } from '@prisma/client';
 
 describe('Guards', () => {
   describe('JwtAuthGuard', () => {
@@ -69,10 +69,10 @@ describe('Guards', () => {
       const mockContext = createMockContext({
         id: 'test',
         email: 'test@ravn.com',
-        role: Role.ADMIN,
+        type: ProfileType.ADMIN,
       });
 
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.ADMIN]);
+      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([ProfileType.ADMIN]);
 
       const result = guard.canActivate(mockContext);
 
@@ -83,10 +83,10 @@ describe('Guards', () => {
       const mockContext = createMockContext({
         id: 'test',
         email: 'test@ravn.com',
-        role: Role.EMPLOYEE,
+        type: ProfileType.EMPLOYEE,
       });
 
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.ADMIN]);
+      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([ProfileType.ADMIN]);
 
       expect(() => guard.canActivate(mockContext)).toThrow(ForbiddenException);
 
@@ -107,7 +107,7 @@ describe('Guards', () => {
       const mockContext = createMockContext({
         id: 'test',
         email: 'test@ravn.com',
-        role: Role.EMPLOYEE,
+        type: ProfileType.EMPLOYEE,
       });
 
       jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(undefined);
@@ -120,7 +120,7 @@ describe('Guards', () => {
     it('should throw FORBIDDEN error when user is not authenticated', () => {
       const mockContext = createMockContext(null);
 
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([Role.ADMIN]);
+      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([ProfileType.ADMIN]);
 
       expect(() => guard.canActivate(mockContext)).toThrow(ForbiddenException);
 

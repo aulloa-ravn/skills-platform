@@ -4,7 +4,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { hashPassword } from './utils/password.util';
-import { Role } from '@prisma/client';
+import { ProfileType, SeniorityLevel } from '@prisma/client';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -16,7 +16,7 @@ describe('AuthService', () => {
     email: 'test@ravn.com',
     name: 'Test User',
     password: '',
-    role: Role.EMPLOYEE,
+    type: ProfileType.EMPLOYEE,
     missionBoardId: 'mb-123',
     avatarUrl: null,
     currentSeniorityLevel: 'Senior',
@@ -127,7 +127,7 @@ describe('AuthService', () => {
           id: mockProfile.id,
           name: mockProfile.name,
           email: mockProfile.email,
-          role: Role.EMPLOYEE, // Should be EMPLOYEE (no tech lead projects)
+          type: ProfileType.EMPLOYEE, // Should be EMPLOYEE (no tech lead projects)
         },
       });
       expect(jwtService.sign).toHaveBeenCalledTimes(2);
@@ -135,7 +135,7 @@ describe('AuthService', () => {
         {
           sub: mockProfile.id,
           email: mockProfile.email,
-          role: Role.EMPLOYEE,
+          type: ProfileType.EMPLOYEE,
         },
         { expiresIn: '15m' },
       );
@@ -143,7 +143,7 @@ describe('AuthService', () => {
         {
           sub: mockProfile.id,
           email: mockProfile.email,
-          role: Role.EMPLOYEE,
+          type: ProfileType.EMPLOYEE,
         },
         { expiresIn: '7d' },
       );
@@ -198,7 +198,7 @@ describe('AuthService', () => {
       const mockPayload = {
         sub: mockProfile.id,
         email: mockProfile.email,
-        role: mockProfile.role,
+        role: mockProfile.type,
       };
 
       jest.spyOn(jwtService, 'verify').mockReturnValue(mockPayload);

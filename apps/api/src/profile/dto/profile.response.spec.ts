@@ -1,4 +1,4 @@
-import { ProficiencyLevel, Discipline } from '@prisma/client';
+import { ProficiencyLevel, Discipline, SeniorityLevel } from '@prisma/client';
 import {
   ProfileResponse,
   ValidatedSkillResponse,
@@ -17,7 +17,7 @@ describe('Profile Response DTOs', () => {
       profileResponse.id = 'profile-123';
       profileResponse.name = 'John Doe';
       profileResponse.email = 'john@example.com';
-      profileResponse.currentSeniorityLevel = 'Senior Developer';
+      profileResponse.currentSeniorityLevel = SeniorityLevel.SENIOR_ENGINEER;
       profileResponse.avatarUrl = 'https://example.com/avatar.png';
       profileResponse.skills = new SkillsTiersResponse();
       profileResponse.seniorityHistory = [];
@@ -26,7 +26,9 @@ describe('Profile Response DTOs', () => {
       expect(profileResponse.id).toBe('profile-123');
       expect(profileResponse.name).toBe('John Doe');
       expect(profileResponse.email).toBe('john@example.com');
-      expect(profileResponse.currentSeniorityLevel).toBe('Senior Developer');
+      expect(profileResponse.currentSeniorityLevel).toBe(
+        SeniorityLevel.SENIOR_ENGINEER,
+      );
       expect(profileResponse.avatarUrl).toBe('https://example.com/avatar.png');
       expect(profileResponse.skills).toBeInstanceOf(SkillsTiersResponse);
       expect(Array.isArray(profileResponse.seniorityHistory)).toBe(true);
@@ -106,14 +108,16 @@ describe('Profile Response DTOs', () => {
       creatorInfo.name = 'Admin User';
 
       const seniorityHistory = new SeniorityHistoryResponse();
-      seniorityHistory.seniorityLevel = 'Senior Developer';
-      seniorityHistory.start_date = new Date('2023-01-01');
-      seniorityHistory.end_date = new Date('2024-01-01');
+      seniorityHistory.seniorityLevel = SeniorityLevel.SENIOR_ENGINEER;
+      seniorityHistory.startDate = new Date('2023-01-01');
+      seniorityHistory.endDate = new Date('2024-01-01');
       seniorityHistory.createdBy = creatorInfo;
 
-      expect(seniorityHistory.seniorityLevel).toBe('Senior Developer');
-      expect(seniorityHistory.start_date).toEqual(new Date('2023-01-01'));
-      expect(seniorityHistory.end_date).toEqual(new Date('2024-01-01'));
+      expect(seniorityHistory.seniorityLevel).toBe(
+        SeniorityLevel.SENIOR_ENGINEER,
+      );
+      expect(seniorityHistory.startDate).toEqual(new Date('2023-01-01'));
+      expect(seniorityHistory.endDate).toEqual(new Date('2024-01-01'));
       expect(seniorityHistory.createdBy).toEqual(creatorInfo);
     });
   });

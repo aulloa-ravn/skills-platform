@@ -1,6 +1,6 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Role, SuggestionStatus } from '@prisma/client';
+import { ProfileType, SuggestionStatus } from '@prisma/client';
 import {
   InboxResponse,
   ProjectInbox,
@@ -14,11 +14,11 @@ export class InboxService {
 
   /**
    * Check if user is authorized to access the validation inbox
-   * @param userRole Authenticated user's role
-   * @throws ForbiddenException if EMPLOYEE role attempts access
+   * @param userType Authenticated user's type
+   * @throws ForbiddenException if EMPLOYEE type attempts access
    */
-  private checkAuthorization(userRole: Role): void {
-    if (userRole === Role.EMPLOYEE) {
+  private checkAuthorization(userType: ProfileType): void {
+    if (userType === ProfileType.EMPLOYEE) {
       throw new ForbiddenException(
         'You do not have permission to access the validation inbox',
       );
@@ -26,12 +26,12 @@ export class InboxService {
   }
 
   /**
-   * Build the Prisma where clause for projects based on user role
+   * Build the Prisma where clause for projects based on user type
    * @param userId Authenticated user's ID
-   * @param userRole Authenticated user's role
+   * @param userType Authenticated user's type
    * @returns Where clause for project filtering
    */
-  private buildProjectsQuery(userId: string, userRole: Role) {
+  private buildProjectsQuery(userId: string, userType: ProfileType) {
     const basePendingFilter = {
       assignments: {
         some: {
@@ -46,7 +46,7 @@ export class InboxService {
       },
     };
 
-    if (userRole === Role.TECH_LEAD) {
+    if (userType === ProfileType.TECH_LEAD) {
       return {
         techLeadId: userId,
         ...basePendingFilter,
@@ -153,19 +153,19 @@ export class InboxService {
   /**
    * Get validation inbox with hierarchical structure (Projects → Employees → Suggestions)
    * @param userId Authenticated user's ID
-   * @param userRole Authenticated user's role
-   * @returns InboxResponse with filtered data based on user role
-   * @throws ForbiddenException if EMPLOYEE role attempts access
+   * @param userType Authenticated user's type
+   * @returns InboxResponse with filtered data based on user type
+   * @throws ForbiddenException if EMPLOYEE type attempts access
    */
   async getValidationInbox(
     userId: string,
-    userRole: Role,
+    userType: ProfileType,
   ): Promise<InboxResponse> {
     // Check authorization
-    this.checkAuthorization(userRole);
+    this.checkAuthorization(userType);
 
-    // Build query based on role
-    const whereClause = this.buildProjectsQuery(userId, userRole);
+    // Build query based on type
+    const whereClause = this.buildProjectsQuery(userId, userType);
 
     // Execute single Prisma query with nested includes
     const projects = await this.prisma.project.findMany({

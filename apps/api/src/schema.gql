@@ -22,7 +22,7 @@ scalar DateTime
 input DecisionInput {
   action: ResolutionAction!
   adjustedProficiency: String
-  suggestionId: String!
+  suggestionId: Int!
 }
 
 """Skill discipline category"""
@@ -73,8 +73,8 @@ type LoginResponse {
 
 type Mutation {
   createSkill(input: CreateSkillInput!): Skill!
-  disableSkill(id: String!): Skill!
-  enableSkill(id: String!): Skill!
+  disableSkill(id: Float!): Skill!
+  enableSkill(id: Float!): Skill!
   login(input: LoginInput!): LoginResponse!
   refreshToken(input: RefreshTokenInput!): RefreshTokenResponse!
   resolveSuggestions(input: ResolveSuggestionsInput!): ResolveSuggestionsResponse!
@@ -110,18 +110,25 @@ type ProfileInfo {
   email: String!
   id: String!
   name: String!
-  role: Role!
+  type: ProfileType!
 }
 
 type ProfileResponse {
   avatarUrl: String
   currentAssignments: [CurrentAssignmentResponse!]!
-  currentSeniorityLevel: String!
+  currentSeniorityLevel: SeniorityLevel!
   email: String!
   id: String!
   name: String!
   seniorityHistory: [SeniorityHistoryResponse!]!
   skills: SkillsTiersResponse!
+}
+
+"""User profile type in the system"""
+enum ProfileType {
+  ADMIN
+  EMPLOYEE
+  TECH_LEAD
 }
 
 type ProjectInbox {
@@ -155,7 +162,7 @@ enum ResolutionAction {
 type ResolutionError {
   code: String!
   message: String!
-  suggestionId: String!
+  suggestionId: Int!
 }
 
 input ResolveSuggestionsInput {
@@ -173,27 +180,28 @@ type ResolvedSuggestion {
   employeeName: String!
   proficiencyLevel: String!
   skillName: String!
-  suggestionId: String!
-}
-
-"""User role in the system"""
-enum Role {
-  ADMIN
-  EMPLOYEE
-  TECH_LEAD
+  suggestionId: Int!
 }
 
 type SeniorityHistoryResponse {
   createdBy: ValidatorInfo
-  end_date: DateTime
-  seniorityLevel: String!
-  start_date: DateTime!
+  endDate: DateTime
+  seniorityLevel: SeniorityLevel!
+  startDate: DateTime!
+}
+
+"""Seniority level"""
+enum SeniorityLevel {
+  JUNIOR_ENGINEER
+  MID_ENGINEER
+  SENIOR_ENGINEER
+  STAFF_ENGINEER
 }
 
 type Skill {
   createdAt: DateTime!
   discipline: Discipline!
-  id: String!
+  id: Int!
   isActive: Boolean!
   name: String!
   updatedAt: DateTime!
@@ -219,7 +227,7 @@ type TechLeadInfo {
 
 input UpdateSkillInput {
   discipline: Discipline
-  id: String!
+  id: Int!
   name: String
 }
 

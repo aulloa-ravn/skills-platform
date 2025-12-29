@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { Role } from '@prisma/client';
+import { ProfileType } from '@prisma/client';
 
 export interface JwtPayload {
   sub: string; // Profile ID
   email: string;
-  role: Role;
+  type: ProfileType;
 }
 
 @Injectable()
@@ -23,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return {
       id: payload.sub,
       email: payload.email,
-      role: payload.role,
+      type: payload.type,
     };
   }
 }

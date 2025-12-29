@@ -4,6 +4,7 @@ import {
   SuggestionStatus,
   SuggestionSource,
   Discipline,
+  SeniorityLevel,
 } from '@prisma/client';
 
 /**
@@ -96,13 +97,13 @@ describe('Database Schema - Core Models', () => {
         missionBoardId: 'mb-123',
         email: 'test@example.com',
         name: 'Test User',
-        currentSeniorityLevel: 'Senior Engineer',
+        currentSeniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
       };
 
       expect(profileInput.missionBoardId).toBe('mb-123');
       expect(profileInput.email).toBe('test@example.com');
       expect(profileInput.name).toBe('Test User');
-      expect(profileInput.currentSeniorityLevel).toBe('Senior Engineer');
+      expect(profileInput.currentSeniorityLevel).toBe(SeniorityLevel.SENIOR_ENGINEER);
     });
 
     it('should allow optional avatarUrl field', () => {
@@ -110,7 +111,7 @@ describe('Database Schema - Core Models', () => {
         missionBoardId: 'mb-456',
         email: 'avatar@example.com',
         name: 'Avatar User',
-        currentSeniorityLevel: 'Mid-Level Engineer',
+        currentSeniorityLevel: SeniorityLevel.MID_LEVEL_ENGINEER,
         avatarUrl: 'https://example.com/avatar.png',
       };
 

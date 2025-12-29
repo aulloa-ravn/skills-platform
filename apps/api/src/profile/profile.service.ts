@@ -4,7 +4,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Role } from '@prisma/client';
+import { ProfileType } from '@prisma/client';
 import {
   ProfileResponse,
   SkillsTiersResponse,
@@ -23,22 +23,22 @@ export class ProfileService {
   /**
    * Check if user is authorized to view the requested profile
    * @param userId Authenticated user's ID
-   * @param userRole Authenticated user's role
+   * @param userType Authenticated user's type
    * @param requestedProfileId Profile ID being requested
    * @throws ForbiddenException if user is not authorized
    */
   private async checkAuthorization(
     userId: string,
-    userRole: Role,
+    userType: ProfileType,
     requestedProfileId: string,
   ): Promise<void> {
     // ADMIN: Can access any profile
-    if (userRole === Role.ADMIN) {
+    if (userType === ProfileType.ADMIN) {
       return;
     }
 
     // EMPLOYEE: Can only access own profile
-    if (userRole === Role.EMPLOYEE) {
+    if (userType === ProfileType.EMPLOYEE) {
       if (userId !== requestedProfileId) {
         throw new ForbiddenException({
           message: 'You do not have permission to view this profile',
@@ -51,7 +51,7 @@ export class ProfileService {
     }
 
     // TECH_LEAD: Can access profiles of employees in projects they lead
-    if (userRole === Role.TECH_LEAD) {
+    if (userType === ProfileType.TECH_LEAD) {
       // Allow tech leads to view their own profile
       if (userId === requestedProfileId) {
         return;
@@ -121,7 +121,7 @@ export class ProfileService {
         skillName: empSkill.skill.name,
         discipline: empSkill.skill.discipline,
         proficiencyLevel: empSkill.proficiencyLevel,
-        validatedAt: empSkill.validatedAt,
+        validatedAt: empSkill.lastValidatedAt,
         validator: empSkill.validatedBy
           ? {
               id: empSkill.validatedBy.id,
@@ -173,29 +173,15 @@ export class ProfileService {
   ): Promise<SeniorityHistoryResponse[]> {
     const history = await this.prisma.seniorityHistory.findMany({
       where: { profileId },
-      include: {
-        createdBy: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
       orderBy: {
-        start_date: 'desc',
+        startDate: 'desc',
       },
     });
 
     return history.map((record) => ({
       seniorityLevel: record.seniorityLevel,
-      start_date: record.start_date,
-      end_date: record.end_date || undefined,
-      createdBy: record.createdBy
-        ? {
-            id: record.createdBy.id,
-            name: record.createdBy.name,
-          }
-        : undefined,
+      startDate: record.startDate,
+      endDate: record.endDate || undefined,
     }));
   }
 
@@ -241,7 +227,7 @@ export class ProfileService {
   /**
    * Get comprehensive profile data including skills, seniority history, and assignments
    * @param userId Authenticated user's ID
-   * @param userRole Authenticated user's role
+   * @param userType Authenticated user's type
    * @param profileId Profile ID to retrieve
    * @returns Complete profile response
    * @throws NotFoundException if profile not found
@@ -249,7 +235,7 @@ export class ProfileService {
    */
   async getProfile(
     userId: string,
-    userRole: Role,
+    userType: ProfileType,
     profileId: string,
   ): Promise<ProfileResponse> {
     // Check if profile exists
@@ -274,7 +260,7 @@ export class ProfileService {
     }
 
     // Check authorization
-    await this.checkAuthorization(userId, userRole, profileId);
+    await this.checkAuthorization(userId, userType, profileId);
 
     // Fetch all related data
     const [skills, seniorityHistory, currentAssignments] = await Promise.all([

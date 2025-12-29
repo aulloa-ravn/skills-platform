@@ -29,7 +29,7 @@ export class SkillsService {
    */
   private async validateNameUniqueness(
     name: string,
-    excludeId?: string,
+    excludeId?: number,
   ): Promise<void> {
     const normalizedName = this.normalizeName(name);
 
@@ -133,7 +133,7 @@ export class SkillsService {
    * @param id Skill ID
    * @returns Updated Skill
    */
-  async disableSkill(id: string): Promise<Skill> {
+  async disableSkill(id: number): Promise<Skill> {
     // Verify skill exists
     const skill = await this.prisma.skill.findUnique({
       where: { id },
@@ -170,7 +170,7 @@ export class SkillsService {
    * @param id Skill ID
    * @returns Updated Skill
    */
-  async enableSkill(id: string): Promise<Skill> {
+  async enableSkill(id: number): Promise<Skill> {
     // Verify skill exists
     const skill = await this.prisma.skill.findUnique({
       where: { id },

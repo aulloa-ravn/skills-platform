@@ -1,11 +1,13 @@
-import { InputType, Field, registerEnumType } from '@nestjs/graphql';
+import { InputType, Field, Int, registerEnumType } from '@nestjs/graphql';
 import {
   IsNotEmpty,
-  IsString,
+  IsNumber,
   IsEnum,
   IsArray,
   ValidateNested,
   IsOptional,
+  IsString,
+  IsInt,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -24,10 +26,11 @@ registerEnumType(ResolutionAction, {
 
 @InputType()
 export class DecisionInput {
-  @Field()
-  @IsString()
+  @Field(() => Int)
+  @IsNumber()
+  @IsInt()
   @IsNotEmpty()
-  suggestionId: string;
+  suggestionId: number;
 
   @Field(() => ResolutionAction)
   @IsEnum(ResolutionAction)

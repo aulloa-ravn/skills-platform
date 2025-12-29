@@ -4,7 +4,7 @@ import { AuthResolver } from './auth.resolver';
 import { AuthService } from './auth.service';
 import { LoginInput } from './dto/login.input';
 import { RefreshTokenInput } from './dto/refresh-token.input';
-import { Role } from '@prisma/client';
+import { ProfileType, SeniorityLevel } from '@prisma/client';
 
 describe('AuthResolver', () => {
   let resolver: AuthResolver;
@@ -17,7 +17,7 @@ describe('AuthResolver', () => {
       id: 'test-id',
       name: 'Test User',
       email: 'test@ravn.com',
-      role: Role.EMPLOYEE,
+      type: ProfileType.EMPLOYEE,
     },
   };
 

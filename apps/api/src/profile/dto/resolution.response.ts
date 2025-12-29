@@ -1,10 +1,10 @@
-import { ObjectType, Field } from '@nestjs/graphql';
+import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { ResolutionAction } from './resolution.input';
 
 @ObjectType()
 export class ResolvedSuggestion {
-  @Field()
-  suggestionId: string;
+  @Field(() => Int)
+  suggestionId: number;
 
   @Field(() => ResolutionAction)
   action: ResolutionAction;
@@ -21,8 +21,8 @@ export class ResolvedSuggestion {
 
 @ObjectType()
 export class ResolutionError {
-  @Field()
-  suggestionId: string;
+  @Field(() => Int)
+  suggestionId: number;
 
   @Field()
   message: string;

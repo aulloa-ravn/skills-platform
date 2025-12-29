@@ -1,11 +1,11 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { Role } from '@prisma/client';
+import { ProfileType } from '@prisma/client';
 import { registerEnumType } from '@nestjs/graphql';
 
-// Register Role enum for GraphQL
-registerEnumType(Role, {
-  name: 'Role',
-  description: 'User role in the system',
+// Register ProfileType enum for GraphQL
+registerEnumType(ProfileType, {
+  name: 'ProfileType',
+  description: 'User profile type in the system',
 });
 
 @ObjectType()
@@ -19,8 +19,8 @@ export class ProfileInfo {
   @Field()
   email: string;
 
-  @Field(() => Role)
-  role: Role;
+  @Field(() => ProfileType)
+  type: ProfileType;
 }
 
 @ObjectType()

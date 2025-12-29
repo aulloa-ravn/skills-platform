@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { InboxResolver } from './inbox.resolver';
 import { InboxService } from './inbox.service';
-import { Role } from '@prisma/client';
+import { ProfileType, SeniorityLevel } from '@prisma/client';
 import { InboxResponse } from './dto/inbox.response';
 import type { CurrentUserType } from '../auth/decorators/current-user.decorator';
 
@@ -38,7 +38,7 @@ describe('InboxResolver', () => {
       const mockUser: CurrentUserType = {
         id: 'user-123',
         email: 'user@ravn.com',
-        role: Role.TECH_LEAD,
+        type: ProfileType.TECH_LEAD,
       };
 
       const mockResponse: InboxResponse = {
@@ -51,7 +51,7 @@ describe('InboxResolver', () => {
 
       expect(mockInboxService.getValidationInbox).toHaveBeenCalledWith(
         'user-123',
-        Role.TECH_LEAD,
+        ProfileType.TECH_LEAD,
       );
       expect(result).toEqual(mockResponse);
     });
@@ -60,7 +60,7 @@ describe('InboxResolver', () => {
       const mockUser: CurrentUserType = {
         id: 'admin-123',
         email: 'admin@ravn.com',
-        role: Role.ADMIN,
+        type: ProfileType.ADMIN,
       };
 
       const mockResponse: InboxResponse = {
@@ -87,7 +87,7 @@ describe('InboxResolver', () => {
       const mockUser: CurrentUserType = {
         id: 'tech-lead-456',
         email: 'techlead@ravn.com',
-        role: Role.TECH_LEAD,
+        type: ProfileType.TECH_LEAD,
       };
 
       mockInboxService.getValidationInbox.mockResolvedValue({ projects: [] });
@@ -96,7 +96,7 @@ describe('InboxResolver', () => {
 
       expect(mockInboxService.getValidationInbox).toHaveBeenCalledWith(
         'tech-lead-456',
-        Role.TECH_LEAD,
+        ProfileType.TECH_LEAD,
       );
     });
   });

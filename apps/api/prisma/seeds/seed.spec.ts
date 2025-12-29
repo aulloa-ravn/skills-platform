@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Skill } from '@prisma/client';
 import {
   initializeFaker,
   generateEmail,
@@ -10,10 +10,7 @@ import {
 } from './seed-utils';
 import { seedSkills } from './skills.seed';
 import { seedSampleData } from './sample-data.seed';
-import {
-  getRelevantSkillsForProjectType,
-  ProjectType,
-} from './skill-context';
+import { getRelevantSkillsForProjectType, ProjectType } from './skill-context';
 
 describe('Seed Infrastructure', () => {
   describe('Seed Utilities', () => {
@@ -51,9 +48,9 @@ describe('Seed Infrastructure', () => {
 
   describe('Skill Context Mapping', () => {
     it('should map MOBILE project type to relevant disciplines', () => {
-      const mockSkills = [
+      const mockSkills: Skill[] = [
         {
-          id: '1',
+          id: 1,
           name: 'React Native',
           discipline: 'MOBILE',
           isActive: true,
@@ -61,7 +58,7 @@ describe('Seed Infrastructure', () => {
           updatedAt: new Date(),
         },
         {
-          id: '2',
+          id: 2,
           name: 'Node.js',
           discipline: 'BACKEND',
           isActive: true,
@@ -107,16 +104,16 @@ describe('Profile and Seniority Generation', () => {
     const total = profiles.length;
 
     const juniorCount = profiles.filter(
-      (p) => p.currentSeniorityLevel === 'JUNIOR',
+      (p) => p.currentSeniorityLevel === 'JUNIOR_ENGINEER',
     ).length;
     const midCount = profiles.filter(
-      (p) => p.currentSeniorityLevel === 'MID',
+      (p) => p.currentSeniorityLevel === 'MID_ENGINEER',
     ).length;
     const seniorCount = profiles.filter(
-      (p) => p.currentSeniorityLevel === 'SENIOR',
+      (p) => p.currentSeniorityLevel === 'SENIOR_ENGINEER',
     ).length;
     const leadCount = profiles.filter(
-      (p) => p.currentSeniorityLevel === 'LEAD',
+      (p) => p.currentSeniorityLevel === 'STAFF_ENGINEER',
     ).length;
 
     // Check rough percentages (within 10% tolerance)
@@ -134,7 +131,7 @@ describe('Profile and Seniority Generation', () => {
 
   it('should have at least 5-10 Lead profiles', async () => {
     const leadProfiles = await prisma.profile.findMany({
-      where: { currentSeniorityLevel: 'LEAD' },
+      where: { currentSeniorityLevel: 'STAFF_ENGINEER' },
     });
 
     expect(leadProfiles.length).toBeGreaterThanOrEqual(5);
@@ -142,7 +139,7 @@ describe('Profile and Seniority Generation', () => {
 
   it('should create seniority history with sequential progressions', async () => {
     const histories = await prisma.seniorityHistory.findMany({
-      orderBy: { start_date: 'asc' },
+      orderBy: { startDate: 'asc' },
     });
 
     expect(histories.length).toBeGreaterThan(0);
@@ -159,8 +156,8 @@ describe('Profile and Seniority Generation', () => {
 
     historiesByProfile.forEach((profileHistories) => {
       for (let i = 1; i < profileHistories.length; i++) {
-        expect(profileHistories[i].start_date.getTime()).toBeGreaterThan(
-          profileHistories[i - 1].start_date.getTime(),
+        expect(profileHistories[i].startDate.getTime()).toBeGreaterThan(
+          profileHistories[i - 1].startDate.getTime(),
         );
       }
     });
@@ -217,9 +214,7 @@ describe('Project and Assignment Generation', () => {
     const profiles = await prisma.profile.findMany();
     const assignments = await prisma.assignment.findMany();
 
-    const assignedProfileIds = new Set(
-      assignments.map((a) => a.profileId),
-    );
+    const assignedProfileIds = new Set(assignments.map((a) => a.profileId));
 
     profiles.forEach((profile) => {
       expect(assignedProfileIds.has(profile.id)).toBe(true);
@@ -289,7 +284,7 @@ describe('Employee Skill Validation Generation', () => {
 
   it('should ensure Junior employees do not have EXPERT proficiency', async () => {
     const juniorProfiles = await prisma.profile.findMany({
-      where: { currentSeniorityLevel: 'JUNIOR' },
+      where: { currentSeniorityLevel: 'JUNIOR_ENGINEER' },
     });
 
     const juniorSkills = await prisma.employeeSkill.findMany({
@@ -334,8 +329,10 @@ describe('Employee Skill Validation Generation', () => {
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
     employeeSkills.forEach((skill) => {
-      expect(skill.validatedAt.getTime()).toBeLessThanOrEqual(now.getTime());
-      expect(skill.validatedAt.getTime()).toBeGreaterThanOrEqual(
+      expect(skill.lastValidatedAt.getTime()).toBeLessThanOrEqual(
+        now.getTime(),
+      );
+      expect(skill.lastValidatedAt.getTime()).toBeGreaterThanOrEqual(
         oneYearAgo.getTime(),
       );
     });
@@ -388,9 +385,7 @@ describe('Skill Suggestion Generation', () => {
     twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
     suggestions.forEach((suggestion) => {
-      expect(suggestion.createdAt.getTime()).toBeLessThanOrEqual(
-        now.getTime(),
-      );
+      expect(suggestion.createdAt.getTime()).toBeLessThanOrEqual(now.getTime());
       expect(suggestion.createdAt.getTime()).toBeGreaterThanOrEqual(
         twoWeeksAgo.getTime(),
       );
