@@ -107,6 +107,7 @@ enum ProficiencyLevel {
 }
 
 type ProfileInfo {
+  avatarUrl: String
   email: String!
   id: String!
   name: String!

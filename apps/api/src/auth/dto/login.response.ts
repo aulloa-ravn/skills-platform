@@ -19,6 +19,9 @@ export class ProfileInfo {
   @Field()
   email: string;
 
+  @Field({ nullable: true })
+  avatarUrl?: string;
+
   @Field(() => ProfileType)
   type: ProfileType;
 }

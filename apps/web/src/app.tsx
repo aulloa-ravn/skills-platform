@@ -3,12 +3,12 @@ import { routeTree } from './routeTree.gen'
 
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { useTheme } from '@/shared/hooks/use-theme'
+import { useStore, type CurrentUser } from '@/shared/store'
 
 interface RouterContext {
   auth?: {
-    isLoading: boolean
     isAuthenticated: boolean
-    user: any | null
+    user: CurrentUser | null
   }
 }
 
@@ -16,7 +16,10 @@ interface RouterContext {
 const router = createRouter({
   routeTree,
   context: {
-    auth: undefined,
+    auth: {
+      isAuthenticated: false,
+      user: null,
+    },
   } as RouterContext,
   defaultPreload: 'intent',
   scrollRestoration: true,
@@ -32,11 +35,8 @@ declare module '@tanstack/react-router' {
 }
 
 export const App = () => {
-  const auth = {
-    isLoading: false,
-    isAuthenticated: false,
-    user: null,
-  }
+  const { getCurrentUser } = useStore()
+  const user = getCurrentUser()
   useTheme()
 
   return (
@@ -44,9 +44,8 @@ export const App = () => {
       router={router}
       context={{
         auth: {
-          isLoading: auth.isLoading,
-          isAuthenticated: auth.isAuthenticated,
-          user: auth.user,
+          isAuthenticated: user !== null,
+          user,
         },
       }}
     />

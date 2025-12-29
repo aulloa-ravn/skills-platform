@@ -6,6 +6,7 @@ mutation Login($input: LoginInput!) {
       id
       name
       email
+      avatarUrl
       type
     }
   }

@@ -3,22 +3,12 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { comparePassword } from './utils/password.util';
 import { Profile, ProfileType } from '@prisma/client';
+import { LoginResponse } from './dto/login.response';
 
 interface JwtPayload {
   sub: string; // Profile ID
   email: string;
   type: ProfileType;
-}
-
-interface LoginResult {
-  accessToken: string;
-  refreshToken: string;
-  profile: {
-    id: string;
-    name: string;
-    email: string;
-    type: ProfileType;
-  };
 }
 
 @Injectable()
@@ -34,7 +24,10 @@ export class AuthService {
    * @param currentType Current type from database
    * @returns Computed type (ADMIN, TECH_LEAD, or EMPLOYEE)
    */
-  async getTypeForUser(profileId: string, currentType: ProfileType): Promise<ProfileType> {
+  async getTypeForUser(
+    profileId: string,
+    currentType: ProfileType,
+  ): Promise<ProfileType> {
     // ADMIN type takes precedence over computed types
     if (currentType === ProfileType.ADMIN) {
       return ProfileType.ADMIN;
@@ -110,7 +103,7 @@ export class AuthService {
    * @returns Login result with tokens and profile info (with computed type)
    * @throws UnauthorizedException if credentials are invalid
    */
-  async login(email: string, password: string): Promise<LoginResult> {
+  async login(email: string, password: string): Promise<LoginResponse> {
     const profile = await this.validateUser(email, password);
 
     if (!profile) {
@@ -139,6 +132,7 @@ export class AuthService {
         id: profile.id,
         name: profile.name,
         email: profile.email,
+        avatarUrl: profile.avatarUrl || undefined,
         type: computedType, // Return computed type
       },
     };

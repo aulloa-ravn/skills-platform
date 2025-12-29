@@ -1,6 +1,8 @@
 import { useForm } from '@tanstack/react-form'
 import { toast } from 'sonner'
 import * as z from 'zod'
+import { useNavigate } from '@tanstack/react-router'
+import { CombinedGraphQLErrors } from '@apollo/client'
 import {
   Card,
   CardContent,
@@ -16,13 +18,17 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/shared/components/ui/field'
+import { useLogin } from './hooks/use-login'
 
 const formSchema = z.object({
-  email: z.email('Invalid email address.'),
+  email: z.string().email('Invalid email address.'),
   password: z.string().min(8, 'Password must be at least 8 characters.'),
 })
 
 export function LoginScreen() {
+  const navigate = useNavigate()
+  const { login, loading } = useLogin()
+
   const loginForm = useForm({
     defaultValues: {
       email: '',
@@ -32,20 +38,42 @@ export function LoginScreen() {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      toast('You submitted the following values:', {
-        description: (
-          <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-            <code>{JSON.stringify(value, null, 2)}</code>
-          </pre>
-        ),
-        position: 'bottom-right',
-        classNames: {
-          content: 'flex flex-col gap-2',
-        },
-        style: {
-          '--border-radius': 'calc(var(--radius)  + 4px)',
-        } as React.CSSProperties,
-      })
+      try {
+        await login({
+          input: {
+            email: value.email,
+            password: value.password,
+          },
+        })
+
+        toast.success('Login successful!', {
+          description: 'Welcome to Ravn Skills Platform',
+          position: 'bottom-right',
+        })
+
+        // Navigate to home or dashboard after successful login
+        navigate({ to: '/' })
+      } catch (error) {
+        let errorMessage = 'An error occurred during login'
+
+        if (CombinedGraphQLErrors.is(error)) {
+          const gqlError = error.errors[0]
+          if (gqlError?.extensions?.code === 'INVALID_CREDENTIALS') {
+            errorMessage = 'Invalid email or password'
+          } else if (gqlError?.message) {
+            errorMessage = gqlError.message
+          } else if (error.message) {
+            errorMessage = error.message
+          }
+        } else if (error instanceof Error) {
+          errorMessage = error.message
+        }
+
+        toast.error('Login failed', {
+          description: errorMessage,
+          position: 'bottom-right',
+        })
+      }
     },
   })
 
@@ -139,8 +167,9 @@ export function LoginScreen() {
             type="submit"
             form="login-form"
             className="w-full text-sm sm:text-base"
+            disabled={loading}
           >
-            Sign In
+            {loading ? 'Signing in...' : 'Sign In'}
           </Button>
           <p className="text-center text-sm text-muted-foreground">
             Internal use only - Ravn employees

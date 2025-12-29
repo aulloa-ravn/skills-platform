@@ -7,7 +7,10 @@ export type LoginMutationVariables = Types.Exact<{
 
 export type LoginMutation = {
   login: Pick<Types.LoginResponse, 'accessToken' | 'refreshToken'> & {
-    profile: Pick<Types.ProfileInfo, 'id' | 'name' | 'email' | 'type'>
+    profile: Pick<
+      Types.ProfileInfo,
+      'id' | 'name' | 'email' | 'avatarUrl' | 'type'
+    >
   }
 }
 
@@ -67,6 +70,10 @@ export const LoginDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'avatarUrl' },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'type' } },
                     ],
                   },

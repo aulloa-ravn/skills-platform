@@ -1,19 +1,9 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-import { apolloClient } from '../lib/apollo-client'
+import { apolloClient } from '@/shared/lib/apollo-client'
+import type { ProfileInfo } from '@/shared/lib/types'
 
-interface Profile {
-  id: string
-  name: string
-  avatarUrl?: string | null
-  type: string
-}
-
-interface CurrentUser {
-  id: string
-  email: string
-  profile: Profile
-}
+export interface CurrentUser extends ProfileInfo {}
 
 interface UseGlobalStoreState {
   token: string | null
@@ -25,6 +15,7 @@ interface UseGlobalStoreState {
   setRefreshToken: (token: string | null) => void
   setCurrentUser: (user: CurrentUser | null) => void
   setInvalidSession: (value: boolean) => void
+  getCurrentUser: () => CurrentUser | null
 }
 
 const initialState = {
@@ -36,7 +27,7 @@ const initialState = {
 
 export const useStore = create<UseGlobalStoreState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...initialState,
       async reset() {
         useStore.persist.clearStorage()
@@ -54,6 +45,9 @@ export const useStore = create<UseGlobalStoreState>()(
       },
       setInvalidSession: (value: boolean) => {
         set({ invalidSession: value })
+      },
+      getCurrentUser: () => {
+        return get().currentUser
       },
     }),
     {

@@ -166,6 +166,7 @@ export enum ProficiencyLevel {
 
 export type ProfileInfo = {
   __typename?: 'ProfileInfo'
+  avatarUrl?: Maybe<Scalars['String']['output']>
   email: Scalars['String']['output']
   id: Scalars['String']['output']
   name: Scalars['String']['output']
