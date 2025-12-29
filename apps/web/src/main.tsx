@@ -1,5 +1,7 @@
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
+import { ApolloProvider } from '@apollo/client/react'
+import { apolloClient } from '@/shared/lib/apollo-client'
 import { Toaster } from '@/shared/components/ui/sonner'
 import reportWebVitals from './reportWebVitals.ts'
 import { App } from './app.tsx'
@@ -11,8 +13,10 @@ if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <StrictMode>
-      <App />
-      <Toaster />
+      <ApolloProvider client={apolloClient}>
+        <App />
+        <Toaster />
+      </ApolloProvider>
     </StrictMode>,
   )
 }
