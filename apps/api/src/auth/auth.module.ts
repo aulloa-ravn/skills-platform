@@ -13,7 +13,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'default-secret-change-in-production',
       signOptions: {
-        expiresIn: '15m', // Default expiration for access tokens
+        expiresIn: '60m', // Default expiration for access tokens
       },
     }),
   ],

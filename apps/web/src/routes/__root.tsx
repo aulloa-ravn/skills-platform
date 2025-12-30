@@ -1,8 +1,16 @@
-import { Outlet, createRootRoute } from '@tanstack/react-router'
+import { Outlet, createRootRouteWithContext } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+import type { CurrentUser } from '@/shared/store'
 
-export const Route = createRootRoute({
+interface RouterContext {
+  auth: {
+    isAuthenticated: boolean
+    user: CurrentUser | null
+  }
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: () => (
     <>
       <Outlet />

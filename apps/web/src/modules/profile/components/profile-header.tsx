@@ -5,16 +5,20 @@ import {
   AvatarFallback,
 } from '@/shared/components/ui/avatar'
 import { Mail, Linkedin, Github } from 'lucide-react'
+import type { ProfileResponse } from '@/shared/lib/types'
+import {
+  formatShortDate,
+  getStringInitials,
+  SeniorityLevelMap,
+} from '@/shared/utils'
 
-export function ProfileHeader() {
-  const employee = {
-    name: 'Sarah Chen',
-    role: 'Senior UI/UX Designer',
-    email: 'sarah.chen@company.com',
-    phone: '+1 (555) 123-4567',
-    joinDate: 'Jan 2020',
-    avatar: '/professional-avatar.png',
-  }
+interface ProfileHeaderProps {
+  profile: ProfileResponse
+}
+
+export function ProfileHeader({ profile }: ProfileHeaderProps) {
+  // Calculate join date
+  const joinDate = profile.seniorityHistory[0].startDate
 
   return (
     <Card className="overflow-hidden border-0 shadow-lg">
@@ -22,21 +26,21 @@ export function ProfileHeader() {
         <div className="flex flex-row items-center gap-4 mb-4">
           <Avatar className="h-16 sm:h-24 w-16 sm:w-24 border-4 border-background flex-shrink-0">
             <AvatarImage
-              src={employee.avatar || '/placeholder.svg'}
-              alt={employee.name}
+              src={profile.avatarUrl || undefined}
+              alt={profile.name}
             />
-            <AvatarFallback>SC</AvatarFallback>
+            <AvatarFallback>{getStringInitials(profile.name)}</AvatarFallback>
           </Avatar>
 
           <div className="flex-1">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-              {employee.name}
+              {profile.name}
             </h1>
             <p className="text-base sm:text-lg text-primary font-semibold">
-              {employee.role}
+              {SeniorityLevelMap[profile.currentSeniorityLevel]}
             </p>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Since {employee.joinDate}
+              Since {formatShortDate(joinDate)}
             </p>
           </div>
         </div>
@@ -48,10 +52,10 @@ export function ProfileHeader() {
             <div className="min-w-0">
               <p className="text-xs text-muted-foreground">Email</p>
               <a
-                href={`mailto:${employee.email}`}
+                href={`mailto:${profile.email}`}
                 className="text-sm font-medium hover:underline truncate block"
               >
-                {employee.email}
+                {profile.email}
               </a>
             </div>
           </div>
@@ -60,7 +64,7 @@ export function ProfileHeader() {
             <Linkedin className="w-5 h-5 text-primary flex-shrink-0" />
             <div className="min-w-0">
               <p className="text-xs text-muted-foreground">LinkedIn</p>
-              <a href="#" className="text-sm font-medium hover:underline">
+              <a className="text-sm font-medium hover:underline">
                 View Profile
               </a>
             </div>
@@ -70,11 +74,8 @@ export function ProfileHeader() {
             <Github className="w-5 h-5 text-primary flex-shrink-0" />
             <div className="min-w-0">
               <p className="text-xs text-muted-foreground">GitHub</p>
-              <a
-                href="#"
-                className="text-sm font-medium hover:underline truncate block"
-              >
-                @sarahchen
+              <a className="text-sm font-medium hover:underline truncate block">
+                @username
               </a>
             </div>
           </div>

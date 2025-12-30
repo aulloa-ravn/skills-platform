@@ -174,7 +174,7 @@ export class ProfileService {
     const history = await this.prisma.seniorityHistory.findMany({
       where: { profileId },
       orderBy: {
-        startDate: 'desc',
+        startDate: 'asc',
       },
     });
 

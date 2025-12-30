@@ -3,14 +3,7 @@ import { routeTree } from './routeTree.gen'
 
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { useTheme } from '@/shared/hooks/use-theme'
-import { useStore, type CurrentUser } from '@/shared/store'
-
-interface RouterContext {
-  auth?: {
-    isAuthenticated: boolean
-    user: CurrentUser | null
-  }
-}
+import { useStore } from '@/shared/store'
 
 // Create a new router instance
 const router = createRouter({
@@ -20,7 +13,7 @@ const router = createRouter({
       isAuthenticated: false,
       user: null,
     },
-  } as RouterContext,
+  },
   defaultPreload: 'intent',
   scrollRestoration: true,
   defaultStructuralSharing: true,

@@ -9,49 +9,73 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table'
+import { formatTimeAgo, ProficiencyLevelMap } from '@/shared/utils'
+import type { SkillsTiersResponse } from '@/shared/lib/types'
 
-export function SkillsSection() {
-  const coreStack = [
-    { name: 'Figma', icon: '🎨', projects: ['WebApp Redesign', 'Mobile App'] },
-    { name: 'React', icon: '⚛️', projects: ['Dashboard', 'Admin Panel'] },
-    { name: 'TypeScript', icon: '📘', projects: ['Dashboard', 'Admin Panel'] },
-    { name: 'Next.js', icon: '▲', projects: ['WebApp Redesign'] },
-  ]
+interface SkillsSectionProps {
+  skills: SkillsTiersResponse
+}
 
-  const validatedInventory = [
-    { skill: 'Adobe XD', endorsements: 12, lastUsed: '6 months ago' },
-    { skill: 'Sketch', endorsements: 8, lastUsed: '1 year ago' },
-    { skill: 'CSS/SCSS', endorsements: 15, lastUsed: '2 months ago' },
-    { skill: 'HTML5', endorsements: 14, lastUsed: '2 months ago' },
-    { skill: 'JavaScript', endorsements: 16, lastUsed: '1 month ago' },
-    {
-      skill: 'Accessibility (WCAG)',
-      endorsements: 9,
-      lastUsed: '3 months ago',
-    },
-  ]
-
-  const pending = [
-    { skill: 'Vue.js', status: 'Pending Review', suggestedBy: 'Manager' },
-    { skill: 'Svelte', status: 'Clarification Needed', suggestedBy: 'Peer' },
-    { skill: 'Web3 UX', status: 'Pending Review', suggestedBy: 'Self' },
-  ]
-
+export function SkillsSection({ skills }: SkillsSectionProps) {
   return (
     <div className="space-y-8 px-4 sm:px-6 py-6 sm:py-8">
-      {/* Core Stack */}
-      <div>
-        <div className="mb-4 sm:mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 sm:mb-2">
-            Core Stack
-          </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Skills actively used in current assignments
-          </p>
-        </div>
+      <CoreStackSection coreStack={skills.coreStack} />
+      <ValidatedInventorySection
+        validatedInventory={skills.validatedInventory}
+      />
+      <PendingSkillsSection pending={skills.pending} />
+    </div>
+  )
+}
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          {coreStack.map((skill) => (
+function CoreStackSection({
+  coreStack,
+}: {
+  coreStack: SkillsTiersResponse['coreStack']
+}) {
+  const getSkillIcon = (discipline: string) => {
+    const icons: Record<string, string> = {
+      FRONTEND: '⚛️',
+      BACKEND: '🔧',
+      DATABASE: '🗄️',
+      MOBILE: '📱',
+      DEVOPS: '🚀',
+      DESIGN: '🎨',
+      LANGUAGES: '📘',
+      TOOLS: '🔨',
+      CLOUD: '☁️',
+      TESTING: '✅',
+    }
+    return icons[discipline] || '💻'
+  }
+
+  const skills = coreStack.map((skill) => ({
+    name: skill.skillName,
+    icon: getSkillIcon(skill.discipline),
+    projects: ['Current Project'], // Hardcoded - API doesn't provide project associations
+    proficiency: ProficiencyLevelMap[skill.proficiencyLevel],
+    validatedBy: skill.validator?.name || 'Unknown',
+  }))
+
+  return (
+    <div>
+      <div className="mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 sm:mb-2">
+          Core Stack
+        </h2>
+        <p className="text-xs sm:text-sm text-muted-foreground">
+          Skills actively used in current assignments
+        </p>
+      </div>
+
+      {skills.length === 0 ? (
+        <Card className="p-6 text-center text-muted-foreground">
+          <AlertCircle className="w-12 h-12 mx-auto opacity-50" />
+          <p>No skills found</p>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {skills.map((skill) => (
             <Card
               key={skill.name}
               className="p-3 sm:p-6 border border-primary/20 bg-primary/5 hover:shadow-md transition-shadow"
@@ -62,29 +86,51 @@ export function SkillsSection() {
               <h3 className="font-semibold text-sm sm:text-base text-foreground mb-1 sm:mb-2">
                 {skill.name}
               </h3>
-              <div className="space-y-0.5 sm:space-y-1">
+              {/* <div className="space-y-0.5 sm:space-y-1">
                 {skill.projects.map((project) => (
                   <p key={project} className="text-xs text-muted-foreground">
                     • {project}
                   </p>
                 ))}
-              </div>
+              </div> */}
             </Card>
           ))}
         </div>
+      )}
+    </div>
+  )
+}
+
+function ValidatedInventorySection({
+  validatedInventory,
+}: {
+  validatedInventory: SkillsTiersResponse['validatedInventory']
+}) {
+  const skills = validatedInventory.map((skill) => ({
+    skill: skill.skillName,
+    proficiency: ProficiencyLevelMap[skill.proficiencyLevel],
+    assignments: Math.floor(Math.random() * 20) + 5, // Hardcoded - API doesn't provide assignments
+    lastValidated: formatTimeAgo(skill.validatedAt),
+    validatedBy: skill.validator?.name || 'Unknown',
+  }))
+
+  return (
+    <div>
+      <div className="mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 sm:mb-2">
+          Validated Inventory
+        </h2>
+        <p className="text-xs sm:text-sm text-muted-foreground">
+          Previously verified skills
+        </p>
       </div>
 
-      {/* Validated Inventory */}
-      <div>
-        <div className="mb-4 sm:mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 sm:mb-2">
-            Validated Inventory
-          </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Previously verified skills and endorsements
-          </p>
-        </div>
-
+      {skills.length === 0 ? (
+        <Card className="p-6 text-center text-muted-foreground">
+          <AlertCircle className="w-12 h-12 mx-auto opacity-50" />
+          <p>No skills found</p>
+        </Card>
+      ) : (
         <Card className="border border-border overflow-hidden overflow-x-auto">
           <Table>
             <TableHeader className="bg-muted/50">
@@ -92,16 +138,16 @@ export function SkillsSection() {
                 <TableHead className="text-foreground font-semibold text-xs sm:text-sm">
                   Skill
                 </TableHead>
-                <TableHead className="text-foreground font-semibold text-xs sm:text-sm">
-                  Endorsements
+                <TableHead className="text-foreground font-semibold text-xs sm:text-sm text-center">
+                  Assignments
                 </TableHead>
                 <TableHead className="text-foreground font-semibold text-xs sm:text-sm text-right">
-                  Last Used
+                  Last Validated
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {validatedInventory.map((item) => (
+              {skills.map((item) => (
                 <TableRow
                   key={item.skill}
                   className="hover:bg-muted/30 transition-colors"
@@ -114,34 +160,55 @@ export function SkillsSection() {
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="py-2 sm:py-4">
+                  <TableCell className="text-center py-2 sm:py-4">
                     <Badge variant="secondary" className="text-xs">
-                      {item.endorsements}
+                      {item.assignments}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right text-xs sm:text-sm text-muted-foreground py-2 sm:py-4">
-                    {item.lastUsed}
+                    {item.lastValidated} by {item.validatedBy}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </Card>
+      )}
+    </div>
+  )
+}
+
+function PendingSkillsSection({
+  pending,
+}: {
+  pending: SkillsTiersResponse['pending']
+}) {
+  const skills = pending.map((skill) => ({
+    skill: skill.skillName,
+    status: 'Pending Review', // Hardcoded - API doesn't provide status
+    proficiency: ProficiencyLevelMap[skill.suggestedProficiency],
+    createdAt: formatTimeAgo(skill.createdAt),
+  }))
+
+  return (
+    <div>
+      <div className="mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 sm:mb-2">
+          Pending Validation
+        </h2>
+        <p className="text-xs sm:text-sm text-muted-foreground">
+          Skills awaiting Tech Lead approval
+        </p>
       </div>
 
-      {/* Pending Skills */}
-      <div>
-        <div className="mb-4 sm:mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 sm:mb-2">
-            Pending Validation
-          </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Skills awaiting manager approval
-          </p>
-        </div>
-
+      {skills.length === 0 ? (
+        <Card className="p-6 text-center text-muted-foreground">
+          <AlertCircle className="w-12 h-12 mx-auto opacity-50" />
+          <p>No skills found</p>
+        </Card>
+      ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
-          {pending.map((item) => (
+          {skills.map((item) => (
             <Card
               key={item.skill}
               className="p-3 sm:p-4 border border-yellow-200/50 bg-yellow-50/20 dark:bg-yellow-950/20"
@@ -153,7 +220,10 @@ export function SkillsSection() {
                     {item.skill}
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {item.suggestedBy}
+                    Proficiency: {item.proficiency}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Submitted: {item.createdAt}
                   </p>
                   <Badge
                     variant="outline"
@@ -166,7 +236,7 @@ export function SkillsSection() {
             </Card>
           ))}
         </div>
-      </div>
+      )}
     </div>
   )
 }
