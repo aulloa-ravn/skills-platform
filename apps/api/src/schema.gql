@@ -49,6 +49,8 @@ enum Discipline {
 }
 
 type EmployeeInbox {
+  employeeAvatarUrl: String
+  employeeCurrentSeniorityLevel: SeniorityLevel!
   employeeEmail: String!
   employeeId: String!
   employeeName: String!

@@ -4,6 +4,7 @@ import {
   Discipline,
   SuggestionSource,
   SuggestionStatus,
+  SeniorityLevel,
 } from '@prisma/client';
 import { GraphQLISODateTime } from '@nestjs/graphql';
 
@@ -54,6 +55,12 @@ export class EmployeeInbox {
 
   @Field()
   employeeEmail: string;
+
+  @Field(() => SeniorityLevel)
+  employeeCurrentSeniorityLevel: SeniorityLevel;
+
+  @Field({ nullable: true })
+  employeeAvatarUrl?: string;
 
   @Field(() => Int)
   pendingSuggestionsCount: number;

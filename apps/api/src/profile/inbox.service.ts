@@ -100,29 +100,31 @@ export class InboxService {
         });
 
         // Convert map to array of EmployeeInbox objects
-        const employees: EmployeeInbox[] = Array.from(
-          employeeMap.values(),
-        ).map((employeeData) => {
-          const suggestions: PendingSuggestion[] = employeeData.suggestions.map(
-            (s: any) => ({
-              id: s.suggestion.id,
-              skillName: s.suggestion.skill.name,
-              discipline: s.suggestion.skill.discipline,
-              suggestedProficiency: s.suggestion.suggestedProficiency,
-              source: s.suggestion.source,
-              createdAt: s.suggestion.createdAt,
-              currentProficiency: s.currentProficiency,
-            }),
-          );
+        const employees: EmployeeInbox[] = Array.from(employeeMap.values()).map(
+          (employeeData) => {
+            const suggestions: PendingSuggestion[] =
+              employeeData.suggestions.map((s: any) => ({
+                id: s.suggestion.id,
+                skillName: s.suggestion.skill.name,
+                discipline: s.suggestion.skill.discipline,
+                suggestedProficiency: s.suggestion.suggestedProficiency,
+                source: s.suggestion.source,
+                createdAt: s.suggestion.createdAt,
+                currentProficiency: s.currentProficiency,
+              }));
 
-          return {
-            employeeId: employeeData.employee.id,
-            employeeName: employeeData.employee.name,
-            employeeEmail: employeeData.employee.email,
-            pendingSuggestionsCount: suggestions.length,
-            suggestions,
-          };
-        });
+            return {
+              employeeId: employeeData.employee.id,
+              employeeName: employeeData.employee.name,
+              employeeEmail: employeeData.employee.email,
+              employeeCurrentSeniorityLevel:
+                employeeData.employee.currentSeniorityLevel,
+              employeeAvatarUrl: employeeData.employee.avatarUrl,
+              pendingSuggestionsCount: suggestions.length,
+              suggestions,
+            };
+          },
+        );
 
         // Sort employees alphabetically by name
         employees.sort((a, b) => a.employeeName.localeCompare(b.employeeName));

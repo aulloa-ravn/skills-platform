@@ -1,0 +1,26 @@
+query GetValidationInbox {
+  getValidationInbox {
+    projects {
+      projectId
+      projectName
+      pendingSuggestionsCount
+      employees {
+        employeeId
+        employeeName
+        employeeEmail
+        employeeCurrentSeniorityLevel
+        employeeAvatarUrl
+        pendingSuggestionsCount
+        suggestions {
+          id
+          skillName
+          discipline
+          suggestedProficiency
+          source
+          createdAt
+          currentProficiency
+        }
+      }
+    }
+  }
+}

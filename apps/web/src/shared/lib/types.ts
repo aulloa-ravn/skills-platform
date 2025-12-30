@@ -74,6 +74,8 @@ export enum Discipline {
 
 export type EmployeeInbox = {
   __typename?: 'EmployeeInbox'
+  employeeAvatarUrl?: Maybe<Scalars['String']['output']>
+  employeeCurrentSeniorityLevel: SeniorityLevel
   employeeEmail: Scalars['String']['output']
   employeeId: Scalars['String']['output']
   employeeName: Scalars['String']['output']
