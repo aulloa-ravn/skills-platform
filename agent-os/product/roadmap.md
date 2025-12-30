@@ -2,7 +2,7 @@
 
 ## Implementation Constraints
 
-- **Iterative Sprints**: Each sprint must deliver functional improvements on **both** frontend (`/apps/client`) and backend (`/apps/api`).
+- **Iterative Sprints**: Each sprint must deliver functional improvements on **both** frontend (`/apps/web`) and backend (`/apps/api`).
 - **Mission Board Integration**: Deferred to last - not yet possible. Use fake data seeding in interim.
 - **Email Domain**: All emails must be from `ravn.com` domain.
 - **Skill Seeding**: Initialize DB with top 50 tech skills with default disciplines (e.g., React → Frontend, Node.js → Backend, JavaScript/TypeScript → Languages).
@@ -54,4 +54,4 @@
 > - Items 1-17 form the core product that can run with seeded data
 > - Items 18-19 are the Mission Board integration phase, intentionally last per project constraints
 > - Each item represents an end-to-end functional and testable feature
-> - Frontend items assume Tailwind CSS, Zustand, and Apollo Client are installed as prerequisites
+> - Frontend items assume Vite, Tanstack tools (Router, Form), Shadcn UI, Tailwind CSS, Zustand, and Apollo Client v4 are installed as prerequisites

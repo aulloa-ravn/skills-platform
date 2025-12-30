@@ -32,28 +32,38 @@
 - **Test Framework:** Jest
 - **E2E Testing:** Supertest
 
-## Frontend (apps/client)
+## Frontend (apps/web)
 
 ### Framework & Build
 
 - **Framework:** React 19
 - **Build Tool:** Vite 7
 - **Module System:** ES Modules
+- **Router:** Tanstack Router
+- **Forms:** Tanstack React Form
 
-### Styling
+### UI Components & Styling
 
+- **Component Library:** Shadcn UI (Radix UI + Tailwind)
 - **CSS Framework:** Tailwind CSS
-- **Approach:** Utility-first CSS
+- **Icons:** Lucide React
+- **Approach:** Utility-first CSS with accessible components
 
 ### State Management
 
-- **Client State:** Zustand
-- **Server State:** Apollo Client (GraphQL)
+- **Client State:** Zustand (with localStorage persistence)
+- **Server State:** Apollo Client v4 (GraphQL)
 
 ### Data Fetching
 
-- **GraphQL Client:** Apollo Client
+- **GraphQL Client:** Apollo Client v4
 - **API Communication:** GraphQL queries and mutations
+- **Code Generation:** GraphQL Code Generator (@graphql-codegen)
+
+### Validation & Notifications
+
+- **Form Validation:** Zod
+- **Toast Notifications:** Sonner
 
 ## Shared Packages
 
@@ -83,7 +93,7 @@
 ### Local Development
 
 - **API Server:** `nest start --watch` (hot reload)
-- **Client Server:** Vite dev server (HMR)
+- **Web Server:** Vite dev server (HMR)
 - **Database:** Local PostgreSQL instance
 
 ### Scripts
