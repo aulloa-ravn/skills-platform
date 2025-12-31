@@ -79,6 +79,7 @@ export type EmployeeInbox = {
   employeeEmail: Scalars['String']['output']
   employeeId: Scalars['String']['output']
   employeeName: Scalars['String']['output']
+  employeeRole: Scalars['String']['output']
   pendingSuggestionsCount: Scalars['Int']['output']
   suggestions: Array<PendingSuggestion>
 }

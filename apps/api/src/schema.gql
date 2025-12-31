@@ -54,6 +54,7 @@ type EmployeeInbox {
   employeeEmail: String!
   employeeId: String!
   employeeName: String!
+  employeeRole: String!
   pendingSuggestionsCount: Int!
   suggestions: [PendingSuggestion!]!
 }

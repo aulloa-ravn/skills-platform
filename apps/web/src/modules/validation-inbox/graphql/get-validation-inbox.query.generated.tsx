@@ -18,8 +18,9 @@ export type GetValidationInboxQuery = {
             | 'employeeId'
             | 'employeeName'
             | 'employeeEmail'
-            | 'employeeCurrentSeniorityLevel'
             | 'employeeAvatarUrl'
+            | 'employeeCurrentSeniorityLevel'
+            | 'employeeRole'
             | 'pendingSuggestionsCount'
           > & {
             suggestions: Array<
@@ -100,15 +101,19 @@ export const GetValidationInboxDocument = {
                               kind: 'Field',
                               name: {
                                 kind: 'Name',
-                                value: 'employeeCurrentSeniorityLevel',
+                                value: 'employeeAvatarUrl',
                               },
                             },
                             {
                               kind: 'Field',
                               name: {
                                 kind: 'Name',
-                                value: 'employeeAvatarUrl',
+                                value: 'employeeCurrentSeniorityLevel',
                               },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'employeeRole' },
                             },
                             {
                               kind: 'Field',

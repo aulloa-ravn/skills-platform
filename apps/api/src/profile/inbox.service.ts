@@ -69,7 +69,10 @@ export class InboxService {
         const employeeMap = new Map<string, any>();
 
         project.assignments.forEach((assignment: any) => {
-          const employee = assignment.profile;
+          const employee = {
+            ...assignment.profile,
+            role: assignment.role,
+          };
           const pendingSuggestions = employee.suggestions.filter(
             (s: any) => s.status === SuggestionStatus.PENDING,
           );
@@ -117,9 +120,10 @@ export class InboxService {
               employeeId: employeeData.employee.id,
               employeeName: employeeData.employee.name,
               employeeEmail: employeeData.employee.email,
+              employeeAvatarUrl: employeeData.employee.avatarUrl,
               employeeCurrentSeniorityLevel:
                 employeeData.employee.currentSeniorityLevel,
-              employeeAvatarUrl: employeeData.employee.avatarUrl,
+              employeeRole: employeeData.employee.role,
               pendingSuggestionsCount: suggestions.length,
               suggestions,
             };

@@ -56,11 +56,14 @@ export class EmployeeInbox {
   @Field()
   employeeEmail: string;
 
+  @Field({ nullable: true })
+  employeeAvatarUrl?: string;
+
   @Field(() => SeniorityLevel)
   employeeCurrentSeniorityLevel: SeniorityLevel;
 
-  @Field({ nullable: true })
-  employeeAvatarUrl?: string;
+  @Field()
+  employeeRole: string;
 
   @Field(() => Int)
   pendingSuggestionsCount: number;

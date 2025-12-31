@@ -8,8 +8,9 @@ query GetValidationInbox {
         employeeId
         employeeName
         employeeEmail
-        employeeCurrentSeniorityLevel
         employeeAvatarUrl
+        employeeCurrentSeniorityLevel
+        employeeRole
         pendingSuggestionsCount
         suggestions {
           id
