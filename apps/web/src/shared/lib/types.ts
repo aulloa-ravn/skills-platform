@@ -153,7 +153,7 @@ export type PendingSuggestion = {
   createdAt: Scalars['DateTime']['output']
   currentProficiency?: Maybe<ProficiencyLevel>
   discipline: Discipline
-  id: Scalars['String']['output']
+  id: Scalars['Int']['output']
   skillName: Scalars['String']['output']
   source: SuggestionSource
   suggestedProficiency: ProficiencyLevel

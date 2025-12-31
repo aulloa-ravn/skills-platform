@@ -28,7 +28,6 @@ import {
   DisciplineMap,
 } from '@/shared/utils'
 import {
-  AlertCircleIcon,
   CheckCircle2Icon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -38,10 +37,11 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useValidationInbox } from './hooks/use-validation-inbox'
+import { useResolveSuggestions } from './hooks/use-resolve-suggestions'
 import { SuggestionSource, type InboxResponse } from '@/shared/lib/types'
 
 type EmployeeSuggestion = {
-  id: string
+  id: number
   skill: string
   discipline: string
   type: 'suggestion' | 'revalidation'
@@ -114,6 +114,11 @@ function transformInboxData(inbox: InboxResponse | undefined): Project[] {
 
 export function ValidationInbox() {
   const { inbox, loading, error } = useValidationInbox()
+  const {
+    approveSuggestion,
+    rejectSuggestion,
+    loading: resolving,
+  } = useResolveSuggestions()
   const projects = transformInboxData(inbox)
 
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
@@ -132,6 +137,38 @@ export function ValidationInbox() {
 
   const selectedEmployeeSuggestions = selectedEmployee?.suggestions || []
   const currentSkill = selectedEmployeeSuggestions[currentSkillIndex]
+
+  const handleApprove = async () => {
+    if (!currentSkill) return
+
+    try {
+      await approveSuggestion(currentSkill.id)
+
+      // Move to next skill or stay on current if it's the last one
+      if (currentSkillIndex < selectedEmployeeSuggestions.length - 1) {
+        setCurrentSkillIndex(currentSkillIndex + 1)
+      }
+    } catch (error) {
+      // Error is handled by the hook
+      console.error('Failed to approve suggestion:', error)
+    }
+  }
+
+  const handleReject = async () => {
+    if (!currentSkill) return
+
+    try {
+      await rejectSuggestion(currentSkill.id)
+
+      // Move to next skill or stay on current if it's the last one
+      if (currentSkillIndex < selectedEmployeeSuggestions.length - 1) {
+        setCurrentSkillIndex(currentSkillIndex + 1)
+      }
+    } catch (error) {
+      // Error is handled by the hook
+      console.error('Failed to reject suggestion:', error)
+    }
+  }
 
   const handleNext = () => {
     if (currentSkillIndex < selectedEmployeeSuggestions.length - 1) {
@@ -459,19 +496,23 @@ export function ValidationInbox() {
 
                       <div className="flex flex-col sm:flex-row gap-2 mb-4 sm:mb-6">
                         <Button
+                          onClick={handleApprove}
+                          disabled={resolving}
                           className="sm:flex-1 bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
                           size="sm"
                         >
                           <CheckCircle2Icon className="h-4 w-4 mr-2" />
-                          Approve Skill
+                          {resolving ? 'Approving...' : 'Approve Skill'}
                         </Button>
                         <Button
+                          onClick={handleReject}
+                          disabled={resolving}
                           variant="outline"
                           className="sm:flex-1 bg-transparent text-xs sm:text-sm"
                           size="sm"
                         >
                           <XCircleIcon className="h-4 w-4 mr-2" />
-                          Reject Skill
+                          {resolving ? 'Rejecting...' : 'Reject Skill'}
                         </Button>
                       </div>
 

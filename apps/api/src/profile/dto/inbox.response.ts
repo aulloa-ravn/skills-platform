@@ -22,8 +22,8 @@ registerEnumType(SuggestionStatus, {
 // Level 3: Pending Suggestion
 @ObjectType()
 export class PendingSuggestion {
-  @Field()
-  id: string;
+  @Field(() => Int)
+  id: number;
 
   @Field()
   skillName: string;

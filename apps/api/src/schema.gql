@@ -95,7 +95,7 @@ type PendingSuggestion {
   createdAt: DateTime!
   currentProficiency: ProficiencyLevel
   discipline: Discipline!
-  id: String!
+  id: Int!
   skillName: String!
   source: SuggestionSource!
   suggestedProficiency: ProficiencyLevel!
