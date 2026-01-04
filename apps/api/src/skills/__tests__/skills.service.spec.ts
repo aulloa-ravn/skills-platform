@@ -12,6 +12,7 @@ describe('SkillsService', () => {
     skill: {
       findFirst: jest.fn(),
       findUnique: jest.fn(),
+      findMany: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
     },
@@ -35,11 +36,225 @@ describe('SkillsService', () => {
     jest.clearAllMocks();
   });
 
+  describe('getAllSkills', () => {
+    it('should return skills sorted alphabetically by name', async () => {
+      const mockSkills = [
+        {
+          id: 1,
+          name: 'Angular',
+          discipline: Discipline.FRONTEND,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: 2,
+          name: 'React',
+          discipline: Discipline.FRONTEND,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      mockPrismaService.skill.findMany.mockResolvedValue(mockSkills);
+
+      const result = await service.getAllSkills();
+
+      expect(result).toEqual(mockSkills);
+      expect(prisma.skill.findMany).toHaveBeenCalledWith({
+        where: {},
+        orderBy: { name: 'asc' },
+      });
+    });
+
+    it('should filter by isActive status when true', async () => {
+      const mockSkills = [
+        {
+          id: 1,
+          name: 'React',
+          discipline: Discipline.FRONTEND,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      mockPrismaService.skill.findMany.mockResolvedValue(mockSkills);
+
+      const result = await service.getAllSkills({ isActive: true });
+
+      expect(result).toEqual(mockSkills);
+      expect(prisma.skill.findMany).toHaveBeenCalledWith({
+        where: { isActive: true },
+        orderBy: { name: 'asc' },
+      });
+    });
+
+    it('should filter by isActive status when false', async () => {
+      const mockSkills = [
+        {
+          id: 1,
+          name: 'Angular',
+          discipline: Discipline.FRONTEND,
+          isActive: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      mockPrismaService.skill.findMany.mockResolvedValue(mockSkills);
+
+      const result = await service.getAllSkills({ isActive: false });
+
+      expect(result).toEqual(mockSkills);
+      expect(prisma.skill.findMany).toHaveBeenCalledWith({
+        where: { isActive: false },
+        orderBy: { name: 'asc' },
+      });
+    });
+
+    it('should filter by multiple disciplines using IN operator', async () => {
+      const mockSkills = [
+        {
+          id: 1,
+          name: 'React',
+          discipline: Discipline.FRONTEND,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: 2,
+          name: 'Node.js',
+          discipline: Discipline.BACKEND,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      mockPrismaService.skill.findMany.mockResolvedValue(mockSkills);
+
+      const result = await service.getAllSkills({
+        disciplines: [Discipline.FRONTEND, Discipline.BACKEND],
+      });
+
+      expect(result).toEqual(mockSkills);
+      expect(prisma.skill.findMany).toHaveBeenCalledWith({
+        where: {
+          discipline: { in: [Discipline.FRONTEND, Discipline.BACKEND] },
+        },
+        orderBy: { name: 'asc' },
+      });
+    });
+
+    it('should filter by searchTerm with case-insensitive partial match', async () => {
+      const mockSkills = [
+        {
+          id: 1,
+          name: 'React',
+          discipline: Discipline.FRONTEND,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      mockPrismaService.skill.findMany.mockResolvedValue(mockSkills);
+
+      const result = await service.getAllSkills({ searchTerm: 'react' });
+
+      expect(result).toEqual(mockSkills);
+      expect(prisma.skill.findMany).toHaveBeenCalledWith({
+        where: {
+          name: { contains: 'react', mode: 'insensitive' },
+        },
+        orderBy: { name: 'asc' },
+      });
+    });
+
+    it('should combine multiple filters using AND logic', async () => {
+      const mockSkills = [
+        {
+          id: 1,
+          name: 'React',
+          discipline: Discipline.FRONTEND,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      mockPrismaService.skill.findMany.mockResolvedValue(mockSkills);
+
+      const result = await service.getAllSkills({
+        isActive: true,
+        disciplines: [Discipline.FRONTEND],
+        searchTerm: 'react',
+      });
+
+      expect(result).toEqual(mockSkills);
+      expect(prisma.skill.findMany).toHaveBeenCalledWith({
+        where: {
+          isActive: true,
+          discipline: { in: [Discipline.FRONTEND] },
+          name: { contains: 'react', mode: 'insensitive' },
+        },
+        orderBy: { name: 'asc' },
+      });
+    });
+
+    it('should return empty array when no skills match filters', async () => {
+      mockPrismaService.skill.findMany.mockResolvedValue([]);
+
+      const result = await service.getAllSkills({ searchTerm: 'nonexistent' });
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getSkillById', () => {
+    it('should return skill when found', async () => {
+      const mockSkill = {
+        id: 1,
+        name: 'React',
+        discipline: Discipline.FRONTEND,
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockPrismaService.skill.findUnique.mockResolvedValue(mockSkill);
+
+      const result = await service.getSkillById(1);
+
+      expect(result).toEqual(mockSkill);
+      expect(prisma.skill.findUnique).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
+    });
+
+    it('should throw NotFoundException with code NOT_FOUND when skill does not exist', async () => {
+      mockPrismaService.skill.findUnique.mockResolvedValue(null);
+
+      await expect(service.getSkillById(999)).rejects.toThrow(
+        NotFoundException,
+      );
+
+      try {
+        await service.getSkillById(999);
+      } catch (error) {
+        expect(error.response.extensions.code).toBe('NOT_FOUND');
+      }
+    });
+  });
+
   describe('createSkill', () => {
     it('should create a skill successfully', async () => {
       const input = { name: 'React', discipline: Discipline.FRONTEND };
       const expectedSkill = {
-        id: '1',
+        id: 1,
         name: 'React',
         discipline: Discipline.FRONTEND,
         isActive: true,
@@ -65,7 +280,7 @@ describe('SkillsService', () => {
     it('should throw BadRequestException for duplicate name (case-insensitive)', async () => {
       const input = { name: 'React', discipline: Discipline.FRONTEND };
       const existingSkill = {
-        id: '1',
+        id: 1,
         name: 'react',
         discipline: Discipline.FRONTEND,
         isActive: true,
@@ -83,7 +298,7 @@ describe('SkillsService', () => {
     it('should trim whitespace from skill name', async () => {
       const input = { name: '  React  ', discipline: Discipline.FRONTEND };
       const expectedSkill = {
-        id: '1',
+        id: 1,
         name: 'React',
         discipline: Discipline.FRONTEND,
         isActive: true,
@@ -109,12 +324,12 @@ describe('SkillsService', () => {
   describe('updateSkill', () => {
     it('should update a skill successfully', async () => {
       const input = {
-        id: '1',
+        id: 1,
         name: 'React Native',
         discipline: Discipline.MOBILE,
       };
       const existingSkill = {
-        id: '1',
+        id: 1,
         name: 'React',
         discipline: Discipline.FRONTEND,
         isActive: true,
@@ -131,7 +346,7 @@ describe('SkillsService', () => {
 
       expect(result).toEqual(updatedSkill);
       expect(prisma.skill.update).toHaveBeenCalledWith({
-        where: { id: '1' },
+        where: { id: 1 },
         data: {
           name: 'React Native',
           discipline: Discipline.MOBILE,
@@ -140,7 +355,7 @@ describe('SkillsService', () => {
     });
 
     it('should throw NotFoundException if skill does not exist', async () => {
-      const input = { id: 'non-existent', name: 'React' };
+      const input = { id: 999, name: 'React' };
 
       mockPrismaService.skill.findUnique.mockResolvedValue(null);
 
@@ -152,7 +367,7 @@ describe('SkillsService', () => {
 
   describe('disableSkill', () => {
     it('should disable an active skill successfully', async () => {
-      const skillId = '1';
+      const skillId = 1;
       const activeSkill = {
         id: skillId,
         name: 'React',
@@ -176,7 +391,7 @@ describe('SkillsService', () => {
     });
 
     it('should throw BadRequestException if skill is already disabled', async () => {
-      const skillId = '1';
+      const skillId = 1;
       const disabledSkill = {
         id: skillId,
         name: 'React',
@@ -196,7 +411,7 @@ describe('SkillsService', () => {
 
   describe('enableSkill', () => {
     it('should enable a disabled skill successfully', async () => {
-      const skillId = '1';
+      const skillId = 1;
       const disabledSkill = {
         id: skillId,
         name: 'React',
@@ -220,7 +435,7 @@ describe('SkillsService', () => {
     });
 
     it('should throw BadRequestException if skill is already active', async () => {
-      const skillId = '1';
+      const skillId = 1;
       const activeSkill = {
         id: skillId,
         name: 'React',

@@ -59,6 +59,12 @@ type EmployeeInbox {
   suggestions: [PendingSuggestion!]!
 }
 
+input GetAllSkillsInput {
+  disciplines: [Discipline!]
+  isActive: Boolean
+  searchTerm: String
+}
+
 type InboxResponse {
   projects: [ProjectInbox!]!
 }
@@ -143,7 +149,9 @@ type ProjectInbox {
 }
 
 type Query {
+  getAllSkills(input: GetAllSkillsInput): [Skill!]!
   getProfile(id: String!): ProfileResponse!
+  getSkillById(id: Int!): Skill!
   getValidationInbox: InboxResponse!
   health: String!
 }

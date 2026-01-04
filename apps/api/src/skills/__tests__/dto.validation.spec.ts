@@ -1,6 +1,7 @@
 import { validate } from 'class-validator';
 import { CreateSkillInput } from '../dto/create-skill.input';
 import { UpdateSkillInput } from '../dto/update-skill.input';
+import { GetAllSkillsInput } from '../dto/get-all-skills.input';
 import { Discipline } from '@prisma/client';
 
 describe('DTO Validation', () => {
@@ -45,7 +46,7 @@ describe('DTO Validation', () => {
   describe('UpdateSkillInput', () => {
     it('should validate a valid UpdateSkillInput with name', async () => {
       const input = new UpdateSkillInput();
-      input.id = 'test-id';
+      input.id = 1;
       input.name = 'React';
 
       const errors = await validate(input);
@@ -54,7 +55,7 @@ describe('DTO Validation', () => {
 
     it('should validate a valid UpdateSkillInput with discipline', async () => {
       const input = new UpdateSkillInput();
-      input.id = 'test-id';
+      input.id = 1;
       input.discipline = Discipline.BACKEND;
 
       const errors = await validate(input);
@@ -63,7 +64,7 @@ describe('DTO Validation', () => {
 
     it('should validate a valid UpdateSkillInput with both fields', async () => {
       const input = new UpdateSkillInput();
-      input.id = 'test-id';
+      input.id = 1;
       input.name = 'Node.js';
       input.discipline = Discipline.BACKEND;
 
@@ -78,6 +79,39 @@ describe('DTO Validation', () => {
       const errors = await validate(input);
       expect(errors.length).toBeGreaterThan(0);
       expect(errors[0].property).toBe('id');
+    });
+  });
+
+  describe('GetAllSkillsInput', () => {
+    it('should validate when all filter fields are optional', async () => {
+      const input = new GetAllSkillsInput();
+
+      const errors = await validate(input);
+      expect(errors.length).toBe(0);
+    });
+
+    it('should validate when isActive is a boolean', async () => {
+      const input = new GetAllSkillsInput();
+      input.isActive = true;
+
+      const errors = await validate(input);
+      expect(errors.length).toBe(0);
+    });
+
+    it('should validate when disciplines is an array of Discipline enum values', async () => {
+      const input = new GetAllSkillsInput();
+      input.disciplines = [Discipline.FRONTEND, Discipline.BACKEND];
+
+      const errors = await validate(input);
+      expect(errors.length).toBe(0);
+    });
+
+    it('should validate when searchTerm is a string', async () => {
+      const input = new GetAllSkillsInput();
+      input.searchTerm = 'React';
+
+      const errors = await validate(input);
+      expect(errors.length).toBe(0);
     });
   });
 });

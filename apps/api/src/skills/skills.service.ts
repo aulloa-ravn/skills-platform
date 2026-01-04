@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Skill } from '@prisma/client';
 import { CreateSkillInput } from './dto/create-skill.input';
 import { UpdateSkillInput } from './dto/update-skill.input';
+import { GetAllSkillsInput } from './dto/get-all-skills.input';
 
 @Injectable()
 export class SkillsService {
@@ -53,6 +54,63 @@ export class SkillsService {
         },
       });
     }
+  }
+
+  /**
+   * Get all skills with optional filtering
+   * @param input Optional GetAllSkillsInput filters
+   * @returns Array of Skill objects sorted alphabetically by name
+   */
+  async getAllSkills(input?: GetAllSkillsInput): Promise<Skill[]> {
+    // Build dynamic where clause based on provided filters
+    const where: any = {};
+
+    // Filter by isActive status when provided
+    if (input?.isActive !== undefined && input?.isActive !== null) {
+      where.isActive = input.isActive;
+    }
+
+    // Filter by multiple disciplines when provided
+    if (input?.disciplines && input.disciplines.length > 0) {
+      where.discipline = { in: input.disciplines };
+    }
+
+    // Filter by searchTerm with case-insensitive partial match
+    if (input?.searchTerm) {
+      where.name = {
+        contains: input.searchTerm,
+        mode: 'insensitive',
+      };
+    }
+
+    // Query skills with filters and sort alphabetically by name
+    return this.prisma.skill.findMany({
+      where,
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  /**
+   * Get skill by ID
+   * @param id Skill ID
+   * @returns Skill object
+   * @throws NotFoundException if skill doesn't exist
+   */
+  async getSkillById(id: number): Promise<Skill> {
+    const skill = await this.prisma.skill.findUnique({
+      where: { id },
+    });
+
+    if (!skill) {
+      throw new NotFoundException({
+        message: 'Skill not found',
+        extensions: {
+          code: 'NOT_FOUND',
+        },
+      });
+    }
+
+    return skill;
   }
 
   /**

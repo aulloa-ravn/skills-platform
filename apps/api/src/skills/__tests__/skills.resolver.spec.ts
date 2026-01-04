@@ -10,6 +10,8 @@ describe('SkillsResolver', () => {
   let service: SkillsService;
 
   const mockSkillsService = {
+    getAllSkills: jest.fn(),
+    getSkillById: jest.fn(),
     createSkill: jest.fn(),
     updateSkill: jest.fn(),
     disableSkill: jest.fn(),
@@ -42,6 +44,98 @@ describe('SkillsResolver', () => {
     expect(resolver).toBeDefined();
   });
 
+  describe('getAllSkills query', () => {
+    it('should delegate to service with correct input', async () => {
+      const input = {
+        isActive: true,
+        disciplines: [Discipline.FRONTEND],
+        searchTerm: 'React',
+      };
+
+      const mockSkills = [
+        {
+          id: 1,
+          name: 'React',
+          discipline: Discipline.FRONTEND,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      mockSkillsService.getAllSkills.mockResolvedValue(mockSkills);
+
+      const result = await resolver.getAllSkills(input);
+
+      expect(service.getAllSkills).toHaveBeenCalledWith(input);
+      expect(result).toEqual(mockSkills);
+    });
+
+    it('should call service without input when no filters provided', async () => {
+      const mockSkills = [
+        {
+          id: 1,
+          name: 'React',
+          discipline: Discipline.FRONTEND,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: 2,
+          name: 'Node.js',
+          discipline: Discipline.BACKEND,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      mockSkillsService.getAllSkills.mockResolvedValue(mockSkills);
+
+      const result = await resolver.getAllSkills();
+
+      expect(service.getAllSkills).toHaveBeenCalledWith(undefined);
+      expect(result).toEqual(mockSkills);
+    });
+
+    it('should return empty array when no skills match', async () => {
+      mockSkillsService.getAllSkills.mockResolvedValue([]);
+
+      const result = await resolver.getAllSkills({ searchTerm: 'nonexistent' });
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getSkillById query', () => {
+    it('should delegate to service with correct ID parameter', async () => {
+      const mockSkill = {
+        id: 1,
+        name: 'React',
+        discipline: Discipline.FRONTEND,
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockSkillsService.getSkillById.mockResolvedValue(mockSkill);
+
+      const result = await resolver.getSkillById(1);
+
+      expect(service.getSkillById).toHaveBeenCalledWith(1);
+      expect(result).toEqual(mockSkill);
+    });
+
+    it('should propagate NotFoundException when skill does not exist', async () => {
+      const error = new Error('Skill not found');
+      mockSkillsService.getSkillById.mockRejectedValue(error);
+
+      await expect(resolver.getSkillById(999)).rejects.toThrow('Skill not found');
+      expect(service.getSkillById).toHaveBeenCalledWith(999);
+    });
+  });
+
   describe('createSkill mutation', () => {
     it('should call service with correct input and return created skill', async () => {
       const input = {
@@ -50,7 +144,7 @@ describe('SkillsResolver', () => {
       };
 
       const expectedSkill = {
-        id: '1',
+        id: 1,
         name: 'React',
         discipline: Discipline.FRONTEND,
         isActive: true,
@@ -73,7 +167,7 @@ describe('SkillsResolver', () => {
       };
 
       const expectedSkill = {
-        id: '2',
+        id: 2,
         name: 'TypeScript',
         discipline: Discipline.FRONTEND,
         isActive: true,
@@ -92,13 +186,13 @@ describe('SkillsResolver', () => {
   describe('updateSkill mutation', () => {
     it('should call service with correct input and return updated skill', async () => {
       const input = {
-        id: '1',
+        id: 1,
         name: 'React Native',
         discipline: Discipline.MOBILE,
       };
 
       const expectedSkill = {
-        id: '1',
+        id: 1,
         name: 'React Native',
         discipline: Discipline.MOBILE,
         isActive: true,
@@ -116,12 +210,12 @@ describe('SkillsResolver', () => {
 
     it('should handle partial updates (name only)', async () => {
       const input = {
-        id: '1',
+        id: 1,
         name: 'Vue.js',
       };
 
       const expectedSkill = {
-        id: '1',
+        id: 1,
         name: 'Vue.js',
         discipline: Discipline.FRONTEND,
         isActive: true,
@@ -140,7 +234,7 @@ describe('SkillsResolver', () => {
 
   describe('disableSkill mutation', () => {
     it('should call service with skill id and return disabled skill', async () => {
-      const skillId = '1';
+      const skillId = 1;
       const expectedSkill = {
         id: skillId,
         name: 'React',
@@ -159,7 +253,7 @@ describe('SkillsResolver', () => {
     });
 
     it('should accept single id argument (not wrapped in input)', async () => {
-      const skillId = '123';
+      const skillId = 123;
       const expectedSkill = {
         id: skillId,
         name: 'Angular',
@@ -173,7 +267,7 @@ describe('SkillsResolver', () => {
 
       await resolver.disableSkill(skillId);
 
-      // Verify service was called with just the id string
+      // Verify service was called with just the id
       expect(service.disableSkill).toHaveBeenCalledWith(skillId);
       expect(service.disableSkill).toHaveBeenCalledTimes(1);
     });
@@ -181,7 +275,7 @@ describe('SkillsResolver', () => {
 
   describe('enableSkill mutation', () => {
     it('should call service with skill id and return enabled skill', async () => {
-      const skillId = '1';
+      const skillId = 1;
       const expectedSkill = {
         id: skillId,
         name: 'React',
@@ -200,7 +294,7 @@ describe('SkillsResolver', () => {
     });
 
     it('should accept single id argument (not wrapped in input)', async () => {
-      const skillId = '456';
+      const skillId = 456;
       const expectedSkill = {
         id: skillId,
         name: 'Svelte',
@@ -214,18 +308,20 @@ describe('SkillsResolver', () => {
 
       await resolver.enableSkill(skillId);
 
-      // Verify service was called with just the id string
+      // Verify service was called with just the id
       expect(service.enableSkill).toHaveBeenCalledWith(skillId);
       expect(service.enableSkill).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('admin authorization', () => {
-    it('should have guards applied to all mutations', () => {
+    it('should have guards applied to all queries and mutations', () => {
       // This test verifies that the resolver class structure is correct
       // The actual authorization is tested through integration tests
       // Guards are overridden in the test module setup, allowing us to test resolver logic
       expect(resolver).toBeDefined();
+      expect(resolver.getAllSkills).toBeDefined();
+      expect(resolver.getSkillById).toBeDefined();
       expect(resolver.createSkill).toBeDefined();
       expect(resolver.updateSkill).toBeDefined();
       expect(resolver.disableSkill).toBeDefined();
