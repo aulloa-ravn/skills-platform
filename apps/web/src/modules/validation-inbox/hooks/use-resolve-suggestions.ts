@@ -1,8 +1,9 @@
 import { useMutation } from '@apollo/client/react'
 import { toast } from 'sonner'
 import { ResolveSuggestionsDocument } from '../graphql/resolve-suggestions.mutation.generated'
+import { GetValidationInboxDocument } from '../graphql/get-validation-inbox.query.generated'
 import { ResolutionAction } from '@/shared/lib/types'
-import type { DecisionInput } from '@/shared/lib/types'
+import type { DecisionInput, InboxResponse } from '@/shared/lib/types'
 
 /**
  * useResolveSuggestions Hook
@@ -52,13 +53,74 @@ export function useResolveSuggestions() {
   )
 
   const resolveSuggestions = async (decisions: DecisionInput[]) => {
+    const suggestionIds = decisions.map((d) => d.suggestionId)
+
     return resolveSuggestionsMutation({
       variables: {
         input: {
           decisions,
         },
       },
-      // Refetch validation inbox after mutation
+      // Optimistic update - immediately remove suggestions from cache
+      optimisticResponse: {
+        resolveSuggestions: {
+          // __typename: 'ResolveSuggestionsResponse',
+          success: true,
+          processed: decisions.map((decision) => ({
+            // __typename: 'ResolvedSuggestion',
+            suggestionId: decision.suggestionId,
+            action: decision.action,
+            employeeName: '',
+            skillName: '',
+            proficiencyLevel: decision.adjustedProficiency || '',
+          })),
+          errors: [],
+        },
+      },
+      // Update cache to remove processed suggestions
+      update: (cache, { data }) => {
+        if (!data?.resolveSuggestions.success) return
+
+        const existingData = cache.readQuery<{
+          getValidationInbox: InboxResponse
+        }>({
+          query: GetValidationInboxDocument,
+        })
+
+        if (!existingData) return
+
+        // Remove processed suggestions from cache
+        const updatedData = {
+          getValidationInbox: {
+            ...existingData.getValidationInbox,
+            projects: existingData.getValidationInbox.projects.map(
+              (project) => ({
+                ...project,
+                employees: project.employees.map((employee) => ({
+                  ...employee,
+                  suggestions: employee.suggestions.filter(
+                    (suggestion) => !suggestionIds.includes(suggestion.id),
+                  ),
+                  pendingSuggestionsCount: Math.max(
+                    0,
+                    employee.pendingSuggestionsCount - suggestionIds.length,
+                  ),
+                })),
+                pendingSuggestionsCount: Math.max(
+                  0,
+                  project.pendingSuggestionsCount - suggestionIds.length,
+                ),
+              }),
+            ),
+          },
+        }
+
+        cache.writeQuery({
+          query: GetValidationInboxDocument,
+          data: updatedData,
+        })
+      },
+      // Refetch validation inbox after mutation to ensure data consistency
       refetchQueries: ['GetValidationInbox'],
       awaitRefetchQueries: true,
     })

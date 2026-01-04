@@ -19,6 +19,18 @@ import {
   TabsTrigger,
 } from '@/shared/components/ui/tabs'
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/shared/components/ui/alert-dialog'
+import { Spinner } from '@/shared/components/ui/spinner'
+import {
   cn,
   getStringInitials,
   SeniorityLevelMap,
@@ -114,11 +126,7 @@ function transformInboxData(inbox: InboxResponse | undefined): Project[] {
 
 export function ValidationInbox() {
   const { inbox, loading, error } = useValidationInbox()
-  const {
-    approveSuggestion,
-    rejectSuggestion,
-    loading: resolving,
-  } = useResolveSuggestions()
+  const { approveSuggestion, rejectSuggestion } = useResolveSuggestions()
   const projects = transformInboxData(inbox)
 
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
@@ -126,6 +134,8 @@ export function ValidationInbox() {
   )
   const [currentSkillIndex, setCurrentSkillIndex] = useState(0)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [approvingId, setApprovingId] = useState<number | null>(null)
+  const [rejectingId, setRejectingId] = useState<number | null>(null)
 
   // Auto-select first employee when data loads
   if (projects.length > 0 && !selectedEmployee) {
@@ -141,6 +151,8 @@ export function ValidationInbox() {
   const handleApprove = async () => {
     if (!currentSkill) return
 
+    setApprovingId(currentSkill.id)
+
     try {
       await approveSuggestion(currentSkill.id)
 
@@ -151,11 +163,15 @@ export function ValidationInbox() {
     } catch (error) {
       // Error is handled by the hook
       console.error('Failed to approve suggestion:', error)
+    } finally {
+      setApprovingId(null)
     }
   }
 
   const handleReject = async () => {
     if (!currentSkill) return
+
+    setRejectingId(currentSkill.id)
 
     try {
       await rejectSuggestion(currentSkill.id)
@@ -167,6 +183,8 @@ export function ValidationInbox() {
     } catch (error) {
       // Error is handled by the hook
       console.error('Failed to reject suggestion:', error)
+    } finally {
+      setRejectingId(null)
     }
   }
 
@@ -181,6 +199,10 @@ export function ValidationInbox() {
       setCurrentSkillIndex(currentSkillIndex - 1)
     }
   }
+
+  const isApproving = approvingId === currentSkill?.id
+  const isRejecting = rejectingId === currentSkill?.id
+  const isProcessing = isApproving || isRejecting
 
   if (loading) {
     return (
@@ -495,25 +517,123 @@ export function ValidationInbox() {
                       </Tabs>
 
                       <div className="flex flex-col sm:flex-row gap-2 mb-4 sm:mb-6">
-                        <Button
-                          onClick={handleApprove}
-                          disabled={resolving}
-                          className="sm:flex-1 bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
-                          size="sm"
-                        >
-                          <CheckCircle2Icon className="h-4 w-4 mr-2" />
-                          {resolving ? 'Approving...' : 'Approve Skill'}
-                        </Button>
-                        <Button
-                          onClick={handleReject}
-                          disabled={resolving}
-                          variant="outline"
-                          className="sm:flex-1 bg-transparent text-xs sm:text-sm"
-                          size="sm"
-                        >
-                          <XCircleIcon className="h-4 w-4 mr-2" />
-                          {resolving ? 'Rejecting...' : 'Reject Skill'}
-                        </Button>
+                        {/* Approve Dialog */}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              disabled={isProcessing}
+                              className="sm:flex-1 bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
+                              size="sm"
+                            >
+                              {isApproving ? (
+                                <>
+                                  <Spinner className="mr-2" />
+                                  Approving...
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle2Icon className="h-4 w-4 mr-2" />
+                                  Approve Skill
+                                </>
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Approve Skill?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                You are about to approve{' '}
+                                <span className="font-semibold">
+                                  {currentSkill?.skill}
+                                </span>{' '}
+                                with{' '}
+                                <span className="font-semibold">
+                                  {currentSkill?.suggestedProficiency}
+                                </span>{' '}
+                                proficiency for {selectedEmployee?.name}. This
+                                will add the skill to their profile.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel disabled={isApproving}>
+                                Cancel
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={handleApprove}
+                                disabled={isApproving}
+                                className="bg-green-600 hover:bg-green-700"
+                              >
+                                {isApproving ? (
+                                  <>
+                                    <Spinner className="mr-2" />
+                                    Approving...
+                                  </>
+                                ) : (
+                                  'Approve'
+                                )}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+
+                        {/* Reject Dialog */}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              disabled={isProcessing}
+                              variant="outline"
+                              className="sm:flex-1 bg-transparent text-xs sm:text-sm"
+                              size="sm"
+                            >
+                              {isRejecting ? (
+                                <>
+                                  <Spinner className="mr-2" />
+                                  Rejecting...
+                                </>
+                              ) : (
+                                <>
+                                  <XCircleIcon className="h-4 w-4 mr-2" />
+                                  Reject Skill
+                                </>
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Reject Skill?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                You are about to reject{' '}
+                                <span className="font-semibold">
+                                  {currentSkill?.skill}
+                                </span>{' '}
+                                for {selectedEmployee?.name}. This suggestion
+                                will be removed and the skill will not be added
+                                to their profile.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel disabled={isRejecting}>
+                                Cancel
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={handleReject}
+                                disabled={isRejecting}
+                                variant="destructive"
+                              >
+                                {isRejecting ? (
+                                  <>
+                                    <Spinner className="mr-2" />
+                                    Rejecting...
+                                  </>
+                                ) : (
+                                  'Reject'
+                                )}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
 
                       <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-border gap-2">
