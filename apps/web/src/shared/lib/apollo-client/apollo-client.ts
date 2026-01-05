@@ -9,8 +9,8 @@ import {
   CombinedGraphQLErrors,
   CombinedProtocolErrors,
 } from '@apollo/client/errors'
-import { setContext } from '@apollo/client/link/context'
-import { ErrorLink, onError } from '@apollo/client/link/error'
+import { SetContextLink } from '@apollo/client/link/context'
+import { ErrorLink } from '@apollo/client/link/error'
 import { useStore } from '../../store'
 
 /**
@@ -85,9 +85,8 @@ const errorLink = new ErrorLink(({ error, operation, forward }) => {
   const { setToken, setRefreshToken, reset } = useStore.getState()
 
   if (CombinedGraphQLErrors.is(error)) {
-    for (const { message, extensions } of error.errors) {
-      if (extensions?.code === 'UNAUTHORIZED') {
-        console.error('Unauthorized:', message)
+    for (const { message } of error.errors) {
+      if (message === 'Unauthorized') {
         return new Observable((observer) => {
           handleRefreshToken(
             (token, refreshToken) => {
@@ -124,15 +123,6 @@ const errorLink = new ErrorLink(({ error, operation, forward }) => {
             },
           )
         })
-      }
-
-      // Handle other error codes
-      if (extensions?.code === 'FORBIDDEN') {
-        console.error('Permission denied:', message)
-      }
-
-      if (extensions?.code === 'INVALID_CREDENTIALS') {
-        console.error('Invalid credentials:', message)
       }
     }
   } else if (CombinedProtocolErrors.is(error)) {
@@ -178,12 +168,12 @@ const errorLink = new ErrorLink(({ error, operation, forward }) => {
 /**
  * Auth link to add Authorization header to every request
  */
-const authLink = setContext((_, { headers }) => {
+const authLink = new SetContextLink((prevContext) => {
   const token = useStore.getState().token
 
   return {
     headers: {
-      ...headers,
+      ...prevContext.headers,
       ...(token && authorizationHeader(token)),
     },
   }

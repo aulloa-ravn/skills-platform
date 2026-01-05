@@ -4,7 +4,7 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { hashPassword } from '../src/auth/utils/password.util';
-import { Role } from '@prisma/client';
+import { ProfileType, SeniorityLevel } from '@prisma/client';
 
 /**
  * End-to-end integration tests for authentication feature
@@ -32,9 +32,9 @@ describe('Authentication Integration (e2e)', () => {
         name: 'Test User',
         email: 'testuser@ravn.com',
         password: hashedPassword,
-        role: Role.EMPLOYEE,
+        type: ProfileType.EMPLOYEE,
         missionBoardId: 'test-user-mission-board',
-        currentSeniorityLevel: 'JUNIOR',
+        currentSeniorityLevel: SeniorityLevel.JUNIOR_ENGINEER,
       },
     });
     testUserId = testUser.id;
@@ -60,7 +60,7 @@ describe('Authentication Integration (e2e)', () => {
                   id
                   name
                   email
-                  role
+                  type
                 }
               }
             }
@@ -79,7 +79,7 @@ describe('Authentication Integration (e2e)', () => {
       expect(response.body.data.login.accessToken).toBeDefined();
       expect(response.body.data.login.refreshToken).toBeDefined();
       expect(response.body.data.login.profile.email).toBe('testuser@ravn.com');
-      expect(response.body.data.login.profile.role).toBe('EMPLOYEE');
+      expect(response.body.data.login.profile.type).toBe('EMPLOYEE');
     });
 
     it('should return INVALID_CREDENTIALS error for wrong password', async () => {
@@ -95,7 +95,7 @@ describe('Authentication Integration (e2e)', () => {
                   id
                   name
                   email
-                  role
+                  type
                 }
               }
             }
@@ -276,6 +276,45 @@ describe('Authentication Integration (e2e)', () => {
       // Protected routes should fail without token
       // Note: Exact error depends on schema - this validates auth guard works
       expect(response.body.errors).toBeDefined();
+    });
+  });
+
+  describe('Token Generation', () => {
+    it('should generate different access and refresh tokens', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send({
+          query: `
+            mutation Login($input: LoginInput!) {
+              login(input: $input) {
+                accessToken
+                refreshToken
+              }
+            }
+          `,
+          variables: {
+            input: {
+              email: 'testuser@ravn.com',
+              password: 'testPassword123',
+            },
+          },
+        })
+        .expect(200);
+
+      expect(response.body.errors).toBeUndefined();
+      expect(response.body.data.login.accessToken).toBeDefined();
+      expect(response.body.data.login.refreshToken).toBeDefined();
+
+      // CRITICAL: Access token and refresh token should NOT be the same
+      expect(response.body.data.login.accessToken).not.toBe(
+        response.body.data.login.refreshToken,
+      );
+
+      console.log('\n=== TOKEN GENERATION TEST ===');
+      console.log('Access Token:', response.body.data.login.accessToken);
+      console.log('Refresh Token:', response.body.data.login.refreshToken);
+      console.log('Are they different?', response.body.data.login.accessToken !== response.body.data.login.refreshToken);
+      console.log('===========================\n');
     });
   });
 

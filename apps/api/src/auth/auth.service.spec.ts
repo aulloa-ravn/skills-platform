@@ -19,7 +19,7 @@ describe('AuthService', () => {
     type: ProfileType.EMPLOYEE,
     missionBoardId: 'mb-123',
     avatarUrl: null,
-    currentSeniorityLevel: 'Senior',
+    currentSeniorityLevel: SeniorityLevel.SENIOR_ENGINEER,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -64,7 +64,9 @@ describe('AuthService', () => {
       const hashedPassword = await hashPassword(password);
       const profileWithPassword = { ...mockProfile, password: hashedPassword };
 
-      jest.spyOn(prisma.profile, 'findUnique').mockResolvedValue(profileWithPassword);
+      jest
+        .spyOn(prisma.profile, 'findUnique')
+        .mockResolvedValue(profileWithPassword);
 
       const result = await service.validateUser(mockProfile.email, password);
 
@@ -80,9 +82,14 @@ describe('AuthService', () => {
       const hashedPassword = await hashPassword(correctPassword);
       const profileWithPassword = { ...mockProfile, password: hashedPassword };
 
-      jest.spyOn(prisma.profile, 'findUnique').mockResolvedValue(profileWithPassword);
+      jest
+        .spyOn(prisma.profile, 'findUnique')
+        .mockResolvedValue(profileWithPassword);
 
-      const result = await service.validateUser(mockProfile.email, wrongPassword);
+      const result = await service.validateUser(
+        mockProfile.email,
+        wrongPassword,
+      );
 
       expect(result).toBeNull();
     });
@@ -90,7 +97,10 @@ describe('AuthService', () => {
     it('should return null for non-existent email', async () => {
       jest.spyOn(prisma.profile, 'findUnique').mockResolvedValue(null);
 
-      const result = await service.validateUser('nonexistent@ravn.com', 'anyPassword');
+      const result = await service.validateUser(
+        'nonexistent@ravn.com',
+        'anyPassword',
+      );
 
       expect(result).toBeNull();
     });
@@ -98,9 +108,14 @@ describe('AuthService', () => {
     it('should return null for profile without password', async () => {
       const profileWithoutPassword = { ...mockProfile, password: null };
 
-      jest.spyOn(prisma.profile, 'findUnique').mockResolvedValue(profileWithoutPassword);
+      jest
+        .spyOn(prisma.profile, 'findUnique')
+        .mockResolvedValue(profileWithoutPassword);
 
-      const result = await service.validateUser(mockProfile.email, 'anyPassword');
+      const result = await service.validateUser(
+        mockProfile.email,
+        'anyPassword',
+      );
 
       expect(result).toBeNull();
     });
@@ -112,9 +127,12 @@ describe('AuthService', () => {
       const hashedPassword = await hashPassword(password);
       const profileWithPassword = { ...mockProfile, password: hashedPassword };
 
-      jest.spyOn(prisma.profile, 'findUnique').mockResolvedValue(profileWithPassword);
+      jest
+        .spyOn(prisma.profile, 'findUnique')
+        .mockResolvedValue(profileWithPassword);
       jest.spyOn(prisma.project, 'count').mockResolvedValue(0); // No tech lead projects
-      jest.spyOn(jwtService, 'sign')
+      jest
+        .spyOn(jwtService, 'sign')
         .mockReturnValueOnce('mock-access-token')
         .mockReturnValueOnce('mock-refresh-token');
 
@@ -155,11 +173,13 @@ describe('AuthService', () => {
       const hashedPassword = await hashPassword(correctPassword);
       const profileWithPassword = { ...mockProfile, password: hashedPassword };
 
-      jest.spyOn(prisma.profile, 'findUnique').mockResolvedValue(profileWithPassword);
+      jest
+        .spyOn(prisma.profile, 'findUnique')
+        .mockResolvedValue(profileWithPassword);
 
-      await expect(service.login(mockProfile.email, wrongPassword)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(
+        service.login(mockProfile.email, wrongPassword),
+      ).rejects.toThrow(UnauthorizedException);
 
       try {
         await service.login(mockProfile.email, wrongPassword);
@@ -176,9 +196,9 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException with INVALID_CREDENTIALS for non-existent email', async () => {
       jest.spyOn(prisma.profile, 'findUnique').mockResolvedValue(null);
 
-      await expect(service.login('nonexistent@ravn.com', 'anyPassword')).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(
+        service.login('nonexistent@ravn.com', 'anyPassword'),
+      ).rejects.toThrow(UnauthorizedException);
 
       try {
         await service.login('nonexistent@ravn.com', 'anyPassword');
