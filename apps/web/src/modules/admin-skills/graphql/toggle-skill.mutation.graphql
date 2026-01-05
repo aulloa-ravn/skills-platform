@@ -1,0 +1,10 @@
+mutation ToggleSkill($id: Float!, $isActive: Boolean!) {
+  toggleSkill(id: $id, isActive: $isActive) {
+    id
+    name
+    discipline
+    isActive
+    employeeCount
+    createdAt
+  }
+}

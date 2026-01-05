@@ -84,6 +84,12 @@ export type EmployeeInbox = {
   suggestions: Array<PendingSuggestion>
 }
 
+export type GetAllSkillsInput = {
+  disciplines?: InputMaybe<Array<Discipline>>
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
+  searchTerm?: InputMaybe<Scalars['String']['input']>
+}
+
 export type InboxResponse = {
   __typename?: 'InboxResponse'
   projects: Array<ProjectInbox>
@@ -104,24 +110,15 @@ export type LoginResponse = {
 export type Mutation = {
   __typename?: 'Mutation'
   createSkill: Skill
-  disableSkill: Skill
-  enableSkill: Skill
   login: LoginResponse
   refreshToken: RefreshTokenResponse
   resolveSuggestions: ResolveSuggestionsResponse
+  toggleSkill: Skill
   updateSkill: Skill
 }
 
 export type MutationCreateSkillArgs = {
   input: CreateSkillInput
-}
-
-export type MutationDisableSkillArgs = {
-  id: Scalars['Float']['input']
-}
-
-export type MutationEnableSkillArgs = {
-  id: Scalars['Float']['input']
 }
 
 export type MutationLoginArgs = {
@@ -134,6 +131,11 @@ export type MutationRefreshTokenArgs = {
 
 export type MutationResolveSuggestionsArgs = {
   input: ResolveSuggestionsInput
+}
+
+export type MutationToggleSkillArgs = {
+  id: Scalars['Float']['input']
+  isActive: Scalars['Boolean']['input']
 }
 
 export type MutationUpdateSkillArgs = {
@@ -205,13 +207,23 @@ export type ProjectInbox = {
 
 export type Query = {
   __typename?: 'Query'
+  getAllSkills: Array<Skill>
   getProfile: ProfileResponse
+  getSkillById: Skill
   getValidationInbox: InboxResponse
   health: Scalars['String']['output']
 }
 
+export type QueryGetAllSkillsArgs = {
+  input?: InputMaybe<GetAllSkillsInput>
+}
+
 export type QueryGetProfileArgs = {
   id: Scalars['String']['input']
+}
+
+export type QueryGetSkillByIdArgs = {
+  id: Scalars['Int']['input']
 }
 
 export type RefreshTokenInput = {
@@ -277,6 +289,7 @@ export type Skill = {
   __typename?: 'Skill'
   createdAt: Scalars['DateTime']['output']
   discipline: Discipline
+  employeeCount: Scalars['Int']['output']
   id: Scalars['Int']['output']
   isActive: Scalars['Boolean']['output']
   name: Scalars['String']['output']

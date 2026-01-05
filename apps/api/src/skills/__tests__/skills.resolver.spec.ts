@@ -14,8 +14,7 @@ describe('SkillsResolver', () => {
     getSkillById: jest.fn(),
     createSkill: jest.fn(),
     updateSkill: jest.fn(),
-    disableSkill: jest.fn(),
-    enableSkill: jest.fn(),
+    toggleSkill: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -232,8 +231,8 @@ describe('SkillsResolver', () => {
     });
   });
 
-  describe('disableSkill mutation', () => {
-    it('should call service with skill id and return disabled skill', async () => {
+  describe('toggleSkill mutation', () => {
+    it('should call service to disable skill and return disabled skill', async () => {
       const skillId = 1;
       const expectedSkill = {
         id: skillId,
@@ -244,37 +243,15 @@ describe('SkillsResolver', () => {
         updatedAt: new Date(),
       };
 
-      mockSkillsService.disableSkill.mockResolvedValue(expectedSkill);
+      mockSkillsService.toggleSkill.mockResolvedValue(expectedSkill);
 
-      const result = await resolver.disableSkill(skillId);
+      const result = await resolver.toggleSkill(skillId, false);
 
-      expect(service.disableSkill).toHaveBeenCalledWith(skillId);
+      expect(service.toggleSkill).toHaveBeenCalledWith(skillId, false);
       expect(result.isActive).toBe(false);
     });
 
-    it('should accept single id argument (not wrapped in input)', async () => {
-      const skillId = 123;
-      const expectedSkill = {
-        id: skillId,
-        name: 'Angular',
-        discipline: Discipline.FRONTEND,
-        isActive: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      mockSkillsService.disableSkill.mockResolvedValue(expectedSkill);
-
-      await resolver.disableSkill(skillId);
-
-      // Verify service was called with just the id
-      expect(service.disableSkill).toHaveBeenCalledWith(skillId);
-      expect(service.disableSkill).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('enableSkill mutation', () => {
-    it('should call service with skill id and return enabled skill', async () => {
+    it('should call service to enable skill and return enabled skill', async () => {
       const skillId = 1;
       const expectedSkill = {
         id: skillId,
@@ -285,15 +262,15 @@ describe('SkillsResolver', () => {
         updatedAt: new Date(),
       };
 
-      mockSkillsService.enableSkill.mockResolvedValue(expectedSkill);
+      mockSkillsService.toggleSkill.mockResolvedValue(expectedSkill);
 
-      const result = await resolver.enableSkill(skillId);
+      const result = await resolver.toggleSkill(skillId, true);
 
-      expect(service.enableSkill).toHaveBeenCalledWith(skillId);
+      expect(service.toggleSkill).toHaveBeenCalledWith(skillId, true);
       expect(result.isActive).toBe(true);
     });
 
-    it('should accept single id argument (not wrapped in input)', async () => {
+    it('should accept id and isActive arguments', async () => {
       const skillId = 456;
       const expectedSkill = {
         id: skillId,
@@ -304,13 +281,13 @@ describe('SkillsResolver', () => {
         updatedAt: new Date(),
       };
 
-      mockSkillsService.enableSkill.mockResolvedValue(expectedSkill);
+      mockSkillsService.toggleSkill.mockResolvedValue(expectedSkill);
 
-      await resolver.enableSkill(skillId);
+      await resolver.toggleSkill(skillId, true);
 
-      // Verify service was called with just the id
-      expect(service.enableSkill).toHaveBeenCalledWith(skillId);
-      expect(service.enableSkill).toHaveBeenCalledTimes(1);
+      // Verify service was called with id and isActive
+      expect(service.toggleSkill).toHaveBeenCalledWith(skillId, true);
+      expect(service.toggleSkill).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -324,8 +301,7 @@ describe('SkillsResolver', () => {
       expect(resolver.getSkillById).toBeDefined();
       expect(resolver.createSkill).toBeDefined();
       expect(resolver.updateSkill).toBeDefined();
-      expect(resolver.disableSkill).toBeDefined();
-      expect(resolver.enableSkill).toBeDefined();
+      expect(resolver.toggleSkill).toBeDefined();
     });
   });
 });

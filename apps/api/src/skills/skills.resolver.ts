@@ -47,14 +47,10 @@ export class SkillsResolver {
   @Mutation(() => Skill)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ProfileType.ADMIN)
-  async disableSkill(@Args('id') id: number): Promise<Skill> {
-    return this.skillsService.disableSkill(id);
-  }
-
-  @Mutation(() => Skill)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ProfileType.ADMIN)
-  async enableSkill(@Args('id') id: number): Promise<Skill> {
-    return this.skillsService.enableSkill(id);
+  async toggleSkill(
+    @Args('id') id: number,
+    @Args('isActive') isActive: boolean,
+  ): Promise<Skill> {
+    return this.skillsService.toggleSkill(id, isActive);
   }
 }

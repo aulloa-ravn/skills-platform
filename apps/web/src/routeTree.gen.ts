@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedValidationInboxRouteImport } from './routes/_authenticated/validation-inbox'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as AuthenticatedAdminSkillsRouteImport } from './routes/_authenticated/admin/skills'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -40,18 +41,26 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminSkillsRoute =
+  AuthenticatedAdminSkillsRouteImport.update({
+    id: '/admin/skills',
+    path: '/admin/skills',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/validation-inbox': typeof AuthenticatedValidationInboxRoute
+  '/admin/skills': typeof AuthenticatedAdminSkillsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/validation-inbox': typeof AuthenticatedValidationInboxRoute
+  '/admin/skills': typeof AuthenticatedAdminSkillsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -60,12 +69,13 @@ export interface FileRoutesById {
   '/(auth)/login': typeof authLoginRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/validation-inbox': typeof AuthenticatedValidationInboxRoute
+  '/_authenticated/admin/skills': typeof AuthenticatedAdminSkillsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/profile' | '/validation-inbox'
+  fullPaths: '/' | '/login' | '/profile' | '/validation-inbox' | '/admin/skills'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/profile' | '/validation-inbox'
+  to: '/' | '/login' | '/profile' | '/validation-inbox' | '/admin/skills'
   id:
     | '__root__'
     | '/'
@@ -73,6 +83,7 @@ export interface FileRouteTypes {
     | '/(auth)/login'
     | '/_authenticated/profile'
     | '/_authenticated/validation-inbox'
+    | '/_authenticated/admin/skills'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -118,17 +129,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/skills': {
+      id: '/_authenticated/admin/skills'
+      path: '/admin/skills'
+      fullPath: '/admin/skills'
+      preLoaderRoute: typeof AuthenticatedAdminSkillsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedValidationInboxRoute: typeof AuthenticatedValidationInboxRoute
+  AuthenticatedAdminSkillsRoute: typeof AuthenticatedAdminSkillsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedValidationInboxRoute: AuthenticatedValidationInboxRoute,
+  AuthenticatedAdminSkillsRoute: AuthenticatedAdminSkillsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -22,6 +22,9 @@ export class Skill {
   @Field()
   isActive: boolean;
 
+  @Field(() => Int)
+  employeeCount: number;
+
   @Field(() => GraphQLISODateTime)
   createdAt: Date;
 

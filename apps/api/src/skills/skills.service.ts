@@ -57,11 +57,33 @@ export class SkillsService {
   }
 
   /**
+   * Get employee counts grouped by skillId
+   * @returns Map of skillId to employee count
+   */
+  async getEmployeeCounts(): Promise<Record<number, number>> {
+    const counts = await this.prisma.employeeSkill.groupBy({
+      by: ['skillId'],
+      _count: {
+        id: true,
+      },
+    });
+
+    const countMap: Record<number, number> = {};
+    counts.forEach((count) => {
+      countMap[count.skillId] = count._count.id;
+    });
+
+    return countMap;
+  }
+
+  /**
    * Get all skills with optional filtering
    * @param input Optional GetAllSkillsInput filters
-   * @returns Array of Skill objects sorted alphabetically by name
+   * @returns Array of Skill objects with employeeCount sorted alphabetically by name
    */
-  async getAllSkills(input?: GetAllSkillsInput): Promise<Skill[]> {
+  async getAllSkills(
+    input?: GetAllSkillsInput,
+  ): Promise<Array<Skill & { employeeCount: number }>> {
     // Build dynamic where clause based on provided filters
     const where: any = {};
 
@@ -84,19 +106,28 @@ export class SkillsService {
     }
 
     // Query skills with filters and sort alphabetically by name
-    return this.prisma.skill.findMany({
+    const skills = await this.prisma.skill.findMany({
       where,
       orderBy: { name: 'asc' },
     });
+
+    // Get employee counts for all skills
+    const employeeCounts = await this.getEmployeeCounts();
+
+    // Map employeeCount to each skill
+    return skills.map((skill) => ({
+      ...skill,
+      employeeCount: employeeCounts[skill.id] || 0,
+    }));
   }
 
   /**
    * Get skill by ID
    * @param id Skill ID
-   * @returns Skill object
+   * @returns Skill object with employeeCount
    * @throws NotFoundException if skill doesn't exist
    */
-  async getSkillById(id: number): Promise<Skill> {
+  async getSkillById(id: number): Promise<Skill & { employeeCount: number }> {
     const skill = await this.prisma.skill.findUnique({
       where: { id },
     });
@@ -110,15 +141,23 @@ export class SkillsService {
       });
     }
 
-    return skill;
+    // Get employee counts
+    const employeeCounts = await this.getEmployeeCounts();
+
+    return {
+      ...skill,
+      employeeCount: employeeCounts[skill.id] || 0,
+    };
   }
 
   /**
    * Create a new skill
    * @param input CreateSkillInput
-   * @returns Created Skill
+   * @returns Created Skill with employeeCount
    */
-  async createSkill(input: CreateSkillInput): Promise<Skill> {
+  async createSkill(
+    input: CreateSkillInput,
+  ): Promise<Skill & { employeeCount: number }> {
     // Validate name uniqueness
     await this.validateNameUniqueness(input.name);
 
@@ -126,21 +165,29 @@ export class SkillsService {
     const trimmedName = input.name.trim();
 
     // Create skill
-    return this.prisma.skill.create({
+    const skill = await this.prisma.skill.create({
       data: {
         name: trimmedName,
         discipline: input.discipline,
         isActive: true,
       },
     });
+
+    // New skill has no employees
+    return {
+      ...skill,
+      employeeCount: 0,
+    };
   }
 
   /**
    * Update an existing skill
    * @param input UpdateSkillInput
-   * @returns Updated Skill
+   * @returns Updated Skill with employeeCount
    */
-  async updateSkill(input: UpdateSkillInput): Promise<Skill> {
+  async updateSkill(
+    input: UpdateSkillInput,
+  ): Promise<Skill & { employeeCount: number }> {
     // Verify skill exists
     const existingSkill = await this.prisma.skill.findUnique({
       where: { id: input.id },
@@ -180,18 +227,30 @@ export class SkillsService {
     }
 
     // Update skill
-    return this.prisma.skill.update({
+    const skill = await this.prisma.skill.update({
       where: { id: input.id },
       data: updateData,
     });
+
+    // Get employee counts
+    const employeeCounts = await this.getEmployeeCounts();
+
+    return {
+      ...skill,
+      employeeCount: employeeCounts[skill.id] || 0,
+    };
   }
 
   /**
-   * Disable a skill (soft delete)
+   * Toggle skill active status
    * @param id Skill ID
-   * @returns Updated Skill
+   * @param isActive Target active status (true to enable, false to disable)
+   * @returns Updated Skill with employeeCount
    */
-  async disableSkill(id: number): Promise<Skill> {
+  async toggleSkill(
+    id: number,
+    isActive: boolean,
+  ): Promise<Skill & { employeeCount: number }> {
     // Verify skill exists
     const skill = await this.prisma.skill.findUnique({
       where: { id },
@@ -206,57 +265,30 @@ export class SkillsService {
       });
     }
 
-    // Verify skill is currently active
-    if (!skill.isActive) {
+    // Verify skill is not already in the target state
+    if (skill.isActive === isActive) {
       throw new BadRequestException({
-        message: 'Skill is already disabled',
+        message: isActive
+          ? 'Skill is already active'
+          : 'Skill is already disabled',
         extensions: {
-          code: 'ALREADY_DISABLED',
+          code: isActive ? 'ALREADY_ACTIVE' : 'ALREADY_DISABLED',
         },
       });
     }
 
-    // Update skill to disabled
-    return this.prisma.skill.update({
+    // Update skill active status
+    const updatedSkill = await this.prisma.skill.update({
       where: { id },
-      data: { isActive: false },
-    });
-  }
-
-  /**
-   * Enable a disabled skill
-   * @param id Skill ID
-   * @returns Updated Skill
-   */
-  async enableSkill(id: number): Promise<Skill> {
-    // Verify skill exists
-    const skill = await this.prisma.skill.findUnique({
-      where: { id },
+      data: { isActive },
     });
 
-    if (!skill) {
-      throw new NotFoundException({
-        message: 'Skill not found',
-        extensions: {
-          code: 'NOT_FOUND',
-        },
-      });
-    }
+    // Get employee counts
+    const employeeCounts = await this.getEmployeeCounts();
 
-    // Verify skill is currently disabled
-    if (skill.isActive) {
-      throw new BadRequestException({
-        message: 'Skill is already active',
-        extensions: {
-          code: 'ALREADY_ACTIVE',
-        },
-      });
-    }
-
-    // Update skill to active
-    return this.prisma.skill.update({
-      where: { id },
-      data: { isActive: true },
-    });
+    return {
+      ...updatedSkill,
+      employeeCount: employeeCounts[updatedSkill.id] || 0,
+    };
   }
 }

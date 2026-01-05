@@ -36,7 +36,7 @@
 
 13. [x] Admin Skills Management API — Build CRUD endpoints for managing the canonical skills taxonomy (add, edit, disable skills) `S`
 
-14. [ ] Admin Skills Management UI — Create admin interface for viewing, adding, and editing skills in the taxonomy with discipline assignment `S`
+14. [x] Admin Skills Management UI — Create admin interface for viewing, adding, and editing skills in the taxonomy with discipline assignment `S`
 
 15. [ ] Admin Seniority Management — Implement API and UI for admins to view and manually correct employee seniority history records `M`
 

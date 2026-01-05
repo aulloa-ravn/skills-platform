@@ -82,11 +82,10 @@ type LoginResponse {
 
 type Mutation {
   createSkill(input: CreateSkillInput!): Skill!
-  disableSkill(id: Float!): Skill!
-  enableSkill(id: Float!): Skill!
   login(input: LoginInput!): LoginResponse!
   refreshToken(input: RefreshTokenInput!): RefreshTokenResponse!
   resolveSuggestions(input: ResolveSuggestionsInput!): ResolveSuggestionsResponse!
+  toggleSkill(id: Float!, isActive: Boolean!): Skill!
   updateSkill(input: UpdateSkillInput!): Skill!
 }
 
@@ -213,6 +212,7 @@ enum SeniorityLevel {
 type Skill {
   createdAt: DateTime!
   discipline: Discipline!
+  employeeCount: Int!
   id: Int!
   isActive: Boolean!
   name: String!

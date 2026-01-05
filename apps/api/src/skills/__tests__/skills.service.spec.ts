@@ -16,6 +16,9 @@ describe('SkillsService', () => {
       create: jest.fn(),
       update: jest.fn(),
     },
+    employeeSkill: {
+      groupBy: jest.fn(),
+    },
   };
 
   beforeEach(async () => {
@@ -34,6 +37,9 @@ describe('SkillsService', () => {
 
     // Clear all mocks before each test
     jest.clearAllMocks();
+
+    // Set default mock for employeeSkill.groupBy (returns empty array = no employees)
+    mockPrismaService.employeeSkill.groupBy.mockResolvedValue([]);
   });
 
   describe('getAllSkills', () => {
@@ -61,7 +67,7 @@ describe('SkillsService', () => {
 
       const result = await service.getAllSkills();
 
-      expect(result).toEqual(mockSkills);
+      expect(result).toEqual(mockSkills.map(skill => ({ ...skill, employeeCount: 0 })));
       expect(prisma.skill.findMany).toHaveBeenCalledWith({
         where: {},
         orderBy: { name: 'asc' },
@@ -84,7 +90,7 @@ describe('SkillsService', () => {
 
       const result = await service.getAllSkills({ isActive: true });
 
-      expect(result).toEqual(mockSkills);
+      expect(result).toEqual(mockSkills.map(skill => ({ ...skill, employeeCount: 0 })));
       expect(prisma.skill.findMany).toHaveBeenCalledWith({
         where: { isActive: true },
         orderBy: { name: 'asc' },
@@ -107,7 +113,7 @@ describe('SkillsService', () => {
 
       const result = await service.getAllSkills({ isActive: false });
 
-      expect(result).toEqual(mockSkills);
+      expect(result).toEqual(mockSkills.map(skill => ({ ...skill, employeeCount: 0 })));
       expect(prisma.skill.findMany).toHaveBeenCalledWith({
         where: { isActive: false },
         orderBy: { name: 'asc' },
@@ -140,7 +146,7 @@ describe('SkillsService', () => {
         disciplines: [Discipline.FRONTEND, Discipline.BACKEND],
       });
 
-      expect(result).toEqual(mockSkills);
+      expect(result).toEqual(mockSkills.map(skill => ({ ...skill, employeeCount: 0 })));
       expect(prisma.skill.findMany).toHaveBeenCalledWith({
         where: {
           discipline: { in: [Discipline.FRONTEND, Discipline.BACKEND] },
@@ -165,7 +171,7 @@ describe('SkillsService', () => {
 
       const result = await service.getAllSkills({ searchTerm: 'react' });
 
-      expect(result).toEqual(mockSkills);
+      expect(result).toEqual(mockSkills.map(skill => ({ ...skill, employeeCount: 0 })));
       expect(prisma.skill.findMany).toHaveBeenCalledWith({
         where: {
           name: { contains: 'react', mode: 'insensitive' },
@@ -194,7 +200,7 @@ describe('SkillsService', () => {
         searchTerm: 'react',
       });
 
-      expect(result).toEqual(mockSkills);
+      expect(result).toEqual(mockSkills.map(skill => ({ ...skill, employeeCount: 0 })));
       expect(prisma.skill.findMany).toHaveBeenCalledWith({
         where: {
           isActive: true,
@@ -229,7 +235,7 @@ describe('SkillsService', () => {
 
       const result = await service.getSkillById(1);
 
-      expect(result).toEqual(mockSkill);
+      expect(result).toEqual({ ...mockSkill, employeeCount: 0 });
       expect(prisma.skill.findUnique).toHaveBeenCalledWith({
         where: { id: 1 },
       });
@@ -267,7 +273,7 @@ describe('SkillsService', () => {
 
       const result = await service.createSkill(input);
 
-      expect(result).toEqual(expectedSkill);
+      expect(result).toEqual({ ...expectedSkill, employeeCount: 0 });
       expect(prisma.skill.create).toHaveBeenCalledWith({
         data: {
           name: 'React',
@@ -344,7 +350,7 @@ describe('SkillsService', () => {
 
       const result = await service.updateSkill(input);
 
-      expect(result).toEqual(updatedSkill);
+      expect(result).toEqual({ ...updatedSkill, employeeCount: 0 });
       expect(prisma.skill.update).toHaveBeenCalledWith({
         where: { id: 1 },
         data: {
@@ -365,7 +371,7 @@ describe('SkillsService', () => {
     });
   });
 
-  describe('disableSkill', () => {
+  describe('toggleSkill', () => {
     it('should disable an active skill successfully', async () => {
       const skillId = 1;
       const activeSkill = {
@@ -381,35 +387,15 @@ describe('SkillsService', () => {
       mockPrismaService.skill.findUnique.mockResolvedValue(activeSkill);
       mockPrismaService.skill.update.mockResolvedValue(disabledSkill);
 
-      const result = await service.disableSkill(skillId);
+      const result = await service.toggleSkill(skillId, false);
 
-      expect(result).toEqual(disabledSkill);
+      expect(result).toEqual({ ...disabledSkill, employeeCount: 0 });
       expect(prisma.skill.update).toHaveBeenCalledWith({
         where: { id: skillId },
         data: { isActive: false },
       });
     });
 
-    it('should throw BadRequestException if skill is already disabled', async () => {
-      const skillId = 1;
-      const disabledSkill = {
-        id: skillId,
-        name: 'React',
-        discipline: Discipline.FRONTEND,
-        isActive: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      mockPrismaService.skill.findUnique.mockResolvedValue(disabledSkill);
-
-      await expect(service.disableSkill(skillId)).rejects.toThrow(
-        BadRequestException,
-      );
-    });
-  });
-
-  describe('enableSkill', () => {
     it('should enable a disabled skill successfully', async () => {
       const skillId = 1;
       const disabledSkill = {
@@ -425,16 +411,34 @@ describe('SkillsService', () => {
       mockPrismaService.skill.findUnique.mockResolvedValue(disabledSkill);
       mockPrismaService.skill.update.mockResolvedValue(enabledSkill);
 
-      const result = await service.enableSkill(skillId);
+      const result = await service.toggleSkill(skillId, true);
 
-      expect(result).toEqual(enabledSkill);
+      expect(result).toEqual({ ...enabledSkill, employeeCount: 0 });
       expect(prisma.skill.update).toHaveBeenCalledWith({
         where: { id: skillId },
         data: { isActive: true },
       });
     });
 
-    it('should throw BadRequestException if skill is already active', async () => {
+    it('should throw BadRequestException if trying to disable already disabled skill', async () => {
+      const skillId = 1;
+      const disabledSkill = {
+        id: skillId,
+        name: 'React',
+        discipline: Discipline.FRONTEND,
+        isActive: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      mockPrismaService.skill.findUnique.mockResolvedValue(disabledSkill);
+
+      await expect(service.toggleSkill(skillId, false)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should throw BadRequestException if trying to enable already active skill', async () => {
       const skillId = 1;
       const activeSkill = {
         id: skillId,
@@ -447,7 +451,7 @@ describe('SkillsService', () => {
 
       mockPrismaService.skill.findUnique.mockResolvedValue(activeSkill);
 
-      await expect(service.enableSkill(skillId)).rejects.toThrow(
+      await expect(service.toggleSkill(skillId, true)).rejects.toThrow(
         BadRequestException,
       );
     });

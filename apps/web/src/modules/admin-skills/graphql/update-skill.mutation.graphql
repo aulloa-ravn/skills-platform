@@ -1,0 +1,10 @@
+mutation UpdateSkill($input: UpdateSkillInput!) {
+  updateSkill(input: $input) {
+    id
+    name
+    discipline
+    isActive
+    employeeCount
+    createdAt
+  }
+}

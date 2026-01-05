@@ -1,0 +1,10 @@
+query GetAllSkills($input: GetAllSkillsInput) {
+  getAllSkills(input: $input) {
+    id
+    name
+    discipline
+    isActive
+    employeeCount
+    createdAt
+  }
+}
