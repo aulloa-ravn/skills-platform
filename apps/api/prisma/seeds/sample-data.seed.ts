@@ -750,10 +750,37 @@ export async function seedSampleData(prisma: PrismaClient): Promise<void> {
 
         // ===== PROFILE GENERATION =====
         console.log('[2/7] Generating profiles with authentication...');
+
+        // Hash the default password for admin user
+        const hashedPassword = await bcrypt.hash(
+          DEFAULT_PASSWORD,
+          BCRYPT_SALT_ROUNDS,
+        );
+
+        // Create admin user first
+        const adminProfile = await tx.profile.create({
+          data: {
+            missionBoardId: generateMissionBoardId(),
+            email: 'donovan@ravn.co',
+            name: 'Donovan',
+            avatarUrl: faker.image.avatar(),
+            currentSeniorityLevel: SeniorityLevel.STAFF_ENGINEER,
+            password: hashedPassword,
+            type: ProfileType.ADMIN,
+          },
+        });
+
+        const profilesWithSeniority: GeneratedProfile[] = [
+          {
+            ...adminProfile,
+            seniorityLevel: SeniorityLevel.STAFF_ENGINEER,
+          },
+        ];
+
+        // Generate regular employee profiles
         const profileSpecs = await generateProfiles(PROFILE_COUNT);
 
         // Create profiles individually to get their IDs
-        const profilesWithSeniority: GeneratedProfile[] = [];
         for (const spec of profileSpecs) {
           const createdProfile = await tx.profile.create({
             data: spec.data,
@@ -787,7 +814,7 @@ export async function seedSampleData(prisma: PrismaClient): Promise<void> {
           `  Created ${profilesWithSeniority.length} profiles (${seniorityStats.JUNIOR} Junior, ${seniorityStats.MID} Mid, ${seniorityStats.SENIOR} Senior, ${seniorityStats.STAFF} Staff)`,
         );
         console.log(
-          `  Assigned ${adminCount} ADMIN role(s), remaining profiles have EMPLOYEE role`,
+          `  Assigned ${adminCount} ADMIN role (Donovan), remaining profiles have EMPLOYEE role`,
         );
         console.log(`  All profiles have password: "${DEFAULT_PASSWORD}"\n`);
 
