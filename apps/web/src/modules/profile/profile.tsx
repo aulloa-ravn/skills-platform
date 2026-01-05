@@ -2,6 +2,7 @@ import { ProfileHeader } from '@/modules/profile/components/profile-header'
 import { SeniorityTimeline } from '@/modules/profile/components/seniority-timeline'
 import { SkillsSection } from '@/modules/profile/components/skill-sections'
 import { CurrentAssignments } from '@/modules/profile/components/current-assignments'
+import { MyLeadersSection } from '@/modules/profile/components/my-leaders-section'
 import { useProfile } from '@/modules/profile/hooks/use-profile'
 
 export function Profile() {
@@ -38,6 +39,7 @@ export function Profile() {
       <ProfileHeader profile={profile} />
       <SeniorityTimeline seniorityHistory={profile.seniorityHistory} />
       <CurrentAssignments assignments={profile.currentAssignments} />
+      <MyLeadersSection assignments={profile.currentAssignments} />
       <SkillsSection skills={profile.skills} />
     </div>
   )

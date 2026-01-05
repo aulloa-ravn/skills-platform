@@ -42,7 +42,7 @@
 
 16. [ ] Stale Skill Flagging — Add background job or query logic to identify skills not validated in 12+ months and create re-validation suggestions `S`
 
-17. [ ] My Leaders Section — Add sidebar component to employee profile showing which Tech Leads can validate them based on current assignments `XS`
+17. [x] My Leaders Section — Add sidebar component to employee profile showing which Tech Leads can validate them based on current assignments `XS`
 
 18. [ ] Mission Board Sync Endpoint — Implement POST /sync webhook endpoint to receive and upsert Projects, Assignments, and People data from Mission Board `M`
 
