@@ -1,7 +1,7 @@
 Implementation:
 
 - Sprints should be iterative, improving the product with each iteration.
-- Each sprint must deliver a functional improvement on both the frontend (/apps/client) and backend (/apps/api).
+- Each sprint must deliver a functional improvement on both the frontend (/apps/web) and backend (/apps/api).
 
 Limitations:
 

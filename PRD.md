@@ -83,11 +83,11 @@ _A "Master-Detail" interface designed for rapid processing by Tech Leads._
 
 ### 4.1 Tech Stack
 
-- **Project Type:** Turborepo monorepo with two apps: `client` (frontend) and `api` (backend).
-- **apps/client:** React + Vite + Tailwind CSS + Zustand + Apollo Client (GraphQL).
+- **Project Type:** Monorepo with two apps: `web` (frontend) and `api` (backend).
+- **apps/web:** React + TanStack Router + Tailwind CSS + Zustand + Apollo Client (GraphQL).
 - **apps/api:** NestJS (Modules, Controllers, Services) + Prisma ORM + GraphQL.
 - **Database:** PostgreSQL.
-- **Auth:** JWT (Verify token from Mission Board or basic Auth0 integration).
+- **Auth:** JWT with automatic refresh token handling.
 - **Full-stack TypeScript:** Consistent types across apps (frontend and backend).
 
 ### 4.2 Database Schema (Prisma)
@@ -218,4 +218,4 @@ model Suggestion {
 ## 6. Implementation Roadmap
 
 - Sprints should be iterative, improving the product with each iteration.
-- Each sprint must deliver a functional improvement on both the frontend (/apps/client) and backend (/apps/api).
+- Each sprint must deliver a functional improvement on both the frontend (/apps/web) and backend (/apps/api).
