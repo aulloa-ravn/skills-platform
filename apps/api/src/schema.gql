@@ -2,6 +2,13 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input CreateSeniorityHistoryInput {
+  endDate: DateTime
+  profileId: String!
+  seniorityLevel: SeniorityLevel!
+  startDate: DateTime!
+}
+
 input CreateSkillInput {
   discipline: Discipline!
   name: String!
@@ -81,11 +88,13 @@ type LoginResponse {
 }
 
 type Mutation {
+  createSeniorityHistory(input: CreateSeniorityHistoryInput!): SeniorityHistoryRecord!
   createSkill(input: CreateSkillInput!): Skill!
   login(input: LoginInput!): LoginResponse!
   refreshToken(input: RefreshTokenInput!): RefreshTokenResponse!
   resolveSuggestions(input: ResolveSuggestionsInput!): ResolveSuggestionsResponse!
   toggleSkill(id: Float!, isActive: Boolean!): Skill!
+  updateSeniorityHistory(input: UpdateSeniorityHistoryInput!): SeniorityHistoryRecord!
   updateSkill(input: UpdateSkillInput!): Skill!
 }
 
@@ -150,6 +159,7 @@ type ProjectInbox {
 type Query {
   getAllSkills(input: GetAllSkillsInput): [Skill!]!
   getProfile(id: String!): ProfileResponse!
+  getSeniorityHistory(profileId: String!): [SeniorityHistoryRecord!]!
   getSkillById(id: Int!): Skill!
   getValidationInbox: InboxResponse!
   health: String!
@@ -194,6 +204,16 @@ type ResolvedSuggestion {
   suggestionId: Int!
 }
 
+type SeniorityHistoryRecord {
+  createdAt: DateTime!
+  endDate: DateTime
+  id: Int!
+  profileId: String!
+  seniorityLevel: SeniorityLevel!
+  startDate: DateTime!
+  updatedAt: DateTime!
+}
+
 type SeniorityHistoryResponse {
   createdBy: ValidatorInfo
   endDate: DateTime
@@ -201,7 +221,7 @@ type SeniorityHistoryResponse {
   startDate: DateTime!
 }
 
-"""Seniority level"""
+"""Employee seniority level"""
 enum SeniorityLevel {
   JUNIOR_ENGINEER
   MID_ENGINEER
@@ -236,6 +256,13 @@ type TechLeadInfo {
   email: String
   id: String
   name: String
+}
+
+input UpdateSeniorityHistoryInput {
+  endDate: DateTime
+  id: Int!
+  seniorityLevel: SeniorityLevel!
+  startDate: DateTime!
 }
 
 input UpdateSkillInput {

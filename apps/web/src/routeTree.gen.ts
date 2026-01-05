@@ -15,6 +15,7 @@ import { Route as AuthenticatedValidationInboxRouteImport } from './routes/_auth
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as AuthenticatedAdminSkillsRouteImport } from './routes/_authenticated/admin/skills'
+import { Route as AuthenticatedAdminProfilesProfileIdSeniorityRouteImport } from './routes/_authenticated/admin/profiles.$profileId.seniority'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -47,6 +48,12 @@ const AuthenticatedAdminSkillsRoute =
     path: '/admin/skills',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminProfilesProfileIdSeniorityRoute =
+  AuthenticatedAdminProfilesProfileIdSeniorityRouteImport.update({
+    id: '/admin/profiles/$profileId/seniority',
+    path: '/admin/profiles/$profileId/seniority',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/validation-inbox': typeof AuthenticatedValidationInboxRoute
   '/admin/skills': typeof AuthenticatedAdminSkillsRoute
+  '/admin/profiles/$profileId/seniority': typeof AuthenticatedAdminProfilesProfileIdSeniorityRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -61,6 +69,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/validation-inbox': typeof AuthenticatedValidationInboxRoute
   '/admin/skills': typeof AuthenticatedAdminSkillsRoute
+  '/admin/profiles/$profileId/seniority': typeof AuthenticatedAdminProfilesProfileIdSeniorityRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -70,12 +79,25 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/validation-inbox': typeof AuthenticatedValidationInboxRoute
   '/_authenticated/admin/skills': typeof AuthenticatedAdminSkillsRoute
+  '/_authenticated/admin/profiles/$profileId/seniority': typeof AuthenticatedAdminProfilesProfileIdSeniorityRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/profile' | '/validation-inbox' | '/admin/skills'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/profile'
+    | '/validation-inbox'
+    | '/admin/skills'
+    | '/admin/profiles/$profileId/seniority'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/profile' | '/validation-inbox' | '/admin/skills'
+  to:
+    | '/'
+    | '/login'
+    | '/profile'
+    | '/validation-inbox'
+    | '/admin/skills'
+    | '/admin/profiles/$profileId/seniority'
   id:
     | '__root__'
     | '/'
@@ -84,6 +106,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/validation-inbox'
     | '/_authenticated/admin/skills'
+    | '/_authenticated/admin/profiles/$profileId/seniority'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -136,6 +159,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSkillsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/profiles/$profileId/seniority': {
+      id: '/_authenticated/admin/profiles/$profileId/seniority'
+      path: '/admin/profiles/$profileId/seniority'
+      fullPath: '/admin/profiles/$profileId/seniority'
+      preLoaderRoute: typeof AuthenticatedAdminProfilesProfileIdSeniorityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -143,12 +173,15 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedValidationInboxRoute: typeof AuthenticatedValidationInboxRoute
   AuthenticatedAdminSkillsRoute: typeof AuthenticatedAdminSkillsRoute
+  AuthenticatedAdminProfilesProfileIdSeniorityRoute: typeof AuthenticatedAdminProfilesProfileIdSeniorityRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedValidationInboxRoute: AuthenticatedValidationInboxRoute,
   AuthenticatedAdminSkillsRoute: AuthenticatedAdminSkillsRoute,
+  AuthenticatedAdminProfilesProfileIdSeniorityRoute:
+    AuthenticatedAdminProfilesProfileIdSeniorityRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

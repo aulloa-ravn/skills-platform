@@ -5,8 +5,12 @@ import {
   HttpLink,
   Observable,
 } from '@apollo/client'
+import {
+  CombinedGraphQLErrors,
+  CombinedProtocolErrors,
+} from '@apollo/client/errors'
 import { setContext } from '@apollo/client/link/context'
-import { onError } from '@apollo/client/link/error'
+import { ErrorLink, onError } from '@apollo/client/link/error'
 import { useStore } from '../../store'
 
 /**
@@ -77,107 +81,99 @@ const authorizationHeader = (token: string) => {
  * Error link to handle GraphQL errors
  * Implements transparent token renewal on UNAUTHORIZED errors
  */
-const errorLink = onError(
-  ({ graphQLErrors, operation, forward, networkError }) => {
-    const { setToken, setRefreshToken, reset } = useStore.getState()
+const errorLink = new ErrorLink(({ error, operation, forward }) => {
+  const { setToken, setRefreshToken, reset } = useStore.getState()
 
-    if (graphQLErrors) {
-      for (const error of graphQLErrors) {
-        // Check for UNAUTHORIZED error code
-        if (
-          error.message.includes('expired') ||
-          error.extensions?.code === 'UNAUTHORIZED'
-        ) {
-          // Return an observable that attempts token refresh
-          return new Observable((observer) => {
-            handleRefreshToken(
-              (token, refreshToken) => {
-                const oldHeaders = operation.getContext().headers
+  if (CombinedGraphQLErrors.is(error)) {
+    for (const { message, extensions } of error.errors) {
+      if (extensions?.code === 'UNAUTHORIZED') {
+        console.error('Unauthorized:', message)
+        return new Observable((observer) => {
+          handleRefreshToken(
+            (token, refreshToken) => {
+              const oldHeaders = operation.getContext().headers
 
-                setToken(token)
-                setRefreshToken(refreshToken)
+              setToken(token)
+              setRefreshToken(refreshToken)
 
-                operation.setContext({
-                  headers: {
-                    ...oldHeaders,
-                    ...authorizationHeader(token),
-                  },
-                })
+              operation.setContext({
+                headers: {
+                  ...oldHeaders,
+                  ...authorizationHeader(token),
+                },
+              })
 
-                const subscriber = {
-                  next: observer.next.bind(observer),
-                  error: observer.error.bind(observer),
-                  complete: observer.complete.bind(observer),
-                }
+              const subscriber = {
+                next: observer.next.bind(observer),
+                error: observer.error.bind(observer),
+                complete: observer.complete.bind(observer),
+              }
 
-                forward(operation).subscribe(subscriber)
-              },
-              () => {
-                reset()
+              forward(operation).subscribe(subscriber)
+            },
+            () => {
+              reset()
 
-                const subscriber = {
-                  next: observer.next.bind(observer),
-                  error: observer.error.bind(observer),
-                  complete: observer.complete.bind(observer),
-                }
+              const subscriber = {
+                next: observer.next.bind(observer),
+                error: observer.error.bind(observer),
+                complete: observer.complete.bind(observer),
+              }
 
-                forward(operation).subscribe(subscriber)
-              },
-            )
-          })
-        }
+              forward(operation).subscribe(subscriber)
+            },
+          )
+        })
+      }
 
-        // Handle other error codes
-        if (error.extensions?.code === 'FORBIDDEN') {
-          console.error('Permission denied:', error.message)
-        }
+      // Handle other error codes
+      if (extensions?.code === 'FORBIDDEN') {
+        console.error('Permission denied:', message)
+      }
 
-        if (error.extensions?.code === 'INVALID_CREDENTIALS') {
-          console.error('Invalid credentials:', error.message)
-        }
+      if (extensions?.code === 'INVALID_CREDENTIALS') {
+        console.error('Invalid credentials:', message)
       }
     }
+  } else if (CombinedProtocolErrors.is(error)) {
+    return new Observable((observer) => {
+      handleRefreshToken(
+        (token, refreshToken) => {
+          const oldHeaders = operation.getContext().headers
 
-    if (networkError) {
-      return new Observable((observer) => {
-        handleRefreshToken(
-          (token, refreshToken) => {
-            const oldHeaders = operation.getContext().headers
+          setToken(token)
+          setRefreshToken(refreshToken)
 
-            setToken(token)
-            setRefreshToken(refreshToken)
+          operation.setContext({
+            headers: {
+              ...oldHeaders,
+              ...authorizationHeader(token),
+            },
+          })
 
-            operation.setContext({
-              headers: {
-                ...oldHeaders,
-                ...authorizationHeader(token),
-              },
-            })
+          const subscriber = {
+            next: observer.next.bind(observer),
+            error: observer.error.bind(observer),
+            complete: observer.complete.bind(observer),
+          }
 
-            const subscriber = {
-              next: observer.next.bind(observer),
-              error: observer.error.bind(observer),
-              complete: observer.complete.bind(observer),
-            }
+          forward(operation).subscribe(subscriber)
+        },
+        () => {
+          reset()
 
-            forward(operation).subscribe(subscriber)
-          },
-          () => {
-            reset()
+          const subscriber = {
+            next: observer.next.bind(observer),
+            error: observer.error.bind(observer),
+            complete: observer.complete.bind(observer),
+          }
 
-            const subscriber = {
-              next: observer.next.bind(observer),
-              error: observer.error.bind(observer),
-              complete: observer.complete.bind(observer),
-            }
-
-            forward(operation).subscribe(subscriber)
-          },
-        )
-      })
-    }
-  },
-)
+          forward(operation).subscribe(subscriber)
+        },
+      )
+    })
+  }
+})
 
 /**
  * Auth link to add Authorization header to every request

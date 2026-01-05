@@ -1,0 +1,11 @@
+query GetSeniorityHistory($profileId: String!) {
+  getSeniorityHistory(profileId: $profileId) {
+    id
+    profileId
+    seniorityLevel
+    startDate
+    endDate
+    createdAt
+    updatedAt
+  }
+}

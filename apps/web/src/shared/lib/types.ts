@@ -30,6 +30,13 @@ export type Scalars = {
   DateTime: { input: any; output: any }
 }
 
+export type CreateSeniorityHistoryInput = {
+  endDate?: InputMaybe<Scalars['DateTime']['input']>
+  profileId: Scalars['String']['input']
+  seniorityLevel: SeniorityLevel
+  startDate: Scalars['DateTime']['input']
+}
+
 export type CreateSkillInput = {
   discipline: Discipline
   name: Scalars['String']['input']
@@ -109,12 +116,18 @@ export type LoginResponse = {
 
 export type Mutation = {
   __typename?: 'Mutation'
+  createSeniorityHistory: SeniorityHistoryRecord
   createSkill: Skill
   login: LoginResponse
   refreshToken: RefreshTokenResponse
   resolveSuggestions: ResolveSuggestionsResponse
   toggleSkill: Skill
+  updateSeniorityHistory: SeniorityHistoryRecord
   updateSkill: Skill
+}
+
+export type MutationCreateSeniorityHistoryArgs = {
+  input: CreateSeniorityHistoryInput
 }
 
 export type MutationCreateSkillArgs = {
@@ -136,6 +149,10 @@ export type MutationResolveSuggestionsArgs = {
 export type MutationToggleSkillArgs = {
   id: Scalars['Float']['input']
   isActive: Scalars['Boolean']['input']
+}
+
+export type MutationUpdateSeniorityHistoryArgs = {
+  input: UpdateSeniorityHistoryInput
 }
 
 export type MutationUpdateSkillArgs = {
@@ -209,6 +226,7 @@ export type Query = {
   __typename?: 'Query'
   getAllSkills: Array<Skill>
   getProfile: ProfileResponse
+  getSeniorityHistory: Array<SeniorityHistoryRecord>
   getSkillById: Skill
   getValidationInbox: InboxResponse
   health: Scalars['String']['output']
@@ -220,6 +238,10 @@ export type QueryGetAllSkillsArgs = {
 
 export type QueryGetProfileArgs = {
   id: Scalars['String']['input']
+}
+
+export type QueryGetSeniorityHistoryArgs = {
+  profileId: Scalars['String']['input']
 }
 
 export type QueryGetSkillByIdArgs = {
@@ -269,6 +291,17 @@ export type ResolvedSuggestion = {
   suggestionId: Scalars['Int']['output']
 }
 
+export type SeniorityHistoryRecord = {
+  __typename?: 'SeniorityHistoryRecord'
+  createdAt: Scalars['DateTime']['output']
+  endDate?: Maybe<Scalars['DateTime']['output']>
+  id: Scalars['Int']['output']
+  profileId: Scalars['String']['output']
+  seniorityLevel: SeniorityLevel
+  startDate: Scalars['DateTime']['output']
+  updatedAt: Scalars['DateTime']['output']
+}
+
 export type SeniorityHistoryResponse = {
   __typename?: 'SeniorityHistoryResponse'
   createdBy?: Maybe<ValidatorInfo>
@@ -277,7 +310,7 @@ export type SeniorityHistoryResponse = {
   startDate: Scalars['DateTime']['output']
 }
 
-/** Seniority level */
+/** Employee seniority level */
 export enum SeniorityLevel {
   JUNIOR_ENGINEER = 'JUNIOR_ENGINEER',
   MID_ENGINEER = 'MID_ENGINEER',
@@ -315,6 +348,13 @@ export type TechLeadInfo = {
   email?: Maybe<Scalars['String']['output']>
   id?: Maybe<Scalars['String']['output']>
   name?: Maybe<Scalars['String']['output']>
+}
+
+export type UpdateSeniorityHistoryInput = {
+  endDate?: InputMaybe<Scalars['DateTime']['input']>
+  id: Scalars['Int']['input']
+  seniorityLevel: SeniorityLevel
+  startDate: Scalars['DateTime']['input']
 }
 
 export type UpdateSkillInput = {

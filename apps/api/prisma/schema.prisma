@@ -182,13 +182,13 @@ model Assignment {
 }
 
 model SeniorityHistory {
-  id             Int       @id @default(autoincrement())
+  id             Int            @id @default(autoincrement())
   profileId      String
   seniorityLevel SeniorityLevel
   startDate      DateTime
   endDate        DateTime?
-  createdAt      DateTime  @default(now())
-  // Note: No updatedAt field - this is an append-only model
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
   // Relations
   profile Profile @relation("ProfileSeniorityHistory", fields: [profileId], references: [id])

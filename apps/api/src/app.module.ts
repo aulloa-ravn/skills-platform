@@ -9,6 +9,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ProfileModule } from './profile/profile.module';
 import { SkillsModule } from './skills/skills.module';
+import { SeniorityHistoryModule } from './seniority/seniority-history.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
@@ -24,6 +25,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     AuthModule,
     ProfileModule,
     SkillsModule,
+    SeniorityHistoryModule,
   ],
   controllers: [AppController],
   providers: [
