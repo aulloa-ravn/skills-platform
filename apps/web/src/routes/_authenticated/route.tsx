@@ -11,6 +11,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/shared/components/ui/sidebar'
+import { LogoutButton } from '@/shared/components/logout-button'
 import { ThemeToggle } from '@/shared/components/theme-toggle'
 import { createFileRoute, redirect, Outlet } from '@tanstack/react-router'
 import { Calendar, Home, Inbox, Search, Settings } from 'lucide-react'
@@ -37,7 +38,10 @@ function RouteComponent() {
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
-          <ThemeToggle className="-mr-1" />
+          <div className="flex items-center gap-2">
+            <LogoutButton />
+            <ThemeToggle className="-mr-1" />
+          </div>
         </header>
         <Outlet />
       </SidebarInset>
