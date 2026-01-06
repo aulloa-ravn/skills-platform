@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client/react'
 import { toast } from 'sonner'
 import { CreateSkillDocument } from '../graphql/create-skill.mutation.generated'
-import { GetAllSkillsDocument } from '../graphql/get-all-skills.query.generated'
+// import { GetAllSkillsDocument } from '../graphql/get-all-skills.query.generated'
 import type { CreateSkillInput } from '@/shared/lib/types'
 
 /**

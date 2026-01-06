@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { Discipline } from '@/shared/lib/types'
 
 // These integration tests verify the critical workflows for Admin Skills Management UI
@@ -7,9 +7,8 @@ import { Discipline } from '@/shared/lib/types'
 describe('Admin Skills Integration Tests', () => {
   // Test 1: Verify getAllSkills query integration with filtering
   it('should integrate getAllSkills query with isActive filter', async () => {
-    const { GetAllSkillsDocument } = await import(
-      '../graphql/get-all-skills.query.generated'
-    )
+    const { GetAllSkillsDocument } =
+      await import('../graphql/get-all-skills.query.generated')
     expect(GetAllSkillsDocument).toBeDefined()
     expect(GetAllSkillsDocument.kind).toBe('Document')
 
@@ -20,9 +19,8 @@ describe('Admin Skills Integration Tests', () => {
 
   // Test 2: Verify getAllSkills query integration with disciplines filter
   it('should integrate getAllSkills query with disciplines filter', async () => {
-    const { GetAllSkillsDocument } = await import(
-      '../graphql/get-all-skills.query.generated'
-    )
+    const { GetAllSkillsDocument } =
+      await import('../graphql/get-all-skills.query.generated')
 
     // Verify query structure supports disciplines array
     expect(GetAllSkillsDocument).toBeDefined()
@@ -32,18 +30,16 @@ describe('Admin Skills Integration Tests', () => {
 
   // Test 3: Verify getAllSkills query integration with searchTerm filter
   it('should integrate getAllSkills query with searchTerm filter', async () => {
-    const { GetAllSkillsDocument } = await import(
-      '../graphql/get-all-skills.query.generated'
-    )
+    const { GetAllSkillsDocument } =
+      await import('../graphql/get-all-skills.query.generated')
 
     expect(GetAllSkillsDocument).toBeDefined()
   })
 
   // Test 4: Verify createSkill mutation integration
   it('should integrate createSkill mutation with name and discipline inputs', async () => {
-    const { CreateSkillDocument } = await import(
-      '../graphql/create-skill.mutation.generated'
-    )
+    const { CreateSkillDocument } =
+      await import('../graphql/create-skill.mutation.generated')
 
     expect(CreateSkillDocument).toBeDefined()
     expect(CreateSkillDocument.kind).toBe('Document')
@@ -55,9 +51,8 @@ describe('Admin Skills Integration Tests', () => {
 
   // Test 5: Verify updateSkill mutation integration
   it('should integrate updateSkill mutation with id and optional fields', async () => {
-    const { UpdateSkillDocument } = await import(
-      '../graphql/update-skill.mutation.generated'
-    )
+    const { UpdateSkillDocument } =
+      await import('../graphql/update-skill.mutation.generated')
 
     expect(UpdateSkillDocument).toBeDefined()
     expect(UpdateSkillDocument.kind).toBe('Document')
@@ -65,9 +60,8 @@ describe('Admin Skills Integration Tests', () => {
 
   // Test 6: Verify toggleSkill mutation integration
   it('should integrate toggleSkill mutation with skill ID and isActive flag', async () => {
-    const { ToggleSkillDocument } = await import(
-      '../graphql/toggle-skill.mutation.generated'
-    )
+    const { ToggleSkillDocument } =
+      await import('../graphql/toggle-skill.mutation.generated')
 
     expect(ToggleSkillDocument).toBeDefined()
     expect(ToggleSkillDocument.kind).toBe('Document')
@@ -130,7 +124,7 @@ describe('Admin Skills Backend Integration Tests', () => {
   // Test 1: Verify skill filtering by discipline works correctly
   it('should filter skills by discipline correctly', () => {
     const frontendSkills = mockSkills.filter(
-      (s) => s.discipline === Discipline.FRONTEND
+      (s) => s.discipline === Discipline.FRONTEND,
     )
 
     expect(frontendSkills).toHaveLength(2)
@@ -150,7 +144,7 @@ describe('Admin Skills Backend Integration Tests', () => {
   it('should search skills by name with partial match correctly', () => {
     const searchTerm = 'react'
     const searchResults = mockSkills.filter((s) =>
-      s.name.toLowerCase().includes(searchTerm.toLowerCase())
+      s.name.toLowerCase().includes(searchTerm.toLowerCase()),
     )
 
     expect(searchResults).toHaveLength(1)
@@ -177,7 +171,7 @@ describe('Admin Skills Backend Integration Tests', () => {
   // Test 6: Verify skills can be sorted by name
   it('should sort skills alphabetically by name', () => {
     const sortedSkills = [...mockSkills].sort((a, b) =>
-      a.name.localeCompare(b.name)
+      a.name.localeCompare(b.name),
     )
 
     expect(sortedSkills[0].name).toBe('Angular')
@@ -188,7 +182,7 @@ describe('Admin Skills Backend Integration Tests', () => {
   // Test 7: Verify skills can be sorted by discipline
   it('should sort skills by discipline', () => {
     const sortedSkills = [...mockSkills].sort((a, b) =>
-      a.discipline.localeCompare(b.discipline)
+      a.discipline.localeCompare(b.discipline),
     )
 
     expect(sortedSkills[0].discipline).toBe(Discipline.BACKEND)
@@ -200,7 +194,7 @@ describe('Admin Skills Backend Integration Tests', () => {
   it('should sort skills by creation date', () => {
     const sortedSkills = [...mockSkills].sort(
       (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     )
 
     expect(sortedSkills[0].id).toBe(1)
@@ -211,7 +205,7 @@ describe('Admin Skills Backend Integration Tests', () => {
   // Test 9: Verify multiple filters can be applied simultaneously
   it('should apply multiple filters simultaneously', () => {
     const filteredSkills = mockSkills.filter(
-      (s) => s.isActive && s.discipline === Discipline.FRONTEND
+      (s) => s.isActive && s.discipline === Discipline.FRONTEND,
     )
 
     expect(filteredSkills).toHaveLength(1)

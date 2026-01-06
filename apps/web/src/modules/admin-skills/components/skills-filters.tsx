@@ -13,7 +13,7 @@ import {
 import { DisciplineMap } from '@/shared/utils'
 import { Discipline } from '@/shared/lib/types'
 import { FilterIcon, XIcon } from 'lucide-react'
-import { Field, FieldLabel } from '@/shared/components/ui/field'
+import { FieldLabel } from '@/shared/components/ui/field'
 
 type SkillsFiltersProps = {
   showInactive: boolean
@@ -40,9 +40,7 @@ export function SkillsFilters({
 
   const handleDisciplineToggle = (discipline: Discipline) => {
     if (selectedDisciplines.includes(discipline)) {
-      onDisciplinesChange(
-        selectedDisciplines.filter((d) => d !== discipline),
-      )
+      onDisciplinesChange(selectedDisciplines.filter((d) => d !== discipline))
     } else {
       onDisciplinesChange([...selectedDisciplines, discipline])
     }
@@ -65,7 +63,10 @@ export function SkillsFilters({
       </div>
 
       {/* Discipline Filter Dropdown */}
-      <DropdownMenu open={disciplineMenuOpen} onOpenChange={setDisciplineMenuOpen}>
+      <DropdownMenu
+        open={disciplineMenuOpen}
+        onOpenChange={setDisciplineMenuOpen}
+      >
         <DropdownMenuTrigger asChild>
           <Button variant="outline" className="w-full sm:w-auto">
             <FilterIcon className="h-4 w-4 mr-2" />
@@ -97,9 +98,7 @@ export function SkillsFilters({
         <Checkbox
           id="show-inactive"
           checked={showInactive}
-          onCheckedChange={(checked) =>
-            onShowInactiveChange(checked === true)
-          }
+          onCheckedChange={(checked) => onShowInactiveChange(checked === true)}
         />
         <FieldLabel
           htmlFor="show-inactive"

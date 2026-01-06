@@ -2,7 +2,7 @@ import { ProfileHeader } from '@/modules/profile/components/profile-header'
 import { SeniorityTimeline } from '@/modules/profile/components/seniority-timeline'
 import { SkillsSection } from '@/modules/profile/components/skill-sections'
 import { CurrentAssignments } from '@/modules/profile/components/current-assignments'
-import { MyLeadersSection } from '@/modules/profile/components/my-leaders-section'
+// import { MyLeadersSection } from '@/modules/profile/components/my-leaders-section'
 import { useProfile } from '@/modules/profile/hooks/use-profile'
 
 export function Profile() {
