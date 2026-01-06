@@ -17,6 +17,7 @@
   - Changed the type of `skillId` on the `EmployeeSkill` table. No cast exists, the column would be dropped and recreated, which cannot be done if there is data, since the column is required.
   - Changed the type of `currentSeniorityLevel` on the `Profile` table. No cast exists, the column would be dropped and recreated, which cannot be done if there is data, since the column is required.
   - Added the required column `startDate` to the `SeniorityHistory` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `updatedAt` to the `SeniorityHistory` table without a default value. This is not possible if the table is not empty.
   - Changed the type of `seniorityLevel` on the `SeniorityHistory` table. No cast exists, the column would be dropped and recreated, which cannot be done if there is data, since the column is required.
   - Changed the type of `skillId` on the `Suggestion` table. No cast exists, the column would be dropped and recreated, which cannot be done if there is data, since the column is required.
 
@@ -84,6 +85,7 @@ DROP COLUMN "createdById",
 DROP COLUMN "effectiveDate",
 ADD COLUMN     "endDate" TIMESTAMP(3),
 ADD COLUMN     "startDate" TIMESTAMP(3) NOT NULL,
+ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL,
 DROP COLUMN "id",
 ADD COLUMN     "id" SERIAL NOT NULL,
 DROP COLUMN "seniorityLevel",
