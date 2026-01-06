@@ -11,7 +11,7 @@ import {
 } from '@apollo/client/errors'
 import { SetContextLink } from '@apollo/client/link/context'
 import { ErrorLink } from '@apollo/client/link/error'
-import { useStore } from '../../store'
+import { useStore } from '../../store/store'
 
 /**
  * GraphQL API endpoint
