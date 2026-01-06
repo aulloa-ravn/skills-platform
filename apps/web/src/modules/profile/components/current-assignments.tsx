@@ -37,8 +37,8 @@ export function CurrentAssignments({ assignments }: CurrentAssignmentsProps) {
               key={index}
               className="p-4 sm:p-6 border border-border hover:shadow-md transition-shadow"
             >
-              <div className="flex items-start gap-4">
-                <div className="flex-1 min-w-0">
+              <div className="flex flex-col justify-between">
+                <div className="min-w-0">
                   <h3 className="font-semibold text-base sm:text-lg text-foreground mb-1">
                     {assignment.projectName}
                   </h3>
@@ -60,7 +60,8 @@ export function CurrentAssignments({ assignments }: CurrentAssignmentsProps) {
                       ))}
                     </div>
                   )}
-
+                </div>
+                <div className="min-w-0">
                   {/* Tech Lead */}
                   {assignment.techLead && (
                     <div className="pt-3 border-t border-border">

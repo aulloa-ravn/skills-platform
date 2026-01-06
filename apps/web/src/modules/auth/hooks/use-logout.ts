@@ -1,5 +1,4 @@
 import { useNavigate } from '@tanstack/react-router'
-import { toast } from 'sonner'
 import { useStore } from '@/shared/store'
 
 /**
@@ -12,12 +11,6 @@ export function useLogout() {
 
   const logout = () => {
     reset()
-
-    toast.success('Logged out successfully', {
-      description: 'You have been logged out',
-      position: 'bottom-right',
-    })
-
     navigate({ to: '/login' })
   }
 

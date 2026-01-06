@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedValidationInboxRouteImport } from './routes/_authenticated/validation-inbox'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminSkillsRouteImport } from './routes/_authenticated/admin/skills'
 import { Route as AuthenticatedAdminProfilesProfileIdSeniorityRouteImport } from './routes/_authenticated/admin/profiles.$profileId.seniority'
 
@@ -42,21 +43,27 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminSkillsRoute =
   AuthenticatedAdminSkillsRouteImport.update({
-    id: '/admin/skills',
-    path: '/admin/skills',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/skills',
+    path: '/skills',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminProfilesProfileIdSeniorityRoute =
   AuthenticatedAdminProfilesProfileIdSeniorityRouteImport.update({
-    id: '/admin/profiles/$profileId/seniority',
-    path: '/admin/profiles/$profileId/seniority',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/profiles/$profileId/seniority',
+    path: '/profiles/$profileId/seniority',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/login': typeof authLoginRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/validation-inbox': typeof AuthenticatedValidationInboxRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/login': typeof authLoginRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/validation-inbox': typeof AuthenticatedValidationInboxRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/validation-inbox': typeof AuthenticatedValidationInboxRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/login'
     | '/profile'
     | '/validation-inbox'
@@ -93,6 +103,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/login'
     | '/profile'
     | '/validation-inbox'
@@ -102,6 +113,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_authenticated/admin'
     | '/(auth)/login'
     | '/_authenticated/profile'
     | '/_authenticated/validation-inbox'
@@ -152,36 +164,57 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/skills': {
       id: '/_authenticated/admin/skills'
-      path: '/admin/skills'
+      path: '/skills'
       fullPath: '/admin/skills'
       preLoaderRoute: typeof AuthenticatedAdminSkillsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/profiles/$profileId/seniority': {
       id: '/_authenticated/admin/profiles/$profileId/seniority'
-      path: '/admin/profiles/$profileId/seniority'
+      path: '/profiles/$profileId/seniority'
       fullPath: '/admin/profiles/$profileId/seniority'
       preLoaderRoute: typeof AuthenticatedAdminProfilesProfileIdSeniorityRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
   }
 }
 
-interface AuthenticatedRouteRouteChildren {
-  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
-  AuthenticatedValidationInboxRoute: typeof AuthenticatedValidationInboxRoute
+interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminSkillsRoute: typeof AuthenticatedAdminSkillsRoute
   AuthenticatedAdminProfilesProfileIdSeniorityRoute: typeof AuthenticatedAdminProfilesProfileIdSeniorityRoute
 }
 
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminSkillsRoute: AuthenticatedAdminSkillsRoute,
+    AuthenticatedAdminProfilesProfileIdSeniorityRoute:
+      AuthenticatedAdminProfilesProfileIdSeniorityRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedValidationInboxRoute: typeof AuthenticatedValidationInboxRoute
+}
+
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedValidationInboxRoute: AuthenticatedValidationInboxRoute,
-  AuthenticatedAdminSkillsRoute: AuthenticatedAdminSkillsRoute,
-  AuthenticatedAdminProfilesProfileIdSeniorityRoute:
-    AuthenticatedAdminProfilesProfileIdSeniorityRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

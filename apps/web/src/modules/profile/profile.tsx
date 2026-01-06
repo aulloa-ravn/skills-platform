@@ -39,7 +39,7 @@ export function Profile() {
       <ProfileHeader profile={profile} />
       <SeniorityTimeline seniorityHistory={profile.seniorityHistory} />
       <CurrentAssignments assignments={profile.currentAssignments} />
-      <MyLeadersSection assignments={profile.currentAssignments} />
+      {/* <MyLeadersSection assignments={profile.currentAssignments} /> */}
       <SkillsSection skills={profile.skills} />
     </div>
   )

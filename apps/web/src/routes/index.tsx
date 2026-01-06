@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
+import { ProfileType } from '@/shared/lib/types'
 
 export const Route = createFileRoute('/')({
   component: RouteComponent,
@@ -10,7 +11,10 @@ export const Route = createFileRoute('/')({
     }
 
     throw redirect({
-      to: '/profile',
+      to:
+        context.auth.user?.type === ProfileType.ADMIN
+          ? '/admin/skills'
+          : '/profile',
     })
   },
 })

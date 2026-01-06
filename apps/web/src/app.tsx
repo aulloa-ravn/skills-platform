@@ -28,8 +28,7 @@ declare module '@tanstack/react-router' {
 }
 
 export const App = () => {
-  const { getCurrentUser } = useStore()
-  const user = getCurrentUser()
+  const currentUser = useStore((state) => state.currentUser)
   useTheme()
 
   return (
@@ -37,8 +36,8 @@ export const App = () => {
       router={router}
       context={{
         auth: {
-          isAuthenticated: user !== null,
-          user,
+          isAuthenticated: currentUser !== null,
+          user: currentUser,
         },
       }}
     />
