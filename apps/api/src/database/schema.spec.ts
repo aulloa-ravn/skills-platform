@@ -103,7 +103,9 @@ describe('Database Schema - Core Models', () => {
       expect(profileInput.missionBoardId).toBe('mb-123');
       expect(profileInput.email).toBe('test@example.com');
       expect(profileInput.name).toBe('Test User');
-      expect(profileInput.currentSeniorityLevel).toBe(SeniorityLevel.SENIOR_ENGINEER);
+      expect(profileInput.currentSeniorityLevel).toBe(
+        SeniorityLevel.SENIOR_ENGINEER,
+      );
     });
 
     it('should allow optional avatarUrl field', () => {

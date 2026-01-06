@@ -26,7 +26,9 @@ export class SkillsResolver {
   @Query(() => Skill, { name: 'getSkillById' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ProfileType.ADMIN)
-  async getSkillById(@Args('id', { type: () => Int }) id: number): Promise<Skill> {
+  async getSkillById(
+    @Args('id', { type: () => Int }) id: number,
+  ): Promise<Skill> {
     return this.skillsService.getSkillById(id);
   }
 

@@ -155,9 +155,9 @@ describe('SeniorityHistory Integration - Profile Sync', () => {
     expect(history.length).toBeGreaterThan(0);
     // Verify descending order by startDate
     for (let i = 0; i < history.length - 1; i++) {
-      expect(
-        new Date(history[i].startDate).getTime(),
-      ).toBeGreaterThanOrEqual(new Date(history[i + 1].startDate).getTime());
+      expect(new Date(history[i].startDate).getTime()).toBeGreaterThanOrEqual(
+        new Date(history[i + 1].startDate).getTime(),
+      );
     }
   });
 });

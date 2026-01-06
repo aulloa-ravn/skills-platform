@@ -5,11 +5,7 @@ import {
   EmployeeInbox,
   PendingSuggestion,
 } from './inbox.response';
-import {
-  ProficiencyLevel,
-  Discipline,
-  SuggestionSource,
-} from '@prisma/client';
+import { ProficiencyLevel, Discipline, SuggestionSource } from '@prisma/client';
 
 describe('InboxResponse DTOs', () => {
   describe('PendingSuggestion', () => {

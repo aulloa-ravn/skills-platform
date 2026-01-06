@@ -117,14 +117,28 @@ export class StaleSkillFlaggingService {
       const duration = endTime.getTime() - startTime.getTime();
 
       // Log comprehensive metrics
-      this.logger.log(`Completed stale skill flagging job at ${endTime.toISOString()}`);
+      this.logger.log(
+        `Completed stale skill flagging job at ${endTime.toISOString()}`,
+      );
       this.logger.log(`Job duration: ${duration}ms`);
-      this.logger.log(`Employees with active assignments processed: ${employeesProcessed}`);
-      this.logger.log(`Core Stack skills identified: ${coreStackSkillsIdentified}`);
-      this.logger.log(`Stale Core Stack skills found (lastValidatedAt > 12 months): ${staleSkillsFound}`);
-      this.logger.log(`Suggestions successfully created: ${suggestionsCreated}`);
-      this.logger.log(`Suggestions skipped due to existing PENDING suggestions: ${suggestionsSkipped}`);
-      this.logger.log(`Skills excluded due to isActive = false: ${inactiveSkillsExcluded}`);
+      this.logger.log(
+        `Employees with active assignments processed: ${employeesProcessed}`,
+      );
+      this.logger.log(
+        `Core Stack skills identified: ${coreStackSkillsIdentified}`,
+      );
+      this.logger.log(
+        `Stale Core Stack skills found (lastValidatedAt > 12 months): ${staleSkillsFound}`,
+      );
+      this.logger.log(
+        `Suggestions successfully created: ${suggestionsCreated}`,
+      );
+      this.logger.log(
+        `Suggestions skipped due to existing PENDING suggestions: ${suggestionsSkipped}`,
+      );
+      this.logger.log(
+        `Skills excluded due to isActive = false: ${inactiveSkillsExcluded}`,
+      );
     } catch (error) {
       this.logger.error(
         `Error during stale skill flagging job: ${error.message}`,

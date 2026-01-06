@@ -663,7 +663,9 @@ describe('Validation Inbox API Integration (e2e)', () => {
       if (inbox.projects.length > 1) {
         const projectNames = inbox.projects.map((p: any) => p.projectName);
         // Use localeCompare for sorting to match service implementation
-        const sortedNames = [...projectNames].sort((a, b) => a.localeCompare(b));
+        const sortedNames = [...projectNames].sort((a, b) =>
+          a.localeCompare(b),
+        );
         expect(projectNames).toEqual(sortedNames);
       }
     });
@@ -692,9 +694,13 @@ describe('Validation Inbox API Integration (e2e)', () => {
 
       inbox.projects.forEach((project: any) => {
         if (project.employees.length > 1) {
-          const employeeNames = project.employees.map((e: any) => e.employeeName);
+          const employeeNames = project.employees.map(
+            (e: any) => e.employeeName,
+          );
           // Use localeCompare for sorting to match service implementation
-          const sortedNames = [...employeeNames].sort((a, b) => a.localeCompare(b));
+          const sortedNames = [...employeeNames].sort((a, b) =>
+            a.localeCompare(b),
+          );
           expect(employeeNames).toEqual(sortedNames);
         }
       });

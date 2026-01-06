@@ -45,13 +45,18 @@ describe('InboxService', () => {
 
       await expect(
         service.getValidationInbox('user-123', ProfileType.EMPLOYEE),
-      ).rejects.toThrow('You do not have permission to access the validation inbox');
+      ).rejects.toThrow(
+        'You do not have permission to access the validation inbox',
+      );
     });
 
     it('should allow TECH_LEAD role to access inbox', async () => {
       mockPrismaService.project.findMany.mockResolvedValue([]);
 
-      const result = await service.getValidationInbox('user-123', ProfileType.TECH_LEAD);
+      const result = await service.getValidationInbox(
+        'user-123',
+        ProfileType.TECH_LEAD,
+      );
 
       expect(result).toBeDefined();
       expect(result.projects).toEqual([]);
@@ -60,7 +65,10 @@ describe('InboxService', () => {
     it('should allow ADMIN role to access inbox', async () => {
       mockPrismaService.project.findMany.mockResolvedValue([]);
 
-      const result = await service.getValidationInbox('user-123', ProfileType.ADMIN);
+      const result = await service.getValidationInbox(
+        'user-123',
+        ProfileType.ADMIN,
+      );
 
       expect(result).toBeDefined();
       expect(result.projects).toEqual([]);
@@ -137,11 +145,14 @@ describe('InboxService', () => {
 
       mockPrismaService.project.findMany.mockResolvedValue(mockProjects);
 
-      const result = await service.getValidationInbox('user-123', ProfileType.ADMIN);
-
-      expect(result.projects[0].employees[0].suggestions[0].currentProficiency).toBe(
-        ProficiencyLevel.INTERMEDIATE,
+      const result = await service.getValidationInbox(
+        'user-123',
+        ProfileType.ADMIN,
       );
+
+      expect(
+        result.projects[0].employees[0].suggestions[0].currentProficiency,
+      ).toBe(ProficiencyLevel.INTERMEDIATE);
     });
 
     it('should return undefined for currentProficiency when EmployeeSkill does not exist', async () => {
@@ -178,9 +189,14 @@ describe('InboxService', () => {
 
       mockPrismaService.project.findMany.mockResolvedValue(mockProjects);
 
-      const result = await service.getValidationInbox('user-123', ProfileType.ADMIN);
+      const result = await service.getValidationInbox(
+        'user-123',
+        ProfileType.ADMIN,
+      );
 
-      expect(result.projects[0].employees[0].suggestions[0].currentProficiency).toBeUndefined();
+      expect(
+        result.projects[0].employees[0].suggestions[0].currentProficiency,
+      ).toBeUndefined();
     });
   });
 
@@ -188,7 +204,10 @@ describe('InboxService', () => {
     it('should return empty projects array when no pending suggestions exist', async () => {
       mockPrismaService.project.findMany.mockResolvedValue([]);
 
-      const result = await service.getValidationInbox('user-123', ProfileType.ADMIN);
+      const result = await service.getValidationInbox(
+        'user-123',
+        ProfileType.ADMIN,
+      );
 
       expect(result.projects).toEqual([]);
     });
@@ -214,7 +233,10 @@ describe('InboxService', () => {
 
       mockPrismaService.project.findMany.mockResolvedValue(mockProjects);
 
-      const result = await service.getValidationInbox('user-123', ProfileType.ADMIN);
+      const result = await service.getValidationInbox(
+        'user-123',
+        ProfileType.ADMIN,
+      );
 
       expect(result.projects).toEqual([]);
     });

@@ -1,5 +1,12 @@
 import { InputType, Field, Int } from '@nestjs/graphql';
-import { IsNotEmpty, IsEnum, IsDateString, IsOptional, IsNumber, IsInt } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsEnum,
+  IsDateString,
+  IsOptional,
+  IsNumber,
+  IsInt,
+} from 'class-validator';
 import { SeniorityLevel } from '@prisma/client';
 import { GraphQLISODateTime } from '@nestjs/graphql';
 

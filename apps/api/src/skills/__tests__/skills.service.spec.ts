@@ -67,7 +67,9 @@ describe('SkillsService', () => {
 
       const result = await service.getAllSkills();
 
-      expect(result).toEqual(mockSkills.map(skill => ({ ...skill, employeeCount: 0 })));
+      expect(result).toEqual(
+        mockSkills.map((skill) => ({ ...skill, employeeCount: 0 })),
+      );
       expect(prisma.skill.findMany).toHaveBeenCalledWith({
         where: {},
         orderBy: { name: 'asc' },
@@ -90,7 +92,9 @@ describe('SkillsService', () => {
 
       const result = await service.getAllSkills({ isActive: true });
 
-      expect(result).toEqual(mockSkills.map(skill => ({ ...skill, employeeCount: 0 })));
+      expect(result).toEqual(
+        mockSkills.map((skill) => ({ ...skill, employeeCount: 0 })),
+      );
       expect(prisma.skill.findMany).toHaveBeenCalledWith({
         where: { isActive: true },
         orderBy: { name: 'asc' },
@@ -113,7 +117,9 @@ describe('SkillsService', () => {
 
       const result = await service.getAllSkills({ isActive: false });
 
-      expect(result).toEqual(mockSkills.map(skill => ({ ...skill, employeeCount: 0 })));
+      expect(result).toEqual(
+        mockSkills.map((skill) => ({ ...skill, employeeCount: 0 })),
+      );
       expect(prisma.skill.findMany).toHaveBeenCalledWith({
         where: { isActive: false },
         orderBy: { name: 'asc' },
@@ -146,7 +152,9 @@ describe('SkillsService', () => {
         disciplines: [Discipline.FRONTEND, Discipline.BACKEND],
       });
 
-      expect(result).toEqual(mockSkills.map(skill => ({ ...skill, employeeCount: 0 })));
+      expect(result).toEqual(
+        mockSkills.map((skill) => ({ ...skill, employeeCount: 0 })),
+      );
       expect(prisma.skill.findMany).toHaveBeenCalledWith({
         where: {
           discipline: { in: [Discipline.FRONTEND, Discipline.BACKEND] },
@@ -171,7 +179,9 @@ describe('SkillsService', () => {
 
       const result = await service.getAllSkills({ searchTerm: 'react' });
 
-      expect(result).toEqual(mockSkills.map(skill => ({ ...skill, employeeCount: 0 })));
+      expect(result).toEqual(
+        mockSkills.map((skill) => ({ ...skill, employeeCount: 0 })),
+      );
       expect(prisma.skill.findMany).toHaveBeenCalledWith({
         where: {
           name: { contains: 'react', mode: 'insensitive' },
@@ -200,7 +210,9 @@ describe('SkillsService', () => {
         searchTerm: 'react',
       });
 
-      expect(result).toEqual(mockSkills.map(skill => ({ ...skill, employeeCount: 0 })));
+      expect(result).toEqual(
+        mockSkills.map((skill) => ({ ...skill, employeeCount: 0 })),
+      );
       expect(prisma.skill.findMany).toHaveBeenCalledWith({
         where: {
           isActive: true,

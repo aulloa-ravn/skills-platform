@@ -117,19 +117,25 @@ describe('StaleSkillFlaggingService - Logging and Integration', () => {
 
       // Verify all required metrics are logged
       expect(loggerSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Employees with active assignments processed: 2'),
+        expect.stringContaining(
+          'Employees with active assignments processed: 2',
+        ),
       );
       expect(loggerSpy).toHaveBeenCalledWith(
         expect.stringContaining('Core Stack skills identified: 3'),
       );
       expect(loggerSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Stale Core Stack skills found (lastValidatedAt > 12 months): 3'),
+        expect.stringContaining(
+          'Stale Core Stack skills found (lastValidatedAt > 12 months): 3',
+        ),
       );
       expect(loggerSpy).toHaveBeenCalledWith(
         expect.stringContaining('Suggestions successfully created: 2'),
       );
       expect(loggerSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Suggestions skipped due to existing PENDING suggestions: 1'),
+        expect.stringContaining(
+          'Suggestions skipped due to existing PENDING suggestions: 1',
+        ),
       );
     });
 
@@ -140,12 +146,16 @@ describe('StaleSkillFlaggingService - Logging and Integration', () => {
 
       // Verify start timestamp is logged
       expect(loggerSpy).toHaveBeenCalledWith(
-        expect.stringMatching(/Starting stale skill flagging job at \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
+        expect.stringMatching(
+          /Starting stale skill flagging job at \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/,
+        ),
       );
 
       // Verify completion timestamp is logged
       expect(loggerSpy).toHaveBeenCalledWith(
-        expect.stringMatching(/Completed stale skill flagging job at \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
+        expect.stringMatching(
+          /Completed stale skill flagging job at \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/,
+        ),
       );
 
       // Verify job duration is logged
@@ -409,7 +419,9 @@ describe('StaleSkillFlaggingService - Logging and Integration', () => {
       );
 
       // Verify suggestion appears in Tech Lead 1's inbox
-      expect(techLead1Inbox.projects[0].employees[0].suggestions.length).toBe(1);
+      expect(techLead1Inbox.projects[0].employees[0].suggestions.length).toBe(
+        1,
+      );
       expect(techLead1Inbox.projects[0].employees[0].suggestions[0].id).toBe(2);
 
       // Simulate Tech Lead 2's inbox query
@@ -458,7 +470,9 @@ describe('StaleSkillFlaggingService - Logging and Integration', () => {
       );
 
       // Verify SAME suggestion appears in Tech Lead 2's inbox
-      expect(techLead2Inbox.projects[0].employees[0].suggestions.length).toBe(1);
+      expect(techLead2Inbox.projects[0].employees[0].suggestions.length).toBe(
+        1,
+      );
       expect(techLead2Inbox.projects[0].employees[0].suggestions[0].id).toBe(2);
 
       // Verify it's the SAME suggestion (not duplicates)
@@ -563,19 +577,27 @@ describe('StaleSkillFlaggingService - Logging and Integration', () => {
       expect(inboxResponse.projects[0].employees[0].suggestions.length).toBe(2);
 
       const suggestions = inboxResponse.projects[0].employees[0].suggestions;
-      const systemFlagSuggestion = suggestions.find((s) => s.source === SuggestionSource.SYSTEM_FLAG);
-      const selfReportSuggestion = suggestions.find((s) => s.source === SuggestionSource.SELF_REPORT);
+      const systemFlagSuggestion = suggestions.find(
+        (s) => s.source === SuggestionSource.SYSTEM_FLAG,
+      );
+      const selfReportSuggestion = suggestions.find(
+        (s) => s.source === SuggestionSource.SELF_REPORT,
+      );
 
       expect(systemFlagSuggestion).toBeDefined();
       expect(selfReportSuggestion).toBeDefined();
 
       // Verify SYSTEM_FLAG suggestion details
       expect(systemFlagSuggestion?.skillName).toBe('React');
-      expect(systemFlagSuggestion?.suggestedProficiency).toBe(ProficiencyLevel.ADVANCED);
+      expect(systemFlagSuggestion?.suggestedProficiency).toBe(
+        ProficiencyLevel.ADVANCED,
+      );
 
       // Verify SELF_REPORT suggestion details
       expect(selfReportSuggestion?.skillName).toBe('Node.js');
-      expect(selfReportSuggestion?.suggestedProficiency).toBe(ProficiencyLevel.EXPERT);
+      expect(selfReportSuggestion?.suggestedProficiency).toBe(
+        ProficiencyLevel.EXPERT,
+      );
     });
   });
 });

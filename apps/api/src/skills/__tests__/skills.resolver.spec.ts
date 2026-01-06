@@ -130,7 +130,9 @@ describe('SkillsResolver', () => {
       const error = new Error('Skill not found');
       mockSkillsService.getSkillById.mockRejectedValue(error);
 
-      await expect(resolver.getSkillById(999)).rejects.toThrow('Skill not found');
+      await expect(resolver.getSkillById(999)).rejects.toThrow(
+        'Skill not found',
+      );
       expect(service.getSkillById).toHaveBeenCalledWith(999);
     });
   });

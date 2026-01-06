@@ -17,10 +17,6 @@ export class ResolutionResolver {
     @Args('input') input: ResolveSuggestionsInput,
     @CurrentUser() user: CurrentUserType,
   ): Promise<ResolveSuggestionsResponse> {
-    return this.resolutionService.resolveSuggestions(
-      user.id,
-      user.type,
-      input,
-    );
+    return this.resolutionService.resolveSuggestions(user.id, user.type, input);
   }
 }

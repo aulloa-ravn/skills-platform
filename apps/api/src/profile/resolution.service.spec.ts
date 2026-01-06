@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ForbiddenException } from '@nestjs/common';
 import { ResolutionService } from './resolution.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { ProfileType, SuggestionStatus, ProficiencyLevel } from '@prisma/client';
+import {
+  ProfileType,
+  SuggestionStatus,
+  ProficiencyLevel,
+} from '@prisma/client';
 import { ResolutionAction } from './dto/resolution.input';
 
 describe('ResolutionService', () => {
@@ -63,19 +67,25 @@ describe('ResolutionService', () => {
         });
       });
 
-      const result = await service.resolveSuggestions('admin-1', ProfileType.ADMIN, {
-        decisions: [
-          {
-            suggestionId: 'suggestion-1',
-            action: ResolutionAction.APPROVE,
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        'admin-1',
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: 'suggestion-1',
+              action: ResolutionAction.APPROVE,
+            },
+          ],
+        },
+      );
 
       expect(result.success).toBe(true);
       expect(result.processed).toHaveLength(1);
       expect(result.processed[0].action).toBe(ResolutionAction.APPROVE);
-      expect(result.processed[0].proficiencyLevel).toBe(ProficiencyLevel.ADVANCED);
+      expect(result.processed[0].proficiencyLevel).toBe(
+        ProficiencyLevel.ADVANCED,
+      );
       expect(result.errors).toHaveLength(0);
     });
   });
@@ -98,14 +108,18 @@ describe('ResolutionService', () => {
         status: SuggestionStatus.REJECTED,
       });
 
-      const result = await service.resolveSuggestions('admin-1', ProfileType.ADMIN, {
-        decisions: [
-          {
-            suggestionId: 'suggestion-1',
-            action: ResolutionAction.REJECT,
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        'admin-1',
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: 'suggestion-1',
+              action: ResolutionAction.REJECT,
+            },
+          ],
+        },
+      );
 
       expect(result.success).toBe(true);
       expect(result.processed).toHaveLength(1);
@@ -154,14 +168,18 @@ describe('ResolutionService', () => {
         status: SuggestionStatus.REJECTED,
       });
 
-      const result = await service.resolveSuggestions('tech-lead-1', ProfileType.TECH_LEAD, {
-        decisions: [
-          {
-            suggestionId: 'suggestion-1',
-            action: ResolutionAction.REJECT,
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        'tech-lead-1',
+        ProfileType.TECH_LEAD,
+        {
+          decisions: [
+            {
+              suggestionId: 'suggestion-1',
+              action: ResolutionAction.REJECT,
+            },
+          ],
+        },
+      );
 
       expect(result.success).toBe(true);
       expect(result.processed).toHaveLength(1);
@@ -190,14 +208,18 @@ describe('ResolutionService', () => {
 
       mockPrismaService.suggestion.findUnique.mockResolvedValue(mockSuggestion);
 
-      const result = await service.resolveSuggestions('tech-lead-1', ProfileType.TECH_LEAD, {
-        decisions: [
-          {
-            suggestionId: 'suggestion-1',
-            action: ResolutionAction.REJECT,
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        'tech-lead-1',
+        ProfileType.TECH_LEAD,
+        {
+          decisions: [
+            {
+              suggestionId: 'suggestion-1',
+              action: ResolutionAction.REJECT,
+            },
+          ],
+        },
+      );
 
       expect(result.success).toBe(false);
       expect(result.processed).toHaveLength(0);
@@ -230,18 +252,22 @@ describe('ResolutionService', () => {
         status: SuggestionStatus.REJECTED,
       });
 
-      const result = await service.resolveSuggestions('admin-1', ProfileType.ADMIN, {
-        decisions: [
-          {
-            suggestionId: 'suggestion-1',
-            action: ResolutionAction.REJECT,
-          },
-          {
-            suggestionId: 'non-existent',
-            action: ResolutionAction.APPROVE,
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        'admin-1',
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: 'suggestion-1',
+              action: ResolutionAction.REJECT,
+            },
+            {
+              suggestionId: 'non-existent',
+              action: ResolutionAction.APPROVE,
+            },
+          ],
+        },
+      );
 
       expect(result.success).toBe(false);
       expect(result.processed).toHaveLength(1);
@@ -252,15 +278,19 @@ describe('ResolutionService', () => {
 
   describe('Validation', () => {
     it('should return error when adjustedProficiency is missing for ADJUST_LEVEL', async () => {
-      const result = await service.resolveSuggestions('admin-1', ProfileType.ADMIN, {
-        decisions: [
-          {
-            suggestionId: 'suggestion-1',
-            action: ResolutionAction.ADJUST_LEVEL,
-            // Missing adjustedProficiency
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        'admin-1',
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: 'suggestion-1',
+              action: ResolutionAction.ADJUST_LEVEL,
+              // Missing adjustedProficiency
+            },
+          ],
+        },
+      );
 
       expect(result.success).toBe(false);
       expect(result.errors).toHaveLength(1);
@@ -268,15 +298,19 @@ describe('ResolutionService', () => {
     });
 
     it('should return error for invalid proficiency level', async () => {
-      const result = await service.resolveSuggestions('admin-1', ProfileType.ADMIN, {
-        decisions: [
-          {
-            suggestionId: 'suggestion-1',
-            action: ResolutionAction.ADJUST_LEVEL,
-            adjustedProficiency: 'INVALID_LEVEL',
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        'admin-1',
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: 'suggestion-1',
+              action: ResolutionAction.ADJUST_LEVEL,
+              adjustedProficiency: 'INVALID_LEVEL',
+            },
+          ],
+        },
+      );
 
       expect(result.success).toBe(false);
       expect(result.errors).toHaveLength(1);
@@ -289,16 +323,22 @@ describe('ResolutionService', () => {
         status: SuggestionStatus.APPROVED,
       };
 
-      mockPrismaService.suggestion.findUnique.mockResolvedValue(processedSuggestion);
+      mockPrismaService.suggestion.findUnique.mockResolvedValue(
+        processedSuggestion,
+      );
 
-      const result = await service.resolveSuggestions('admin-1', ProfileType.ADMIN, {
-        decisions: [
-          {
-            suggestionId: 'suggestion-1',
-            action: ResolutionAction.APPROVE,
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        'admin-1',
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: 'suggestion-1',
+              action: ResolutionAction.APPROVE,
+            },
+          ],
+        },
+      );
 
       expect(result.success).toBe(false);
       expect(result.errors).toHaveLength(1);
@@ -324,18 +364,22 @@ describe('ResolutionService', () => {
         status: SuggestionStatus.REJECTED,
       });
 
-      const result = await service.resolveSuggestions('admin-1', ProfileType.ADMIN, {
-        decisions: [
-          {
-            suggestionId: 'suggestion-1',
-            action: ResolutionAction.REJECT,
-          },
-          {
-            suggestionId: 'suggestion-1',
-            action: ResolutionAction.APPROVE,
-          },
-        ],
-      });
+      const result = await service.resolveSuggestions(
+        'admin-1',
+        ProfileType.ADMIN,
+        {
+          decisions: [
+            {
+              suggestionId: 'suggestion-1',
+              action: ResolutionAction.REJECT,
+            },
+            {
+              suggestionId: 'suggestion-1',
+              action: ResolutionAction.APPROVE,
+            },
+          ],
+        },
+      );
 
       expect(result.success).toBe(true);
       expect(result.processed).toHaveLength(1);

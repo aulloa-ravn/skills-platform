@@ -47,23 +47,25 @@ describe('Guards', () => {
       reflector = module.get<Reflector>(Reflector);
     });
 
-    const createMockContext = (user: any = null): ExecutionContext => ({
-      getHandler: jest.fn(),
-      getClass: jest.fn(),
-      getType: jest.fn().mockReturnValue('graphql'),
-      getArgs: jest.fn().mockReturnValue([
-        {}, // root
-        {}, // args
-        {   // context
-          req: user ? { user } : {},
-        },
-        {}, // info
-      ]),
-      switchToRpc: jest.fn(),
-      switchToHttp: jest.fn(),
-      switchToWs: jest.fn(),
-      getArgByIndex: jest.fn(),
-    } as unknown as ExecutionContext);
+    const createMockContext = (user: any = null): ExecutionContext =>
+      ({
+        getHandler: jest.fn(),
+        getClass: jest.fn(),
+        getType: jest.fn().mockReturnValue('graphql'),
+        getArgs: jest.fn().mockReturnValue([
+          {}, // root
+          {}, // args
+          {
+            // context
+            req: user ? { user } : {},
+          },
+          {}, // info
+        ]),
+        switchToRpc: jest.fn(),
+        switchToHttp: jest.fn(),
+        switchToWs: jest.fn(),
+        getArgByIndex: jest.fn(),
+      }) as unknown as ExecutionContext;
 
     it('should allow access when user has required role', () => {
       const mockContext = createMockContext({
@@ -72,7 +74,9 @@ describe('Guards', () => {
         type: ProfileType.ADMIN,
       });
 
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([ProfileType.ADMIN]);
+      jest
+        .spyOn(reflector, 'getAllAndOverride')
+        .mockReturnValue([ProfileType.ADMIN]);
 
       const result = guard.canActivate(mockContext);
 
@@ -86,7 +90,9 @@ describe('Guards', () => {
         type: ProfileType.EMPLOYEE,
       });
 
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([ProfileType.ADMIN]);
+      jest
+        .spyOn(reflector, 'getAllAndOverride')
+        .mockReturnValue([ProfileType.ADMIN]);
 
       expect(() => guard.canActivate(mockContext)).toThrow(ForbiddenException);
 
@@ -120,7 +126,9 @@ describe('Guards', () => {
     it('should throw FORBIDDEN error when user is not authenticated', () => {
       const mockContext = createMockContext(null);
 
-      jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([ProfileType.ADMIN]);
+      jest
+        .spyOn(reflector, 'getAllAndOverride')
+        .mockReturnValue([ProfileType.ADMIN]);
 
       expect(() => guard.canActivate(mockContext)).toThrow(ForbiddenException);
 

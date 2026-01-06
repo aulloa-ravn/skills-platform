@@ -313,7 +313,11 @@ describe('Authentication Integration (e2e)', () => {
       console.log('\n=== TOKEN GENERATION TEST ===');
       console.log('Access Token:', response.body.data.login.accessToken);
       console.log('Refresh Token:', response.body.data.login.refreshToken);
-      console.log('Are they different?', response.body.data.login.accessToken !== response.body.data.login.refreshToken);
+      console.log(
+        'Are they different?',
+        response.body.data.login.accessToken !==
+          response.body.data.login.refreshToken,
+      );
       console.log('===========================\n');
     });
   });

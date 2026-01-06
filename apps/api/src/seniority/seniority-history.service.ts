@@ -18,7 +18,10 @@ export class SeniorityHistoryService {
    * @param endDate End date of the record (can be null for current seniority)
    * @throws BadRequestException if endDate is before startDate
    */
-  private validateDateRange(startDate: Date, endDate: Date | null | undefined): void {
+  private validateDateRange(
+    startDate: Date,
+    endDate: Date | null | undefined,
+  ): void {
     if (endDate && new Date(endDate) < new Date(startDate)) {
       throw new BadRequestException({
         message: 'End date cannot be before start date',
