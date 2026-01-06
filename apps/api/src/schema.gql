@@ -1,0 +1,285 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input CreateSeniorityHistoryInput {
+  endDate: DateTime
+  profileId: String!
+  seniorityLevel: SeniorityLevel!
+  startDate: DateTime!
+}
+
+input CreateSkillInput {
+  discipline: Discipline!
+  name: String!
+}
+
+type CurrentAssignmentResponse {
+  projectName: String!
+  role: String!
+  tags: [String!]!
+  techLead: TechLeadInfo
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input DecisionInput {
+  action: ResolutionAction!
+  adjustedProficiency: String
+  suggestionId: Int!
+}
+
+"""Skill discipline category"""
+enum Discipline {
+  ANDROID
+  API
+  BACKEND
+  BUILD_TOOLS
+  CLOUD
+  DATABASE
+  DESIGN
+  DEVOPS
+  FRONTEND
+  IOS
+  LANGUAGES
+  MOBILE
+  NO_CODE
+  OTHER
+  PERFORMANCE
+  SECURITY
+  STYLING
+  TESTING
+  TOOLS
+}
+
+type EmployeeInbox {
+  employeeAvatarUrl: String
+  employeeCurrentSeniorityLevel: SeniorityLevel!
+  employeeEmail: String!
+  employeeId: String!
+  employeeName: String!
+  employeeRole: String!
+  pendingSuggestionsCount: Int!
+  suggestions: [PendingSuggestion!]!
+}
+
+input GetAllSkillsInput {
+  disciplines: [Discipline!]
+  isActive: Boolean
+  searchTerm: String
+}
+
+type InboxResponse {
+  projects: [ProjectInbox!]!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type LoginResponse {
+  accessToken: String!
+  profile: ProfileInfo!
+  refreshToken: String!
+}
+
+type Mutation {
+  createSeniorityHistory(input: CreateSeniorityHistoryInput!): SeniorityHistoryRecord!
+  createSkill(input: CreateSkillInput!): Skill!
+  login(input: LoginInput!): LoginResponse!
+  refreshToken(input: RefreshTokenInput!): RefreshTokenResponse!
+  resolveSuggestions(input: ResolveSuggestionsInput!): ResolveSuggestionsResponse!
+  toggleSkill(id: Float!, isActive: Boolean!): Skill!
+  updateSeniorityHistory(input: UpdateSeniorityHistoryInput!): SeniorityHistoryRecord!
+  updateSkill(input: UpdateSkillInput!): Skill!
+}
+
+type PendingSkillResponse {
+  createdAt: DateTime!
+  discipline: Discipline!
+  skillName: String!
+  suggestedProficiency: ProficiencyLevel!
+}
+
+type PendingSuggestion {
+  createdAt: DateTime!
+  currentProficiency: ProficiencyLevel
+  discipline: Discipline!
+  id: Int!
+  skillName: String!
+  source: SuggestionSource!
+  suggestedProficiency: ProficiencyLevel!
+}
+
+"""Skill proficiency level"""
+enum ProficiencyLevel {
+  ADVANCED
+  EXPERT
+  INTERMEDIATE
+  NOVICE
+}
+
+type ProfileInfo {
+  avatarUrl: String
+  email: String!
+  id: String!
+  name: String!
+  type: ProfileType!
+}
+
+type ProfileResponse {
+  avatarUrl: String
+  currentAssignments: [CurrentAssignmentResponse!]!
+  currentSeniorityLevel: SeniorityLevel!
+  email: String!
+  id: String!
+  name: String!
+  seniorityHistory: [SeniorityHistoryResponse!]!
+  skills: SkillsTiersResponse!
+}
+
+"""User profile type in the system"""
+enum ProfileType {
+  ADMIN
+  EMPLOYEE
+  TECH_LEAD
+}
+
+type ProjectInbox {
+  employees: [EmployeeInbox!]!
+  pendingSuggestionsCount: Int!
+  projectId: String!
+  projectName: String!
+}
+
+type Query {
+  getAllSkills(input: GetAllSkillsInput): [Skill!]!
+  getProfile(id: String!): ProfileResponse!
+  getSeniorityHistory(profileId: String!): [SeniorityHistoryRecord!]!
+  getSkillById(id: Int!): Skill!
+  getValidationInbox: InboxResponse!
+  health: String!
+}
+
+input RefreshTokenInput {
+  refreshToken: String!
+}
+
+type RefreshTokenResponse {
+  accessToken: String!
+}
+
+"""Action to take on a skill suggestion"""
+enum ResolutionAction {
+  ADJUST_LEVEL
+  APPROVE
+  REJECT
+}
+
+type ResolutionError {
+  code: String!
+  message: String!
+  suggestionId: Int!
+}
+
+input ResolveSuggestionsInput {
+  decisions: [DecisionInput!]!
+}
+
+type ResolveSuggestionsResponse {
+  errors: [ResolutionError!]!
+  processed: [ResolvedSuggestion!]!
+  success: Boolean!
+}
+
+type ResolvedSuggestion {
+  action: ResolutionAction!
+  employeeName: String!
+  proficiencyLevel: String!
+  skillName: String!
+  suggestionId: Int!
+}
+
+type SeniorityHistoryRecord {
+  createdAt: DateTime!
+  endDate: DateTime
+  id: Int!
+  profileId: String!
+  seniorityLevel: SeniorityLevel!
+  startDate: DateTime!
+  updatedAt: DateTime!
+}
+
+type SeniorityHistoryResponse {
+  createdBy: ValidatorInfo
+  endDate: DateTime
+  seniorityLevel: SeniorityLevel!
+  startDate: DateTime!
+}
+
+"""Employee seniority level"""
+enum SeniorityLevel {
+  JUNIOR_ENGINEER
+  MID_ENGINEER
+  SENIOR_ENGINEER
+  STAFF_ENGINEER
+}
+
+type Skill {
+  createdAt: DateTime!
+  discipline: Discipline!
+  employeeCount: Int!
+  id: Int!
+  isActive: Boolean!
+  name: String!
+  updatedAt: DateTime!
+}
+
+type SkillsTiersResponse {
+  coreStack: [ValidatedSkillResponse!]!
+  pending: [PendingSkillResponse!]!
+  validatedInventory: [ValidatedSkillResponse!]!
+}
+
+"""Source of the skill suggestion"""
+enum SuggestionSource {
+  SELF_REPORT
+  SYSTEM_FLAG
+}
+
+type TechLeadInfo {
+  avatarUrl: String
+  email: String
+  id: String
+  name: String
+}
+
+input UpdateSeniorityHistoryInput {
+  endDate: DateTime
+  id: Int!
+  seniorityLevel: SeniorityLevel!
+  startDate: DateTime!
+}
+
+input UpdateSkillInput {
+  discipline: Discipline
+  id: Int!
+  name: String
+}
+
+type ValidatedSkillResponse {
+  discipline: Discipline!
+  proficiencyLevel: ProficiencyLevel!
+  skillName: String!
+  validatedAt: DateTime!
+  validator: ValidatorInfo
+}
+
+type ValidatorInfo {
+  id: String
+  name: String
+}

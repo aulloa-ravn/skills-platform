@@ -5,7 +5,10 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["src/**/*.ts", "src/**/*.tsx", "package.json", "tsconfig.json"],
-      "outputs": ["dist/**", "build/**", ".next/**"]
+      "outputs": ["dist/**"]
+    },
+    "format": {
+      "cache": false
     },
     "lint": {
       "dependsOn": ["^lint"]

@@ -1,0 +1,17 @@
+mutation ResolveSuggestions($input: ResolveSuggestionsInput!) {
+  resolveSuggestions(input: $input) {
+    success
+    processed {
+      suggestionId
+      action
+      employeeName
+      skillName
+      proficiencyLevel
+    }
+    errors {
+      suggestionId
+      message
+      code
+    }
+  }
+}

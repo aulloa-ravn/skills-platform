@@ -1,0 +1,11 @@
+mutation UpdateSeniorityHistory($input: UpdateSeniorityHistoryInput!) {
+  updateSeniorityHistory(input: $input) {
+    id
+    profileId
+    seniorityLevel
+    startDate
+    endDate
+    createdAt
+    updatedAt
+  }
+}

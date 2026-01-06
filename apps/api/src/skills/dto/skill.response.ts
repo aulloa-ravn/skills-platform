@@ -1,0 +1,33 @@
+import { ObjectType, Field, Int, registerEnumType } from '@nestjs/graphql';
+import { Discipline } from '@prisma/client';
+import { GraphQLISODateTime } from '@nestjs/graphql';
+
+// Register Discipline enum for GraphQL
+registerEnumType(Discipline, {
+  name: 'Discipline',
+  description: 'Skill discipline category',
+});
+
+@ObjectType()
+export class Skill {
+  @Field(() => Int)
+  id: number;
+
+  @Field()
+  name: string;
+
+  @Field(() => Discipline)
+  discipline: Discipline;
+
+  @Field()
+  isActive: boolean;
+
+  @Field(() => Int)
+  employeeCount: number;
+
+  @Field(() => GraphQLISODateTime)
+  createdAt: Date;
+
+  @Field(() => GraphQLISODateTime)
+  updatedAt: Date;
+}
