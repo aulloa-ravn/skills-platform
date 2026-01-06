@@ -22,7 +22,7 @@
     "prisma:generate": "prisma generate"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seeds/seed.ts"
   },
   "dependencies": {
     "@apollo/server": "^5.2.0",

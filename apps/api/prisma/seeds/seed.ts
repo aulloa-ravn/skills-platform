@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { seedSkills } from './seeds/skills.seed';
-import { seedSampleData } from './seeds/sample-data.seed';
+import { seedSkills } from './skills.seed';
+import { seedSampleData } from './sample-data.seed';
 
 const prisma = new PrismaClient();
 
