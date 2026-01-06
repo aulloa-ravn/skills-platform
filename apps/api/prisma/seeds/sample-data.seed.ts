@@ -24,7 +24,10 @@ import {
   getRandomItem,
   generatePastDate,
   generateRecentDate,
-  generateDateInRange,
+  generateDateWithin3Years,
+  generateStaleValidationDate,
+  generateFreshValidationDate,
+  generateThresholdValidationDate,
 } from './seed-utils';
 import { ProjectType, getRelevantSkillsForProjectTypes } from './skill-context';
 
@@ -272,31 +275,45 @@ function generateSeniorityHistory(profiles: GeneratedProfile[]): Array<{
     }
 
     // Generate dates for each progression step
-    const threeYearsAgo = new Date();
-    threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
+    // Work backwards from today to ensure all dates are in the past
+    const today = new Date();
+    const fiveYearsAgo = new Date();
+    fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
 
     const tempDates: Date[] = [];
-    progressionPath.forEach((level, index) => {
-      let startDate: Date;
 
-      if (index === 0) {
-        // First record: 1-3 years ago
-        startDate = generateDateInRange(threeYearsAgo, new Date());
+    // Start with the current (most recent) seniority level
+    // It should have started 1-6 months ago (to be clearly in the past)
+    const lastStartDate = new Date();
+    lastStartDate.setMonth(lastStartDate.getMonth() - getRandomInt(1, 6));
+    tempDates.push(lastStartDate);
+
+    // Work backwards for previous seniority levels
+    for (let i = 1; i < progressionPath.length; i++) {
+      const previousStartDate = tempDates[tempDates.length - 1];
+      const minMonthsEarlier = 12; // At least 1 year before
+      const maxMonthsEarlier = 24; // At most 2 years before
+      const monthsEarlier = getRandomInt(minMonthsEarlier, maxMonthsEarlier);
+
+      const startDate = new Date(previousStartDate);
+      startDate.setMonth(startDate.getMonth() - monthsEarlier);
+
+      // Ensure we don't go beyond 5 years ago
+      if (startDate < fiveYearsAgo) {
+        // Cap at 5 years ago with some variation
+        const cappedDate = new Date(fiveYearsAgo);
+        cappedDate.setMonth(cappedDate.getMonth() + getRandomInt(0, 6)); // 0-6 months after 5-year boundary
+        tempDates.push(cappedDate);
       } else {
-        // Subsequent records: after previous promotion
-        const previousDate = tempDates[tempDates.length - 1];
-        const minMonthsLater = 12; // At least 1 year between promotions
-        const maxMonthsLater = 24; // At most 2 years
-        const monthsLater = getRandomInt(minMonthsLater, maxMonthsLater);
-
-        startDate = new Date(previousDate);
-        startDate.setMonth(startDate.getMonth() + monthsLater);
+        tempDates.push(startDate);
       }
+    }
 
-      tempDates.push(startDate);
-    });
+    // Reverse the array since we worked backwards
+    tempDates.reverse();
 
-    // Now create records with endDate set to next promotion's startDate
+    // Create seniority history records
+    // endDate = next promotion's startDate (or null for current)
     progressionPath.forEach((level, index) => {
       seniorityHistoryRecords.push({
         profileId: profile.id,
@@ -566,18 +583,50 @@ function generateEmployeeSkills(
     });
   });
 
-  // Convert map to employee skills array
+  // Convert map to employee skills array with distributed validation dates
+  // to cover all edge cases for stale skill flagging
+  let skillIndex = 0;
+  const totalSkills = Array.from(skillsByProfile.values()).reduce(
+    (sum, map) => sum + map.size,
+    0,
+  );
+
   skillsByProfile.forEach((skillMap, profileId) => {
     skillMap.forEach((skillData, skillId) => {
+      let lastValidatedAt: Date;
+
+      // Distribute validation dates to cover edge cases:
+      // 40% stale (> 12 months) - should be flagged by cron job
+      // 40% fresh (< 12 months) - should NOT be flagged
+      // 10% exactly at threshold (12 months) - edge case
+      // 10% very old (2-3 years) - edge case for old data
+      const percentage = (skillIndex / totalSkills) * 100;
+
+      if (percentage < 40) {
+        // Stale skills (13 months to 3 years ago)
+        lastValidatedAt = generateStaleValidationDate();
+      } else if (percentage < 80) {
+        // Fresh skills (within last 11 months)
+        lastValidatedAt = generateFreshValidationDate();
+      } else if (percentage < 90) {
+        // Exactly at threshold (12 months ago)
+        lastValidatedAt = generateThresholdValidationDate();
+      } else {
+        // Very old skills (2-3 years ago)
+        lastValidatedAt = generateDateWithin3Years();
+      }
+
       employeeSkills.push({
         profileId,
         skillId,
         proficiencyLevel: skillData.level,
-        lastValidatedAt: generatePastDate(90),
+        lastValidatedAt,
         lastValidatedById: skillData.validatedById,
         createdAt: generatePastDate(120),
         updatedAt: generateRecentDate(60),
       });
+
+      skillIndex++;
     });
   });
 
@@ -586,11 +635,13 @@ function generateEmployeeSkills(
 
 /**
  * Generate skill suggestions (PENDING status only)
+ * Includes both SELF_REPORT and SYSTEM_FLAG suggestions
  */
 function generateSuggestions(
   profiles: GeneratedProfile[],
   allSkills: Skill[],
   existingSkills: EmployeeSkillData[],
+  assignments: Assignment[],
 ): Array<{
   profileId: string;
   skillId: number;
@@ -608,6 +659,7 @@ function generateSuggestions(
     createdAt: Date;
   }> = [];
 
+  // ===== PART 1: SELF_REPORT SUGGESTIONS =====
   // Generate 5-10 pending suggestions total (not per profile)
   const suggestionCount = getRandomInt(5, 10);
 
@@ -694,6 +746,76 @@ function generateSuggestions(
         source: SuggestionSource.SELF_REPORT,
         createdAt: generateRecentDate(14),
       });
+    });
+  });
+
+  // ===== PART 2: SYSTEM_FLAG RE-VALIDATION SUGGESTIONS =====
+  // Identify stale Core Stack skills and create re-validation suggestions
+  const twelveMonthsAgo = new Date();
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+  // Build skill name map for quick lookups
+  const skillNameMap = new Map(allSkills.map((s) => [s.name, s.id]));
+
+  // Process each profile with assignments
+  profiles.forEach((profile) => {
+    const profileAssignments = assignments.filter(
+      (a) => a.profileId === profile.id,
+    );
+
+    if (profileAssignments.length === 0) return;
+
+    // Extract all assignment tags (Core Stack)
+    const assignmentTags = new Set<string>();
+    profileAssignments.forEach((assignment) => {
+      assignment.tags.forEach((tag) => assignmentTags.add(tag));
+    });
+
+    // Get employee skills for this profile
+    const profileSkills = existingSkills.filter(
+      (es) => es.profileId === profile.id,
+    );
+
+    // Identify Core Stack skills (in both assignment tags AND employee skills)
+    const coreStackSkills = profileSkills.filter((empSkill) => {
+      const skill = allSkills.find((s) => s.id === empSkill.skillId);
+      return skill && assignmentTags.has(skill.name);
+    });
+
+    // Filter for stale Core Stack skills (not validated in > 12 months)
+    const staleSkills = coreStackSkills.filter(
+      (empSkill) => empSkill.lastValidatedAt < twelveMonthsAgo,
+    );
+
+    // Check for existing PENDING suggestions to prevent duplicates
+    const existingSuggestionKeys = new Set(
+      suggestions.map((s) => `${s.profileId}-${s.skillId}`),
+    );
+
+    // Create SYSTEM_FLAG suggestions for 50% of stale skills
+    // (to show both flagged and unflagged states)
+    const skillsToFlag = selectRandomItems(
+      staleSkills,
+      Math.ceil(staleSkills.length * 0.5),
+    );
+
+    skillsToFlag.forEach((empSkill) => {
+      const suggestionKey = `${profile.id}-${empSkill.skillId}`;
+
+      // Skip if suggestion already exists
+      if (existingSuggestionKeys.has(suggestionKey)) return;
+
+      suggestions.push({
+        profileId: profile.id,
+        skillId: empSkill.skillId,
+        suggestedProficiency: empSkill.proficiencyLevel, // Keep current level
+        status: SuggestionStatus.PENDING,
+        source: SuggestionSource.SYSTEM_FLAG,
+        createdAt: generateRecentDate(7), // Created within last week
+      });
+
+      // Add to set to prevent duplicates within this function
+      existingSuggestionKeys.add(suggestionKey);
     });
   });
 
@@ -943,13 +1065,23 @@ export async function seedSampleData(prisma: PrismaClient): Promise<void> {
           profilesWithSeniority,
           allSkills,
           employeeSkillData,
+          assignments,
         );
 
         await tx.suggestion.createMany({
           data: suggestionData,
         });
 
-        console.log(`  Created ${suggestionData.length} pending suggestions\n`);
+        const selfReportCount = suggestionData.filter(
+          (s) => s.source === SuggestionSource.SELF_REPORT,
+        ).length;
+        const systemFlagCount = suggestionData.filter(
+          (s) => s.source === SuggestionSource.SYSTEM_FLAG,
+        ).length;
+
+        console.log(
+          `  Created ${suggestionData.length} pending suggestions (${selfReportCount} self-report, ${systemFlagCount} system-flagged)\n`,
+        );
       },
       {
         timeout: 60000, // 60 seconds timeout for the transaction

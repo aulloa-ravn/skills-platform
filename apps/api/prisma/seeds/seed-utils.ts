@@ -8,10 +8,10 @@ export function initializeFaker(seed: number = 12345): void {
 }
 
 /**
- * Generate email in the format: firstname.lastname@ravn.com
+ * Generate email in the format: firstname.lastname@ravn.co
  */
 export function generateEmail(firstName: string, lastName: string): string {
-  return `${firstName.toLowerCase()}.${lastName.toLowerCase()}@ravn.com`;
+  return `${firstName.toLowerCase()}.${lastName.toLowerCase()}@ravn.co`;
 }
 
 /**
@@ -45,6 +45,58 @@ export function generatePastDate(months: number): Date {
   const date = new Date();
   date.setMonth(date.getMonth() - months);
   return generateDateInRange(date, new Date());
+}
+
+/**
+ * Generate a date within the past 3 years
+ * Used for EmployeeSkill.lastValidatedAt to test staleness detection
+ */
+export function generateDateWithin3Years(): Date {
+  const threeYearsAgo = new Date();
+  threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
+  return generateDateInRange(threeYearsAgo, new Date());
+}
+
+/**
+ * Generate a date within the past 5 years
+ * Used for SeniorityHistory date ranges
+ */
+export function generateDateWithin5Years(): Date {
+  const fiveYearsAgo = new Date();
+  fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5);
+  return generateDateInRange(fiveYearsAgo, new Date());
+}
+
+/**
+ * Generate a stale validation date (> 12 months ago)
+ * Used to create skills that should be flagged by the stale skill cron job
+ */
+export function generateStaleValidationDate(): Date {
+  const thirteenMonthsAgo = new Date();
+  thirteenMonthsAgo.setMonth(thirteenMonthsAgo.getMonth() - 13);
+  const threeYearsAgo = new Date();
+  threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
+  return generateDateInRange(threeYearsAgo, thirteenMonthsAgo);
+}
+
+/**
+ * Generate a fresh validation date (< 12 months ago)
+ * Used to create skills that should NOT be flagged by the stale skill cron job
+ */
+export function generateFreshValidationDate(): Date {
+  const elevenMonthsAgo = new Date();
+  elevenMonthsAgo.setMonth(elevenMonthsAgo.getMonth() - 11);
+  return generateDateInRange(elevenMonthsAgo, new Date());
+}
+
+/**
+ * Generate a validation date exactly at the 12-month threshold
+ * Used to test edge case where skill is exactly 365 days old
+ */
+export function generateThresholdValidationDate(): Date {
+  const twelveMonthsAgo = new Date();
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+  return twelveMonthsAgo;
 }
 
 /**
