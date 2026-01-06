@@ -6,12 +6,7 @@ export function LogoutButton() {
   const { logout } = useLogout()
 
   return (
-    <Button
-      variant="ghost"
-      size="icon-sm"
-      aria-label="Logout"
-      onClick={logout}
-    >
+    <Button variant="ghost" size="icon-sm" aria-label="Logout" onClick={logout}>
       <LogOut />
     </Button>
   )

@@ -10,30 +10,18 @@ describe('Profile Page Integration', () => {
 
   // Test 2: MyLeadersSection component imports correctly
   it('should import MyLeadersSection component', async () => {
-    const myLeadersModule = await import(
-      '../components/my-leaders-section'
-    )
+    const myLeadersModule = await import('../components/my-leaders-section')
     expect(myLeadersModule.MyLeadersSection).toBeDefined()
     expect(typeof myLeadersModule.MyLeadersSection).toBe('function')
   })
 
   // Test 3: All profile components are available
   it('should import all profile components', async () => {
-    const profileHeader = await import(
-      '../components/profile-header'
-    )
-    const seniorityTimeline = await import(
-      '../components/seniority-timeline'
-    )
-    const currentAssignments = await import(
-      '../components/current-assignments'
-    )
-    const myLeaders = await import(
-      '../components/my-leaders-section'
-    )
-    const skills = await import(
-      '../components/skill-sections'
-    )
+    const profileHeader = await import('../components/profile-header')
+    const seniorityTimeline = await import('../components/seniority-timeline')
+    const currentAssignments = await import('../components/current-assignments')
+    const myLeaders = await import('../components/my-leaders-section')
+    const skills = await import('../components/skill-sections')
 
     expect(profileHeader.ProfileHeader).toBeDefined()
     expect(seniorityTimeline.SeniorityTimeline).toBeDefined()

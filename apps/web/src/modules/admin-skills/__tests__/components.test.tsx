@@ -45,9 +45,7 @@ describe('Admin Skills UI Components', () => {
 
   // Test 7: Route file exists and exports properly
   it('should have admin route with role guard', async () => {
-    const route = await import(
-      '../../../routes/_authenticated/admin/skills'
-    )
+    const route = await import('../../../routes/_authenticated/admin/skills')
     expect(route.Route).toBeDefined()
   })
 

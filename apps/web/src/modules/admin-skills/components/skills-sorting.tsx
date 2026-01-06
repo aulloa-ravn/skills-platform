@@ -19,7 +19,10 @@ export function SkillsSorting({ sortBy, onSortChange }: SkillsSortingProps) {
     <div className="flex items-center gap-2">
       <ArrowUpDownIcon className="h-4 w-4 text-muted-foreground" />
       <span className="text-sm text-muted-foreground">Sort by:</span>
-      <Select value={sortBy} onValueChange={(value) => onSortChange(value as SortOption)}>
+      <Select
+        value={sortBy}
+        onValueChange={(value) => onSortChange(value as SortOption)}
+      >
         <SelectTrigger className="w-[180px]">
           <SelectValue />
         </SelectTrigger>

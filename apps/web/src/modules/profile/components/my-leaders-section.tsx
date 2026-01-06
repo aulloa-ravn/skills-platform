@@ -5,7 +5,10 @@ import {
   AvatarFallback,
 } from '@/shared/components/ui/avatar'
 import { getStringInitials } from '@/shared/utils'
-import type { CurrentAssignmentResponse, TechLeadInfo } from '@/shared/lib/types'
+import type {
+  CurrentAssignmentResponse,
+  TechLeadInfo,
+} from '@/shared/lib/types'
 
 interface MyLeadersSectionProps {
   assignments: CurrentAssignmentResponse[]
@@ -24,10 +27,10 @@ export function MyLeadersSection({ assignments }: MyLeadersSectionProps) {
         .map((a) => a.techLead)
         .filter(
           (tl): tl is TechLeadInfo =>
-            tl !== null && tl !== undefined && tl.id !== null
+            tl !== null && tl !== undefined && tl.id !== null,
         )
-        .map((tl) => [tl.id, tl])
-    ).values()
+        .map((tl) => [tl.id, tl]),
+    ).values(),
   )
 
   // Hide section if no valid Tech Leads after filtering
@@ -50,10 +53,7 @@ export function MyLeadersSection({ assignments }: MyLeadersSectionProps) {
       {/* Tech Lead Cards - Vertical Stack Layout */}
       <div className="flex flex-col gap-4">
         {uniqueLeaders.map((techLead) => (
-          <Card
-            key={techLead.id}
-            className="p-4 sm:p-6 border border-border"
-          >
+          <Card key={techLead.id} className="p-4 sm:p-6 border border-border">
             <div className="flex items-center gap-3">
               {/* Avatar */}
               <Avatar className="h-8 w-8 border-2 border-background">

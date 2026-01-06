@@ -32,9 +32,8 @@ describe('Admin Seniority UI Components', () => {
 
   // Test 5: Route file exists and exports properly
   it('should have admin seniority route with role guard', async () => {
-    const route = await import(
-      '../../../routes/_authenticated/admin/profiles.$profileId.seniority'
-    )
+    const route =
+      await import('../../../routes/_authenticated/admin/profiles.$profileId.seniority')
     expect(route.Route).toBeDefined()
   })
 

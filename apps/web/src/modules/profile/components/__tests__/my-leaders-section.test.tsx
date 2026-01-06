@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { MyLeadersSection } from '../my-leaders-section'
-import type { CurrentAssignmentResponse, TechLeadInfo } from '@/shared/lib/types'
+import type {
+  CurrentAssignmentResponse,
+  TechLeadInfo,
+} from '@/shared/lib/types'
 
 describe('MyLeadersSection Component', () => {
   // Test 1: Component exports correctly
