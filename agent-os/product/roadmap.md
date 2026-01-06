@@ -40,7 +40,7 @@
 
 15. [x] Admin Seniority Management — Implement API and UI for admins to view and manually correct employee seniority history records `M`
 
-16. [ ] Stale Skill Flagging — Add background job or query logic to identify skills not validated in 12+ months and create re-validation suggestions `S`
+16. [x] Stale Skill Flagging — Add background job or query logic to identify skills not validated in 12+ months and create re-validation suggestions `S`
 
 17. [x] My Leaders Section — Add sidebar component to employee profile showing which Tech Leads can validate them based on current assignments `XS`
 
