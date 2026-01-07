@@ -355,13 +355,13 @@ export function ValidationInbox() {
                             {selectedEmployee.name}
                           </CardTitle>
                           <CardDescription className="text-xs sm:text-sm">
+                            Rol: {selectedEmployee.role} | Seniority:{' '}
                             {selectedEmployee.seniorityLevel}
                           </CardDescription>
                           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                             Currently on{' '}
                             <span className="font-semibold">
-                              {selectedEmployee.currentProject} (
-                              {selectedEmployee.role})
+                              {selectedEmployee.currentProject}
                             </span>
                           </p>
                         </div>
@@ -413,7 +413,7 @@ export function ValidationInbox() {
                                 <span className="font-semibold">
                                   {currentSkill.currentProficiency}
                                 </span>
-                                ) needs re-validation - system suggests{' '}
+                                ) needs re-validation. System suggests{' '}
                                 <span className="font-semibold">
                                   {currentSkill.suggestedProficiency}
                                 </span>{' '}

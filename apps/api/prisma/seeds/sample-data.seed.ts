@@ -520,36 +520,72 @@ function generateEmployeeSkills(
       new Set(profileProjects.map((p) => p.projectType)),
     );
 
-    // Get relevant skills for project types
+    // Extract all assignment tags (these will become Core Stack)
+    const assignmentTags = new Set<string>();
+    profileAssignments.forEach((assignment) => {
+      assignment.tags.forEach((tag) => assignmentTags.add(tag));
+    });
+
+    // Get skills that match assignment tags (Core Stack skills)
+    const coreStackSkills = allSkills.filter((skill) =>
+      assignmentTags.has(skill.name),
+    );
+
+    // Get other relevant skills for project types (for Validated Inventory)
     const relevantSkills = getRelevantSkillsForProjectTypes(
       projectTypes,
       allSkills,
     );
 
+    // Filter out skills already in core stack
+    const otherSkills = relevantSkills.filter(
+      (skill) => !assignmentTags.has(skill.name),
+    );
+
     // Determine how many skills this profile should have based on seniority
-    let skillCount: number;
+    let totalSkillCount: number;
     switch (profile.seniorityLevel) {
       case 'JUNIOR_ENGINEER':
-        skillCount = getRandomInt(3, 6);
+        totalSkillCount = getRandomInt(3, 6);
         break;
       case 'MID_ENGINEER':
-        skillCount = getRandomInt(5, 10);
+        totalSkillCount = getRandomInt(5, 10);
         break;
       case 'SENIOR_ENGINEER':
-        skillCount = getRandomInt(8, 15);
+        totalSkillCount = getRandomInt(8, 15);
         break;
       case 'STAFF_ENGINEER':
-        skillCount = getRandomInt(12, 20);
+        totalSkillCount = getRandomInt(12, 20);
         break;
       default:
-        skillCount = 5;
+        totalSkillCount = 5;
     }
 
-    // Select random skills from relevant skills
-    const selectedSkills = selectRandomItems(
-      relevantSkills,
-      Math.min(skillCount, relevantSkills.length),
+    // Ensure at least 50-70% of skills are from Core Stack (assignment tags)
+    const coreStackPercentage = 0.5 + Math.random() * 0.2; // 50-70%
+    const coreStackCount = Math.min(
+      Math.ceil(totalSkillCount * coreStackPercentage),
+      coreStackSkills.length,
     );
+    const otherSkillsCount = Math.max(
+      0,
+      totalSkillCount - coreStackCount,
+    );
+
+    // Select Core Stack skills (prioritize assignment tags)
+    const selectedCoreStack = selectRandomItems(
+      coreStackSkills,
+      coreStackCount,
+    );
+
+    // Select additional skills from other relevant skills
+    const selectedOtherSkills = selectRandomItems(
+      otherSkills,
+      Math.min(otherSkillsCount, otherSkills.length),
+    );
+
+    // Combine both sets
+    const selectedSkills = [...selectedCoreStack, ...selectedOtherSkills];
 
     // Initialize profile's skill map
     if (!skillsByProfile.has(profile.id)) {
