@@ -8,10 +8,6 @@ export const Route = createFileRoute('/_authenticated/admin')({
         to: '/profile',
       })
     }
-
-    throw redirect({
-      to: '/admin/skills',
-    })
   },
   component: RouteComponent,
 })

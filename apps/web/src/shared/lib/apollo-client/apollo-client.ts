@@ -16,7 +16,7 @@ import { useStore } from '../../store/store'
 /**
  * GraphQL API endpoint
  */
-const GRAPHQL_ENDPOINT = '/graphql'
+const GRAPHQL_ENDPOINT = `${import.meta.env.VITE_API_URL}/graphql`
 
 /**
  * Refresh token mutation as a raw GraphQL request
