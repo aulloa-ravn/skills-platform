@@ -66,6 +66,17 @@ type EmployeeInbox {
   suggestions: [PendingSuggestion!]!
 }
 
+input GetAllProfilesForAdminInput {
+  page: Int = 1
+  pageSize: Int = 25
+  searchTerm: String
+  seniorityLevels: [SeniorityLevel!]
+  skillIds: [String!]
+  sortBy: ProfileSortField
+  sortDirection: SortDirection
+  yearsInCompanyRanges: [YearsInCompanyRange!]
+}
+
 input GetAllSkillsInput {
   disciplines: [Discipline!]
   isActive: Boolean
@@ -96,6 +107,14 @@ type Mutation {
   toggleSkill(id: Float!, isActive: Boolean!): Skill!
   updateSeniorityHistory(input: UpdateSeniorityHistoryInput!): SeniorityHistoryRecord!
   updateSkill(input: UpdateSkillInput!): Skill!
+}
+
+type PaginatedProfilesResponse {
+  currentPage: Int!
+  pageSize: Int!
+  profiles: [ProfileListItemResponse!]!
+  totalCount: Int!
+  totalPages: Int!
 }
 
 type PendingSkillResponse {
@@ -131,6 +150,18 @@ type ProfileInfo {
   type: ProfileType!
 }
 
+type ProfileListItemResponse {
+  avatarUrl: String
+  coreStackSkills: [String!]!
+  currentAssignmentsCount: Int!
+  currentSeniorityLevel: SeniorityLevel!
+  email: String!
+  id: String!
+  joinDate: DateTime!
+  name: String!
+  remainingSkillsCount: Int!
+}
+
 type ProfileResponse {
   avatarUrl: String
   currentAssignments: [CurrentAssignmentResponse!]!
@@ -140,6 +171,14 @@ type ProfileResponse {
   name: String!
   seniorityHistory: [SeniorityHistoryResponse!]!
   skills: SkillsTiersResponse!
+}
+
+"""Fields available for sorting profiles"""
+enum ProfileSortField {
+  EMAIL
+  JOIN_DATE
+  NAME
+  SENIORITY
 }
 
 """User profile type in the system"""
@@ -157,6 +196,7 @@ type ProjectInbox {
 }
 
 type Query {
+  getAllProfilesForAdmin(input: GetAllProfilesForAdminInput): PaginatedProfilesResponse!
   getAllSkills(input: GetAllSkillsInput): [Skill!]!
   getProfile(id: String!): ProfileResponse!
   getSeniorityHistory(profileId: String!): [SeniorityHistoryRecord!]!
@@ -245,6 +285,12 @@ type SkillsTiersResponse {
   validatedInventory: [ValidatedSkillResponse!]!
 }
 
+"""Sort direction"""
+enum SortDirection {
+  ASC
+  DESC
+}
+
 """Source of the skill suggestion"""
 enum SuggestionSource {
   SELF_REPORT
@@ -282,4 +328,13 @@ type ValidatedSkillResponse {
 type ValidatorInfo {
   id: String
   name: String
+}
+
+"""Years in company range categories"""
+enum YearsInCompanyRange {
+  FIVE_PLUS
+  LESS_THAN_1
+  ONE_TO_TWO
+  THREE_TO_FIVE
+  TWO_TO_THREE
 }

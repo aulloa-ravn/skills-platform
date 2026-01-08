@@ -11,34 +11,34 @@ Estimated Total Tasks: ~40 individual tasks
 #### Task Group 1: GraphQL Schema Definitions
 **Dependencies:** None
 
-- [ ] 1.0 Complete GraphQL schema types and DTOs
-  - [ ] 1.1 Write 2-8 focused tests for GraphQL types and enums
+- [x] 1.0 Complete GraphQL schema types and DTOs
+  - [x] 1.1 Write 2-8 focused tests for GraphQL types and enums
     - Limit to 2-8 highly focused tests maximum
     - Test only critical type validations (e.g., YearsInCompanyRange enum values, pagination input validation, sort field enum)
     - Skip exhaustive testing of all possible input combinations
-  - [ ] 1.2 Create `YearsInCompanyRange` enum
+  - [x] 1.2 Create `YearsInCompanyRange` enum
     - Values: LESS_THAN_1, ONE_TO_TWO, TWO_TO_THREE, THREE_TO_FIVE, FIVE_PLUS
     - Add to backend GraphQL schema
-  - [ ] 1.3 Create `ProfileSortField` enum
+  - [x] 1.3 Create `ProfileSortField` enum
     - Values: NAME, EMAIL, SENIORITY, JOIN_DATE
     - Add to backend GraphQL schema
-  - [ ] 1.4 Create `GetAllProfilesForAdminInput` input type
+  - [x] 1.4 Create `GetAllProfilesForAdminInput` input type
     - Fields: page (Int), pageSize (Int), searchTerm (String), seniorityLevels ([SeniorityLevel!]), skillIds ([String!]), yearsInCompanyRanges ([YearsInCompanyRange!]), sortBy (ProfileSortField), sortDirection (SortDirection)
     - Apply Zod validation rules for valid pagination values
-  - [ ] 1.5 Create `ProfileListItemResponse` object type
+  - [x] 1.5 Create `ProfileListItemResponse` object type
     - Fields: id (String!), name (String!), email (String!), avatarUrl (String), currentSeniorityLevel (SeniorityLevel!), joinDate (DateTime!), currentAssignmentsCount (Int!), coreStackSkills ([String!]!), remainingSkillsCount (Int!)
-  - [ ] 1.6 Create `PaginatedProfilesResponse` object type
+  - [x] 1.6 Create `PaginatedProfilesResponse` object type
     - Fields: profiles ([ProfileListItemResponse!]!), totalCount (Int!), currentPage (Int!), pageSize (Int!), totalPages (Int!)
-  - [ ] 1.7 Ensure GraphQL schema tests pass
+  - [x] 1.7 Ensure GraphQL schema tests pass
     - Run ONLY the 2-8 tests written in 1.1
     - Verify enums and types are correctly defined
     - Do NOT run the entire test suite at this stage
 
 **Acceptance Criteria:**
-- The 2-8 tests written in 1.1 pass
-- All enums and types compile without errors
-- Types match spec requirements exactly
-- Validation rules enforce valid pagination parameters
+- The 2-8 tests written in 1.1 pass ✅
+- All enums and types compile without errors ✅
+- Types match spec requirements exactly ✅
+- Validation rules enforce valid pagination parameters ✅
 
 ---
 
@@ -47,113 +47,113 @@ Estimated Total Tasks: ~40 individual tasks
 #### Task Group 2: Profile Service Implementation
 **Dependencies:** Task Group 1
 
-- [ ] 2.0 Complete ProfileService backend logic
-  - [ ] 2.1 Write 2-8 focused tests for ProfileService.getAllProfilesForAdmin
+- [x] 2.0 Complete ProfileService backend logic
+  - [x] 2.1 Write 2-8 focused tests for ProfileService.getAllProfilesForAdmin
     - Limit to 2-8 highly focused tests maximum
     - Test only critical service behaviors (e.g., ADMIN authorization check, search filtering, seniority filtering, pagination)
     - Skip exhaustive testing of all filter combinations and edge cases
-  - [ ] 2.2 Create `getAllProfilesForAdmin` method in ProfileService
+  - [x] 2.2 Create `getAllProfilesForAdmin` method in ProfileService
     - Method signature: `getAllProfilesForAdmin(input: GetAllProfilesForAdminInput, userId: string)`
     - Verify requesting user has ProfileType.ADMIN role
     - Throw ForbiddenException if not ADMIN
-  - [ ] 2.3 Build base Prisma query excluding ADMIN users
+  - [x] 2.3 Build base Prisma query excluding ADMIN users
     - Add where clause: `type: { not: ProfileType.ADMIN }`
     - Include relations: seniorityHistory, employeeSkills, assignments
-  - [ ] 2.4 Implement search filter logic
+  - [x] 2.4 Implement search filter logic
     - Apply OR condition on name and email fields
     - Use Prisma `contains` with `mode: 'insensitive'` for case-insensitive search
     - Only apply if searchTerm provided
-  - [ ] 2.5 Implement seniority level filter (OR operation)
+  - [x] 2.5 Implement seniority level filter (OR operation)
     - Filter by currentSeniorityLevel in provided seniorityLevels array
     - Only apply if seniorityLevels array provided
-  - [ ] 2.6 Implement skills filter (AND operation)
+  - [x] 2.6 Implement skills filter (AND operation)
     - Join EmployeeSkill table
     - Filter profiles having ALL selected skillIds
     - Use Prisma aggregation to ensure count matches skillIds.length
     - Only apply if skillIds array provided
-  - [ ] 2.7 Implement years in company filter (OR operation)
+  - [x] 2.7 Implement years in company filter (OR operation)
     - Calculate date ranges from current date based on YearsInCompanyRange enum
     - Filter by first SeniorityHistory startDate (ordered by startDate ASC)
     - Apply OR condition for multiple selected ranges
     - Only apply if yearsInCompanyRanges array provided
-  - [ ] 2.8 Implement sorting logic
+  - [x] 2.8 Implement sorting logic
     - Support sorting by NAME, EMAIL, SENIORITY, JOIN_DATE
     - Map ProfileSortField to Prisma orderBy fields
     - Join date sorting uses first SeniorityHistory startDate
     - Apply sortDirection (ASC/DESC)
     - Default sort: NAME ASC if not provided
-  - [ ] 2.9 Implement pagination
+  - [x] 2.9 Implement pagination
     - Calculate skip value: (page - 1) * pageSize
     - Use Prisma skip and take for pagination
     - Default values: page=1, pageSize=25
-  - [ ] 2.10 Calculate join date from SeniorityHistory
+  - [x] 2.10 Calculate join date from SeniorityHistory
     - Query first SeniorityHistory record ordered by startDate ASC
     - Use startDate as joinDate
     - Handle case where no SeniorityHistory exists (use createdAt fallback)
-  - [ ] 2.11 Calculate core stack skills and remaining count
+  - [x] 2.11 Calculate core stack skills and remaining count
     - Fetch current Assignments (where endDate is null or > today)
     - Extract assignment tags from current assignments
     - Match assignment tags with EmployeeSkill.skill.name
     - Return first 3-4 matched skills as coreStackSkills array
     - Calculate remainingSkillsCount (total employee skills minus core stack shown)
-  - [ ] 2.12 Format and return PaginatedProfilesResponse
+  - [x] 2.12 Format and return PaginatedProfilesResponse
     - Map results to ProfileListItemResponse array
     - Calculate totalPages: Math.ceil(totalCount / pageSize)
     - Return profiles, totalCount, currentPage, pageSize, totalPages
-  - [ ] 2.13 Ensure ProfileService tests pass
+  - [x] 2.13 Ensure ProfileService tests pass
     - Run ONLY the 2-8 tests written in 2.1
     - Verify ADMIN authorization, search, filtering, and pagination work
     - Do NOT run the entire test suite at this stage
 
 **Acceptance Criteria:**
-- The 2-8 tests written in 2.1 pass
-- ADMIN authorization enforced (ForbiddenException thrown for non-admins)
-- Search filtering works (case-insensitive, OR operation)
-- Seniority filtering works (OR operation)
-- Skills filtering works (AND operation)
-- Years in company filtering works (OR operation)
-- Sorting works for all supported fields
-- Pagination returns correct page and totalPages
-- Join date calculated from first SeniorityHistory
-- Core stack skills correctly identified from current assignments
+- The 2-8 tests written in 2.1 pass ✅
+- ADMIN authorization enforced (ForbiddenException thrown for non-admins) ✅
+- Search filtering works (case-insensitive, OR operation) ✅
+- Seniority filtering works (OR operation) ✅
+- Skills filtering works (AND operation) ✅
+- Years in company filtering works (OR operation) ✅
+- Sorting works for all supported fields ✅
+- Pagination returns correct page and totalPages ✅
+- Join date calculated from first SeniorityHistory ✅
+- Core stack skills correctly identified from current assignments ✅
 
 ---
 
 #### Task Group 3: GraphQL Resolver Implementation
 **Dependencies:** Task Group 2
 
-- [ ] 3.0 Complete GraphQL resolver
-  - [ ] 3.1 Write 2-8 focused tests for ProfileResolver.getAllProfilesForAdmin
+- [x] 3.0 Complete GraphQL resolver
+  - [x] 3.1 Write 2-8 focused tests for ProfileResolver.getAllProfilesForAdmin
     - Limit to 2-8 highly focused tests maximum
     - Test only critical resolver behaviors (e.g., ADMIN guard enforcement, successful query response, error handling)
     - Skip exhaustive testing of all resolver scenarios
-  - [ ] 3.2 Create `getAllProfilesForAdmin` query in ProfileResolver
+  - [x] 3.2 Create `getAllProfilesForAdmin` query in ProfileResolver
     - Add @Query decorator returning PaginatedProfilesResponse
     - Accept @Args('input') parameter of type GetAllProfilesForAdminInput
     - Apply @UseGuards(GqlAuthGuard) decorator for authentication
-  - [ ] 3.3 Implement ADMIN role authorization check
+  - [x] 3.3 Implement ADMIN role authorization check
     - Extract current user from GraphQL context
     - Check user.type === ProfileType.ADMIN
     - Throw ForbiddenException if not ADMIN
     - Pattern: Reuse from existing admin resolvers
-  - [ ] 3.4 Call ProfileService.getAllProfilesForAdmin
+  - [x] 3.4 Call ProfileService.getAllProfilesForAdmin
     - Pass input and userId to service method
     - Return service response directly
-  - [ ] 3.5 Add error handling
+  - [x] 3.5 Add error handling
     - Wrap service call in try-catch
     - Handle common errors: ForbiddenException, BadRequestException
     - Return user-friendly error messages
-  - [ ] 3.6 Ensure resolver tests pass
+  - [x] 3.6 Ensure resolver tests pass
     - Run ONLY the 2-8 tests written in 3.1
     - Verify ADMIN guard works and query returns correct data
     - Do NOT run the entire test suite at this stage
 
 **Acceptance Criteria:**
-- The 2-8 tests written in 3.1 pass
-- Query only accessible to authenticated ADMIN users
-- Non-admin users receive ForbiddenException
-- Service integration works correctly
-- Error handling provides clear messages
+- The 2-8 tests written in 3.1 pass ✅
+- Query only accessible to authenticated ADMIN users ✅
+- Non-admin users receive ForbiddenException ✅
+- Service integration works correctly ✅
+- Error handling provides clear messages ✅
 
 ---
 
@@ -624,9 +624,9 @@ Estimated Total Tasks: ~40 individual tasks
 Recommended implementation sequence:
 
 **Phase 1: Backend Foundation**
-1. Task Group 1: GraphQL Schema Definitions
-2. Task Group 2: Profile Service Implementation
-3. Task Group 3: GraphQL Resolver Implementation
+1. Task Group 1: GraphQL Schema Definitions ✅
+2. Task Group 2: Profile Service Implementation ✅
+3. Task Group 3: GraphQL Resolver Implementation ✅
 
 **Phase 2: Frontend Data Layer**
 4. Task Group 4: Frontend GraphQL Setup
@@ -649,8 +649,8 @@ Recommended implementation sequence:
 
 ## Key Dependencies
 
-- Task Group 2 depends on Task Group 1 (service needs schema types)
-- Task Group 3 depends on Task Group 2 (resolver needs service)
+- Task Group 2 depends on Task Group 1 (service needs schema types) ✅
+- Task Group 3 depends on Task Group 2 (resolver needs service) ✅
 - Task Group 4 depends on Task Group 3 (frontend needs backend API)
 - Task Groups 5-9 depend on Task Group 4 (components need data hooks)
 - Task Group 10 depends on Task Groups 6-9 (route needs components)
@@ -662,9 +662,9 @@ Recommended implementation sequence:
 ## Reusable Patterns
 
 **Backend:**
-- GraphQL schema patterns from existing admin queries
-- Service authorization patterns from admin resolvers
-- Prisma query patterns for filtering, sorting, pagination
+- GraphQL schema patterns from existing admin queries ✅
+- Service authorization patterns from admin resolvers ✅
+- Prisma query patterns for filtering, sorting, pagination ✅
 
 **Frontend:**
 - Module structure from `/apps/web/src/modules/admin-skills/`

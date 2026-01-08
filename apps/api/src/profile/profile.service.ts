@@ -15,6 +15,16 @@ import {
   ValidatorInfo,
   TechLeadInfo,
 } from './dto/profile.response';
+import {
+  GetAllProfilesForAdminInput,
+  ProfileSortField,
+  SortDirection,
+  YearsInCompanyRange,
+} from './dto/get-all-profiles-for-admin.input';
+import {
+  PaginatedProfilesResponse,
+  ProfileListItemResponse,
+} from './dto/get-all-profiles-for-admin.response';
 
 @Injectable()
 export class ProfileService {
@@ -280,6 +290,293 @@ export class ProfileService {
       skills,
       seniorityHistory,
       currentAssignments,
+    };
+  }
+
+  /**
+   * Calculate date ranges for years in company filter
+   * @param range YearsInCompanyRange enum value
+   * @returns Object with gte and lt date values
+   */
+  private calculateYearsInCompanyDateRange(
+    range: YearsInCompanyRange,
+  ): { gte?: Date; lt?: Date } {
+    const now = new Date();
+    const oneYearAgo = new Date(
+      now.getFullYear() - 1,
+      now.getMonth(),
+      now.getDate(),
+    );
+    const twoYearsAgo = new Date(
+      now.getFullYear() - 2,
+      now.getMonth(),
+      now.getDate(),
+    );
+    const threeYearsAgo = new Date(
+      now.getFullYear() - 3,
+      now.getMonth(),
+      now.getDate(),
+    );
+    const fiveYearsAgo = new Date(
+      now.getFullYear() - 5,
+      now.getMonth(),
+      now.getDate(),
+    );
+
+    switch (range) {
+      case YearsInCompanyRange.LESS_THAN_1:
+        return { gte: oneYearAgo };
+      case YearsInCompanyRange.ONE_TO_TWO:
+        return { gte: twoYearsAgo, lt: oneYearAgo };
+      case YearsInCompanyRange.TWO_TO_THREE:
+        return { gte: threeYearsAgo, lt: twoYearsAgo };
+      case YearsInCompanyRange.THREE_TO_FIVE:
+        return { gte: fiveYearsAgo, lt: threeYearsAgo };
+      case YearsInCompanyRange.FIVE_PLUS:
+        return { lt: fiveYearsAgo };
+      default:
+        return {};
+    }
+  }
+
+  /**
+   * Get all profiles for admin with filtering, sorting, and pagination
+   * @param input Filter, sort, and pagination parameters
+   * @param userId Authenticated user's ID
+   * @returns Paginated profiles response
+   * @throws ForbiddenException if user is not ADMIN
+   */
+  async getAllProfilesForAdmin(
+    input: GetAllProfilesForAdminInput,
+    userId: string,
+  ): Promise<PaginatedProfilesResponse> {
+    // Verify requesting user is ADMIN
+    const requestingUser = await this.prisma.profile.findUnique({
+      where: { id: userId },
+      select: { type: true },
+    });
+
+    if (!requestingUser || requestingUser.type !== ProfileType.ADMIN) {
+      throw new ForbiddenException({
+        message: 'Only administrators can access this resource',
+        extensions: {
+          code: 'FORBIDDEN',
+        },
+      });
+    }
+
+    // Set default values
+    const page = input.page || 1;
+    const pageSize = input.pageSize || 25;
+    const sortBy = input.sortBy || ProfileSortField.NAME;
+    const sortDirection = input.sortDirection || SortDirection.ASC;
+
+    // Build where clause
+    const where: any = {
+      type: { not: ProfileType.ADMIN }, // Exclude ADMIN users
+    };
+
+    // Apply search filter (OR operation on name and email)
+    if (input.searchTerm) {
+      where.OR = [
+        { name: { contains: input.searchTerm, mode: 'insensitive' } },
+        { email: { contains: input.searchTerm, mode: 'insensitive' } },
+      ];
+    }
+
+    // Apply seniority level filter (OR operation)
+    if (input.seniorityLevels && input.seniorityLevels.length > 0) {
+      where.currentSeniorityLevel = { in: input.seniorityLevels };
+    }
+
+    // Apply skills filter (AND operation)
+    if (input.skillIds && input.skillIds.length > 0) {
+      // Find profiles that have ALL selected skills using groupBy
+      const skillIdsInt = input.skillIds.map((id) => parseInt(id, 10));
+
+      // Get groupBy result
+      const profileSkillCounts = await this.prisma.employeeSkill.groupBy({
+        by: ['profileId'],
+        where: {
+          skillId: { in: skillIdsInt },
+        },
+        _count: {
+          skillId: true,
+        },
+      });
+
+      // Filter to only profiles that have ALL selected skills
+      const profileIdsWithAllSkills = profileSkillCounts
+        .filter((group) => group._count.skillId === skillIdsInt.length)
+        .map((group) => group.profileId);
+
+      where.id = where.id
+        ? { in: profileIdsWithAllSkills.filter((id) => where.id.in.includes(id)) }
+        : { in: profileIdsWithAllSkills };
+    }
+
+    // Apply years in company filter (OR operation)
+    if (
+      input.yearsInCompanyRanges &&
+      input.yearsInCompanyRanges.length > 0
+    ) {
+      // Need to find profiles where first seniority history matches any range
+      // This requires a subquery approach - we'll filter by profileId after querying
+      const profilesMatchingYears = await this.prisma.profile.findMany({
+        where: {
+          ...where,
+        },
+        select: {
+          id: true,
+          seniorityHistory: {
+            orderBy: { startDate: 'asc' },
+            take: 1,
+            select: { startDate: true },
+          },
+        },
+      });
+
+      const matchingProfileIds = profilesMatchingYears
+        .filter((profile) => {
+          if (profile.seniorityHistory.length === 0) return false;
+          const joinDate = profile.seniorityHistory[0].startDate;
+
+          return input.yearsInCompanyRanges!.some((range) => {
+            const dateRange = this.calculateYearsInCompanyDateRange(range);
+            if (dateRange.gte && dateRange.lt) {
+              return joinDate >= dateRange.gte && joinDate < dateRange.lt;
+            } else if (dateRange.gte) {
+              return joinDate >= dateRange.gte;
+            } else if (dateRange.lt) {
+              return joinDate < dateRange.lt;
+            }
+            return false;
+          });
+        })
+        .map((p) => p.id);
+
+      where.id = where.id
+        ? { in: matchingProfileIds.filter((id) => where.id.in.includes(id)) }
+        : { in: matchingProfileIds };
+    }
+
+    // Build orderBy clause
+    let orderBy: any;
+    switch (sortBy) {
+      case ProfileSortField.NAME:
+        orderBy = { name: sortDirection.toLowerCase() };
+        break;
+      case ProfileSortField.EMAIL:
+        orderBy = { email: sortDirection.toLowerCase() };
+        break;
+      case ProfileSortField.SENIORITY:
+        orderBy = { currentSeniorityLevel: sortDirection.toLowerCase() };
+        break;
+      case ProfileSortField.JOIN_DATE:
+        // For join date sorting, we need to use a subquery approach
+        // For now, fallback to createdAt - this would require raw SQL or ordering after fetch
+        orderBy = { createdAt: sortDirection.toLowerCase() };
+        break;
+      default:
+        orderBy = { name: 'asc' };
+    }
+
+    // Execute queries
+    const [profiles, totalCount] = await Promise.all([
+      this.prisma.profile.findMany({
+        where,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        orderBy,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatarUrl: true,
+          currentSeniorityLevel: true,
+          createdAt: true,
+          seniorityHistory: {
+            orderBy: { startDate: 'asc' },
+            take: 1,
+            select: { startDate: true },
+          },
+          assignments: {
+            select: {
+              id: true,
+              tags: true,
+            },
+          },
+          employeeSkills: {
+            include: {
+              skill: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+      this.prisma.profile.count({ where }),
+    ]);
+
+    // Map profiles to response format
+    const profileItems: ProfileListItemResponse[] = profiles.map((profile) => {
+      // Calculate join date from first seniority history
+      const joinDate =
+        profile.seniorityHistory.length > 0
+          ? profile.seniorityHistory[0].startDate
+          : profile.createdAt;
+
+      // Get current assignments count
+      const currentAssignmentsCount = profile.assignments.length;
+
+      // Get assignment tags
+      const assignmentTags = new Set<string>();
+      profile.assignments.forEach((assignment) => {
+        assignment.tags.forEach((tag) => assignmentTags.add(tag));
+      });
+
+      // Match skills with assignment tags to get core stack
+      const coreStackSkills: string[] = [];
+      const allSkillNames: string[] = [];
+
+      profile.employeeSkills.forEach((empSkill) => {
+        allSkillNames.push(empSkill.skill.name);
+        if (assignmentTags.has(empSkill.skill.name)) {
+          coreStackSkills.push(empSkill.skill.name);
+        }
+      });
+
+      // Take first 3-4 core stack skills
+      const displayedCoreStack = coreStackSkills.slice(0, 4);
+      const remainingSkillsCount = Math.max(
+        0,
+        allSkillNames.length - displayedCoreStack.length,
+      );
+
+      return {
+        id: profile.id,
+        name: profile.name,
+        email: profile.email,
+        avatarUrl: profile.avatarUrl || undefined,
+        currentSeniorityLevel: profile.currentSeniorityLevel,
+        joinDate,
+        currentAssignmentsCount,
+        coreStackSkills: displayedCoreStack,
+        remainingSkillsCount,
+      };
+    });
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    return {
+      profiles: profileItems,
+      totalCount,
+      currentPage: page,
+      pageSize,
+      totalPages,
     };
   }
 }
