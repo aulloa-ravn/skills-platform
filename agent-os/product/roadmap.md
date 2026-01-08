@@ -38,20 +38,22 @@
 
 14. [x] Admin Skills Management UI — Create admin interface for viewing, adding, and editing skills in the taxonomy with discipline assignment `S`
 
-15. [x] Admin Seniority Management — Implement API and UI for admins to view and manually correct employee seniority history records `M`
+15. [ ] Admin Profiles List — Build API query and UI to display searchable/filterable list of all employees with navigation to individual profile management pages `S`
 
-16. [x] Stale Skill Flagging — Add background job or query logic to identify skills not validated in 12+ months and create re-validation suggestions `S`
+16. [x] Admin Seniority Management — Implement API and UI for admins to view and manually correct employee seniority history records `M`
 
-17. [x] My Leaders Section — Add sidebar component to employee profile showing which Tech Leads can validate them based on current assignments `XS`
+17. [x] Stale Skill Flagging — Add background job or query logic to identify skills not validated in 12+ months and create re-validation suggestions `S`
 
-18. [ ] Mission Board Sync Endpoint — Implement POST /sync webhook endpoint to receive and upsert Projects, Assignments, and People data from Mission Board `M`
+18. [x] My Leaders Section — Add sidebar component to employee profile showing which Tech Leads can validate them based on current assignments `XS`
 
-19. [ ] Mission Board Integration — Connect sync endpoint to actual Mission Board system, validate data flow, and handle edge cases `L`
+19. [ ] Mission Board Sync Endpoint — Implement POST /sync webhook endpoint to receive and upsert Projects, Assignments, and People data from Mission Board `M`
+
+20. [ ] Mission Board Integration — Connect sync endpoint to actual Mission Board system, validate data flow, and handle edge cases `L`
 
 > Notes
 >
 > - Order reflects technical dependencies and product architecture (database first, then APIs, then UIs)
-> - Items 1-17 form the core product that can run with seeded data
-> - Items 18-19 are the Mission Board integration phase, intentionally last per project constraints
+> - Items 1-18 form the core product that can run with seeded data
+> - Items 19-20 are the Mission Board integration phase, intentionally last per project constraints
 > - Each item represents an end-to-end functional and testable feature
 > - Frontend items assume Vite, Tanstack tools (Router, Form), Shadcn UI, Tailwind CSS, Zustand, and Apollo Client v4 are installed as prerequisites
