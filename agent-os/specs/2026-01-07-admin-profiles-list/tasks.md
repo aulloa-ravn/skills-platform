@@ -162,39 +162,39 @@ Estimated Total Tasks: ~40 individual tasks
 #### Task Group 4: Frontend GraphQL Setup
 **Dependencies:** Task Group 3
 
-- [ ] 4.0 Complete frontend GraphQL query and hooks
-  - [ ] 4.1 Write 2-8 focused tests for useProfiles hook
+- [x] 4.0 Complete frontend GraphQL query and hooks
+  - [x] 4.1 Write 2-8 focused tests for useProfiles hook
     - Limit to 2-8 highly focused tests maximum
     - Test only critical hook behaviors (e.g., query execution with filters, loading state, error state)
     - Skip exhaustive testing of all hook scenarios
-  - [ ] 4.2 Create GraphQL query file
+  - [x] 4.2 Create GraphQL query file
     - Path: `/apps/web/src/modules/admin-profiles/graphql/get-all-profiles-for-admin.query.graphql`
     - Define getAllProfilesForAdmin query with input parameter
     - Request all fields from PaginatedProfilesResponse
     - Include all fields from ProfileListItemResponse
     - Follow pattern from get-all-skills.query.graphql
-  - [ ] 4.3 Generate TypeScript types from GraphQL schema
+  - [x] 4.3 Generate TypeScript types from GraphQL schema
     - Run codegen to generate types from query file
     - Verify generated types: GetAllProfilesForAdminQuery, GetAllProfilesForAdminInput, ProfileListItemResponse, etc.
-  - [ ] 4.4 Create useProfiles custom hook
+  - [x] 4.4 Create useProfiles custom hook
     - Path: `/apps/web/src/modules/admin-profiles/hooks/use-profiles.ts`
     - Accept parameters: page, pageSize, searchTerm, seniorityLevels, skillIds, yearsInCompanyRanges, sortBy, sortDirection
     - Use Apollo useQuery hook with GET_ALL_PROFILES_FOR_ADMIN query
     - Return: data, loading, error, refetch
     - Apply debounced searchTerm (300ms delay)
     - Follow pattern from use-skills.ts hook
-  - [ ] 4.5 Ensure useProfiles hook tests pass
+  - [x] 4.5 Ensure useProfiles hook tests pass
     - Run ONLY the 2-8 tests written in 4.1
     - Verify hook executes query and returns correct data structure
     - Do NOT run the entire test suite at this stage
 
 **Acceptance Criteria:**
-- The 2-8 tests written in 4.1 pass
-- GraphQL query file correctly defined
-- TypeScript types generated successfully
-- useProfiles hook executes query with all parameters
-- Search term debounced to avoid excessive queries
-- Hook returns loading, error, and data states
+- The 2-8 tests written in 4.1 pass ✅
+- GraphQL query file correctly defined ✅
+- TypeScript types generated successfully ✅
+- useProfiles hook executes query with all parameters ✅
+- Search term debounced to avoid excessive queries ✅
+- Hook returns loading, error, and data states ✅
 
 ---
 
@@ -203,120 +203,120 @@ Estimated Total Tasks: ~40 individual tasks
 #### Task Group 5: Admin Profiles Module Structure
 **Dependencies:** Task Group 4
 
-- [ ] 5.0 Complete admin-profiles module structure
-  - [ ] 5.1 Write 2-8 focused tests for admin-profiles main component
+- [x] 5.0 Complete admin-profiles module structure
+  - [x] 5.1 Write 2-8 focused tests for admin-profiles main component
     - Limit to 2-8 highly focused tests maximum
     - Test only critical component behaviors (e.g., initial render, filter state changes, pagination state changes)
     - Skip exhaustive testing of all component interactions
-  - [ ] 5.2 Create module directory structure
+  - [x] 5.2 Create module directory structure
     - Path: `/apps/web/src/modules/admin-profiles/`
     - Subdirectories: components/, hooks/, graphql/
     - Follow admin-skills module pattern
-  - [ ] 5.3 Create admin-profiles.tsx main component
+  - [x] 5.3 Create admin-profiles.tsx main component
     - Manage state: searchTerm, seniorityFilters, skillFilters, yearsInCompanyFilters, sortBy, sortDirection, page, pageSize
     - Use useProfiles hook with current filter/sort/pagination state
     - Render ProfilesFilters, ProfilesSorting, ProfilesTable, ProfilesPagination components
     - Apply layout matching admin-skills.tsx pattern
-  - [ ] 5.4 Implement state management for filters
+  - [x] 5.4 Implement state management for filters
     - searchTerm state with setter
     - seniorityFilters state (array of SeniorityLevel)
     - skillFilters state (array of skill IDs)
     - yearsInCompanyFilters state (array of YearsInCompanyRange)
     - Reset page to 1 when any filter changes
-  - [ ] 5.5 Implement state management for sorting
+  - [x] 5.5 Implement state management for sorting
     - sortBy state (ProfileSortField enum)
     - sortDirection state (ASC/DESC)
     - Reset page to 1 when sort changes
-  - [ ] 5.6 Implement state management for pagination
+  - [x] 5.6 Implement state management for pagination
     - page state (default: 1)
     - pageSize state (default: 25)
     - Update URL query params when pagination changes for shareable links
-  - [ ] 5.7 Ensure admin-profiles component tests pass
+  - [x] 5.7 Ensure admin-profiles component tests pass
     - Run ONLY the 2-8 tests written in 5.1
     - Verify state updates correctly when filters/sort/pagination change
     - Do NOT run the entire test suite at this stage
 
 **Acceptance Criteria:**
-- The 2-8 tests written in 5.1 pass
-- Module directory structure follows admin-skills pattern
-- Main component manages all necessary state
-- Filter changes reset pagination to page 1
-- URL query params updated for shareable links
+- The 2-8 tests written in 5.1 pass ✅
+- Module directory structure follows admin-skills pattern ✅
+- Main component manages all necessary state ✅
+- Filter changes reset pagination to page 1 ✅
+- URL query params updated for shareable links ✅
 
 ---
 
 #### Task Group 6: Profiles Table Component
 **Dependencies:** Task Group 5
 
-- [ ] 6.0 Complete ProfilesTable component
-  - [ ] 6.1 Write 2-8 focused tests for ProfilesTable component
+- [x] 6.0 Complete ProfilesTable component
+  - [x] 6.1 Write 2-8 focused tests for ProfilesTable component
     - Limit to 2-8 highly focused tests maximum
     - Test only critical table behaviors (e.g., row rendering, click navigation, loading state, empty state)
     - Skip exhaustive testing of all table scenarios
-  - [ ] 6.2 Create ProfilesTable component
+  - [x] 6.2 Create ProfilesTable component
     - Path: `/apps/web/src/modules/admin-profiles/components/profiles-table.tsx`
     - Accept props: profiles, loading, onRowClick
     - Use Shadcn Table component
     - Follow skills-table.tsx pattern
-  - [ ] 6.3 Define table columns
+  - [x] 6.3 Define table columns
     - Columns: Avatar + Name, Email, Seniority, Join Date, Assignments, Skills, Actions
     - Make Name, Email, Seniority, Join Date sortable (add sort indicators)
     - Reference visual: planning/visuals/shadcn-table-example.png
-  - [ ] 6.4 Implement Avatar + Name column
+  - [x] 6.4 Implement Avatar + Name column
     - Use Avatar component from @/shared/components/ui/avatar
     - Display avatarUrl in AvatarImage if present
     - Fallback: Use AvatarFallback with initials from getStringInitials(name)
     - Display name next to avatar
     - Follow validation-inbox.tsx pattern for avatar with initials
-  - [ ] 6.5 Implement Email column
+  - [x] 6.5 Implement Email column
     - Display email as plain text
-  - [ ] 6.6 Implement Seniority column
+  - [x] 6.6 Implement Seniority column
     - Display currentSeniorityLevel as Badge component
-    - Use SeniorityLevelMap for display text (e.g., "Junior I" → "Junior I")
+    - Use SeniorityLevelMap for display text (e.g., "Junior Engineer" → "Junior Engineer")
     - Apply appropriate badge variant/color
-  - [ ] 6.7 Implement Join Date column
+  - [x] 6.7 Implement Join Date column
     - Format joinDate as readable string (e.g., "Jan 15, 2023")
     - Use date formatting utility (e.g., format from date-fns)
-  - [ ] 6.8 Implement Assignments column
+  - [x] 6.8 Implement Assignments column
     - Display currentAssignmentsCount as number (e.g., "2")
-  - [ ] 6.9 Implement Skills column
+  - [x] 6.9 Implement Skills column
     - Display format: "React, TypeScript, Node, +5"
     - Show first 3-4 coreStackSkills comma-separated
     - Append "+N" if remainingSkillsCount > 0
     - Handle empty skills case
-  - [ ] 6.10 Implement Actions column (placeholder)
+  - [x] 6.10 Implement Actions column (placeholder)
     - Reserve space for future three-dot menu
     - Leave empty for v1 (out of scope)
-  - [ ] 6.11 Add loading state
+  - [x] 6.11 Add loading state
     - Show Spinner component when loading prop is true
     - Center spinner in table area
-  - [ ] 6.12 Add empty state
+  - [x] 6.12 Add empty state
     - Display when profiles array is empty
     - Message: "No employees found matching your filters"
     - Include Clear Filters button if filters active
-  - [ ] 6.13 Implement row click navigation
+  - [x] 6.13 Implement row click navigation
     - Make entire row clickable
     - Call onRowClick(profileId) handler
     - Apply hover state styling
-  - [ ] 6.14 Implement responsive design
+  - [x] 6.14 Implement responsive design
     - Hide Assignments and Join Date columns on mobile (< 768px)
     - Ensure table scrolls horizontally on small screens
     - Follow responsive patterns from existing tables
-  - [ ] 6.15 Ensure ProfilesTable component tests pass
+  - [x] 6.15 Ensure ProfilesTable component tests pass
     - Run ONLY the 2-8 tests written in 6.1
     - Verify table renders correctly with data, loading, and empty states
     - Do NOT run the entire test suite at this stage
 
 **Acceptance Criteria:**
-- The 2-8 tests written in 6.1 pass
-- All columns render correctly with proper formatting
-- Avatar displays image or initials fallback
-- Seniority badge styled appropriately
-- Skills display format matches spec
-- Loading state shows spinner
-- Empty state shows helpful message
-- Row click triggers navigation
-- Table responsive on mobile devices
+- The 2-8 tests written in 6.1 pass ✅
+- All columns render correctly with proper formatting ✅
+- Avatar displays image or initials fallback ✅
+- Seniority badge styled appropriately ✅
+- Skills display format matches spec ✅
+- Loading state shows spinner ✅
+- Empty state shows helpful message ✅
+- Row click triggers navigation ✅
+- Table responsive on mobile devices ✅
 
 ---
 
@@ -629,11 +629,11 @@ Recommended implementation sequence:
 3. Task Group 3: GraphQL Resolver Implementation ✅
 
 **Phase 2: Frontend Data Layer**
-4. Task Group 4: Frontend GraphQL Setup
+4. Task Group 4: Frontend GraphQL Setup ✅
 
 **Phase 3: Frontend UI Components**
-5. Task Group 5: Admin Profiles Module Structure
-6. Task Group 6: Profiles Table Component
+5. Task Group 5: Admin Profiles Module Structure ✅
+6. Task Group 6: Profiles Table Component ✅
 7. Task Group 7: Profiles Filters Component
 8. Task Group 8: Profiles Sorting Component
 9. Task Group 9: Profiles Pagination Component
@@ -651,8 +651,8 @@ Recommended implementation sequence:
 
 - Task Group 2 depends on Task Group 1 (service needs schema types) ✅
 - Task Group 3 depends on Task Group 2 (resolver needs service) ✅
-- Task Group 4 depends on Task Group 3 (frontend needs backend API)
-- Task Groups 5-9 depend on Task Group 4 (components need data hooks)
+- Task Group 4 depends on Task Group 3 (frontend needs backend API) ✅
+- Task Groups 5-9 depend on Task Group 4 (components need data hooks) ✅
 - Task Group 10 depends on Task Groups 6-9 (route needs components)
 - Task Group 11 depends on Task Group 10 (profile overview extends list route)
 - Task Group 12 depends on all previous groups (testing after implementation)
@@ -667,17 +667,17 @@ Recommended implementation sequence:
 - Prisma query patterns for filtering, sorting, pagination ✅
 
 **Frontend:**
-- Module structure from `/apps/web/src/modules/admin-skills/`
-- Table component from skills-table.tsx
+- Module structure from `/apps/web/src/modules/admin-skills/` ✅
+- Table component from skills-table.tsx ✅
 - Filter component from SkillsFilters.tsx
-- Hook patterns from use-skills.ts
-- Avatar with initials from validation-inbox.tsx
+- Hook patterns from use-skills.ts ✅
+- Avatar with initials from validation-inbox.tsx ✅
 - Route guards from admin/profiles.$profileId.seniority.tsx
 
 **Visual:**
-- Table design from `planning/visuals/shadcn-table-example.png`
+- Table design from `planning/visuals/shadcn-table-example.png` ✅
 - Dark theme consistency with existing admin pages
-- Shadcn UI components throughout
+- Shadcn UI components throughout ✅
 
 ---
 

@@ -1,0 +1,19 @@
+query GetAllProfilesForAdmin($input: GetAllProfilesForAdminInput) {
+  getAllProfilesForAdmin(input: $input) {
+    profiles {
+      id
+      name
+      email
+      avatarUrl
+      currentSeniorityLevel
+      joinDate
+      currentAssignmentsCount
+      coreStackSkills
+      remainingSkillsCount
+    }
+    totalCount
+    currentPage
+    pageSize
+    totalPages
+  }
+}

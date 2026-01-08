@@ -91,6 +91,17 @@ export type EmployeeInbox = {
   suggestions: Array<PendingSuggestion>
 }
 
+export type GetAllProfilesForAdminInput = {
+  page?: InputMaybe<Scalars['Int']['input']>
+  pageSize?: InputMaybe<Scalars['Int']['input']>
+  searchTerm?: InputMaybe<Scalars['String']['input']>
+  seniorityLevels?: InputMaybe<Array<SeniorityLevel>>
+  skillIds?: InputMaybe<Array<Scalars['String']['input']>>
+  sortBy?: InputMaybe<ProfileSortField>
+  sortDirection?: InputMaybe<SortDirection>
+  yearsInCompanyRanges?: InputMaybe<Array<YearsInCompanyRange>>
+}
+
 export type GetAllSkillsInput = {
   disciplines?: InputMaybe<Array<Discipline>>
   isActive?: InputMaybe<Scalars['Boolean']['input']>
@@ -159,6 +170,15 @@ export type MutationUpdateSkillArgs = {
   input: UpdateSkillInput
 }
 
+export type PaginatedProfilesResponse = {
+  __typename?: 'PaginatedProfilesResponse'
+  currentPage: Scalars['Int']['output']
+  pageSize: Scalars['Int']['output']
+  profiles: Array<ProfileListItemResponse>
+  totalCount: Scalars['Int']['output']
+  totalPages: Scalars['Int']['output']
+}
+
 export type PendingSkillResponse = {
   __typename?: 'PendingSkillResponse'
   createdAt: Scalars['DateTime']['output']
@@ -195,6 +215,19 @@ export type ProfileInfo = {
   type: ProfileType
 }
 
+export type ProfileListItemResponse = {
+  __typename?: 'ProfileListItemResponse'
+  avatarUrl?: Maybe<Scalars['String']['output']>
+  coreStackSkills: Array<Scalars['String']['output']>
+  currentAssignmentsCount: Scalars['Int']['output']
+  currentSeniorityLevel: SeniorityLevel
+  email: Scalars['String']['output']
+  id: Scalars['String']['output']
+  joinDate: Scalars['DateTime']['output']
+  name: Scalars['String']['output']
+  remainingSkillsCount: Scalars['Int']['output']
+}
+
 export type ProfileResponse = {
   __typename?: 'ProfileResponse'
   avatarUrl?: Maybe<Scalars['String']['output']>
@@ -205,6 +238,14 @@ export type ProfileResponse = {
   name: Scalars['String']['output']
   seniorityHistory: Array<SeniorityHistoryResponse>
   skills: SkillsTiersResponse
+}
+
+/** Fields available for sorting profiles */
+export enum ProfileSortField {
+  EMAIL = 'EMAIL',
+  JOIN_DATE = 'JOIN_DATE',
+  NAME = 'NAME',
+  SENIORITY = 'SENIORITY',
 }
 
 /** User profile type in the system */
@@ -224,12 +265,17 @@ export type ProjectInbox = {
 
 export type Query = {
   __typename?: 'Query'
+  getAllProfilesForAdmin: PaginatedProfilesResponse
   getAllSkills: Array<Skill>
   getProfile: ProfileResponse
   getSeniorityHistory: Array<SeniorityHistoryRecord>
   getSkillById: Skill
   getValidationInbox: InboxResponse
   health: Scalars['String']['output']
+}
+
+export type QueryGetAllProfilesForAdminArgs = {
+  input?: InputMaybe<GetAllProfilesForAdminInput>
 }
 
 export type QueryGetAllSkillsArgs = {
@@ -336,6 +382,12 @@ export type SkillsTiersResponse = {
   validatedInventory: Array<ValidatedSkillResponse>
 }
 
+/** Sort direction */
+export enum SortDirection {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
+
 /** Source of the skill suggestion */
 export enum SuggestionSource {
   SELF_REPORT = 'SELF_REPORT',
@@ -376,4 +428,13 @@ export type ValidatorInfo = {
   __typename?: 'ValidatorInfo'
   id?: Maybe<Scalars['String']['output']>
   name?: Maybe<Scalars['String']['output']>
+}
+
+/** Years in company range categories */
+export enum YearsInCompanyRange {
+  FIVE_PLUS = 'FIVE_PLUS',
+  LESS_THAN_1 = 'LESS_THAN_1',
+  ONE_TO_TWO = 'ONE_TO_TWO',
+  THREE_TO_FIVE = 'THREE_TO_FIVE',
+  TWO_TO_THREE = 'TWO_TO_THREE',
 }
