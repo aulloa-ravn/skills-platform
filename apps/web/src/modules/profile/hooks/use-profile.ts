@@ -1,19 +1,16 @@
 import { useQuery } from '@apollo/client/react'
-import { useStore } from '@/shared/store'
 import { GetProfileDocument } from '../graphql/get-profile.query.generated'
 
 /**
  * useProfile Hook
  * Apollo Client query hook for fetching user profile data
  */
-export function useProfile() {
-  const currentUser = useStore((state) => state.currentUser)
-
+export function useProfile(profileId: string) {
   const { data, loading, error, refetch } = useQuery(GetProfileDocument, {
     variables: {
-      id: currentUser?.id || '',
+      id: profileId,
     },
-    skip: !currentUser?.id,
+    skip: !profileId,
   })
 
   return {

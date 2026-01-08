@@ -5,8 +5,12 @@ import { CurrentAssignments } from '@/modules/profile/components/current-assignm
 // import { MyLeadersSection } from '@/modules/profile/components/my-leaders-section'
 import { useProfile } from '@/modules/profile/hooks/use-profile'
 
-export function Profile() {
-  const { profile, loading, error } = useProfile()
+type ProfileProps = {
+  profileId: string
+}
+
+export function Profile({ profileId }: ProfileProps) {
+  const { profile, loading, error } = useProfile(profileId)
 
   if (loading) {
     return (
