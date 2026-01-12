@@ -38,7 +38,7 @@
 
 14. [x] Admin Skills Management UI — Create admin interface for viewing, adding, and editing skills in the taxonomy with discipline assignment `S`
 
-15. [ ] Admin Profiles List — Build API query and UI to display searchable/filterable list of all employees with navigation to individual profile management pages `S`
+15. [x] Admin Profiles List — Build API query and UI to display searchable/filterable list of all employees with navigation to individual profile management pages `S`
 
 16. [x] Admin Seniority Management — Implement API and UI for admins to view and manually correct employee seniority history records `M`
 

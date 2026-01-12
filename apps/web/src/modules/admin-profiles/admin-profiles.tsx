@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { Spinner } from '@/shared/components/ui/spinner'
 import type {
   SeniorityLevel,
   YearsInCompanyRange,
@@ -9,6 +8,8 @@ import type {
 } from '@/shared/lib/types'
 import { useProfiles } from './hooks/use-profiles'
 import { ProfilesTable } from './components/profiles-table'
+import { ProfilesFilters } from './components/profiles-filters'
+import { ProfilesPagination } from './components/profiles-pagination'
 
 export function AdminProfiles() {
   const navigate = useNavigate()
@@ -25,20 +26,15 @@ export function AdminProfiles() {
   const [sortDirection, setSortDirection] = useState<SortDirection | undefined>(
     undefined,
   )
-  const [page, setPage] = useState(
-    typeof searchParams?.page === 'number' ? searchParams.page : 1,
-  )
-  const [pageSize, setPageSize] = useState(
-    typeof searchParams?.pageSize === 'number' ? searchParams.pageSize : 25,
-  )
+  const [page, setPage] = useState(searchParams.page || 1)
+  const [pageSize, setPageSize] = useState(searchParams.pageSize || 25)
 
   // Fetch profiles with current filters/sort/pagination
   const { data, loading, error } = useProfiles({
     page,
     pageSize,
     searchTerm,
-    seniorityLevels:
-      seniorityFilters.length > 0 ? seniorityFilters : undefined,
+    seniorityLevels: seniorityFilters.length > 0 ? seniorityFilters : undefined,
     skillIds: skillFilters.length > 0 ? skillFilters : undefined,
     yearsInCompanyRanges:
       yearsInCompanyFilters.length > 0 ? yearsInCompanyFilters : undefined,
@@ -68,7 +64,10 @@ export function AdminProfiles() {
   }
 
   // Handle sort changes - reset to page 1
-  const handleSortChange = (field: ProfileSortField, direction: SortDirection) => {
+  const handleSortChange = (
+    field: ProfileSortField,
+    direction: SortDirection,
+  ) => {
     setSortBy(field)
     setSortDirection(direction)
     setPage(1)
@@ -78,6 +77,7 @@ export function AdminProfiles() {
   const handlePageChange = (newPage: number) => {
     setPage(newPage)
     navigate({
+      from: '/admin/profiles',
       search: (prev) => ({ ...prev, page: newPage, pageSize }),
     })
   }
@@ -86,6 +86,7 @@ export function AdminProfiles() {
     setPageSize(newPageSize)
     setPage(1)
     navigate({
+      from: '/admin/profiles',
       search: (prev) => ({ ...prev, page: 1, pageSize: newPageSize }),
     })
   }
@@ -124,11 +125,18 @@ export function AdminProfiles() {
         </p>
       </div>
 
-      {/* Filters - will be implemented in Task Group 7 */}
-      {/* <ProfilesFilters ... /> */}
-
-      {/* Sorting - will be implemented in Task Group 8 */}
-      {/* <ProfilesSorting ... /> */}
+      {/* Filters */}
+      <ProfilesFilters
+        searchTerm={searchTerm}
+        onSearchChange={handleSearchChange}
+        seniorityFilters={seniorityFilters}
+        onSeniorityChange={handleSeniorityChange}
+        skillFilters={skillFilters}
+        onSkillChange={handleSkillChange}
+        yearsInCompanyFilters={yearsInCompanyFilters}
+        onYearsInCompanyChange={handleYearsInCompanyChange}
+        onClearFilters={handleClearFilters}
+      />
 
       {/* Profiles Table */}
       <ProfilesTable
@@ -140,8 +148,17 @@ export function AdminProfiles() {
         onSortChange={handleSortChange}
       />
 
-      {/* Pagination - will be implemented in Task Group 9 */}
-      {/* <ProfilesPagination ... /> */}
+      {/* Pagination */}
+      {data && data.totalCount > 0 && (
+        <ProfilesPagination
+          currentPage={data.currentPage}
+          pageSize={data.pageSize}
+          totalPages={data.totalPages}
+          totalCount={data.totalCount}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+        />
+      )}
     </div>
   )
 }

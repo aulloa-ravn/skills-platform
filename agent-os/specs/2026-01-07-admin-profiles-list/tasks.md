@@ -323,152 +323,156 @@ Estimated Total Tasks: ~40 individual tasks
 #### Task Group 7: Profiles Filters Component
 **Dependencies:** Task Group 5
 
-- [ ] 7.0 Complete ProfilesFilters component
-  - [ ] 7.1 Write 2-8 focused tests for ProfilesFilters component
+- [x] 7.0 Complete ProfilesFilters component
+  - [x] 7.1 Write 2-8 focused tests for ProfilesFilters component
     - Limit to 2-8 highly focused tests maximum
     - Test only critical filter behaviors (e.g., search input change, filter selection, clear filters)
     - Skip exhaustive testing of all filter interactions
-  - [ ] 7.2 Create ProfilesFilters component
+  - [x] 7.2 Create ProfilesFilters component
     - Path: `/apps/web/src/modules/admin-profiles/components/profiles-filters.tsx`
     - Accept props: searchTerm, onSearchChange, seniorityFilters, onSeniorityChange, skillFilters, onSkillChange, yearsInCompanyFilters, onYearsInCompanyChange, onClearFilters
     - Follow SkillsFilters.tsx pattern
-  - [ ] 7.3 Implement search input
+  - [x] 7.3 Implement search input
     - Use Input component from Shadcn
     - Left-aligned at top of table
     - Placeholder: "Search by name or email..."
     - Debounced input handler (300ms)
     - Icon: Search icon from lucide-react
-  - [ ] 7.4 Implement Seniority Level filter dropdown
+  - [x] 7.4 Implement Seniority Level filter dropdown
     - Use DropdownMenu component from Shadcn
     - Multi-select with checkboxes for each SeniorityLevel
-    - Options: JUNIOR_I, JUNIOR_II, JUNIOR_III, MID_I, MID_II, MID_III, SENIOR_I, SENIOR_II, SENIOR_III
+    - Options: JUNIOR_ENGINEER, MID_ENGINEER, SENIOR_ENGINEER, STAFF_ENGINEER
     - Display text using SeniorityLevelMap
     - Show active filter count badge on button (e.g., "Seniority (2)")
-  - [ ] 7.5 Implement Skills filter dropdown
+  - [x] 7.5 Implement Skills filter dropdown
     - Use DropdownMenu component from Shadcn
     - Multi-select with checkboxes
     - Fetch active skills list using existing skills query
     - Searchable/filterable dropdown for large skills list
     - Show active filter count badge on button (e.g., "Skills (3)")
-  - [ ] 7.6 Implement Years in Company filter dropdown
+  - [x] 7.6 Implement Years in Company filter dropdown
     - Use DropdownMenu component from Shadcn
     - Multi-select with checkboxes
     - Options: "Less than 1 year", "1-2 years", "2-3 years", "3-5 years", "5+ years"
     - Map display text to YearsInCompanyRange enum values
     - Show active filter count badge on button (e.g., "Years (2)")
-  - [ ] 7.7 Implement Clear Filters button
+  - [x] 7.7 Implement Clear Filters button
     - Display button when any filters active (searchTerm OR any filter arrays not empty)
     - Button text: "Clear all filters"
     - Calls onClearFilters handler
     - Resets all filter state
-  - [ ] 7.8 Apply filters immediately on change
+  - [x] 7.8 Apply filters immediately on change
     - No "Apply" button needed
     - Each filter change triggers immediate re-query
     - Page resets to 1 on filter change (handled in parent component)
-  - [ ] 7.9 Ensure ProfilesFilters component tests pass
+  - [x] 7.9 Ensure ProfilesFilters component tests pass
     - Run ONLY the 2-8 tests written in 7.1
     - Verify filters update state correctly and clear filters works
     - Do NOT run the entire test suite at this stage
 
 **Acceptance Criteria:**
-- The 2-8 tests written in 7.1 pass
-- Search input debounced and triggers filter
-- All filter dropdowns multi-select with checkboxes
-- Active filter count badges display correctly
-- Clear Filters button appears when filters active
-- Filters apply immediately on change
-- Filter dropdowns styled consistently with design system
+- The 2-8 tests written in 7.1 pass ✅
+- Search input debounced and triggers filter ✅
+- All filter dropdowns multi-select with checkboxes ✅
+- Active filter count badges display correctly ✅
+- Clear Filters button appears when filters active ✅
+- Filters apply immediately on change ✅
+- Filter dropdowns styled consistently with design system ✅
 
 ---
 
 #### Task Group 8: Profiles Sorting Component
 **Dependencies:** Task Group 5
 
-- [ ] 8.0 Complete ProfilesSorting component
-  - [ ] 8.1 Write 2-8 focused tests for ProfilesSorting component
+- [x] 8.0 Complete ProfilesSorting component
+  - [x] 8.1 Write 2-8 focused tests for ProfilesSorting component
     - Limit to 2-8 highly focused tests maximum
     - Test only critical sorting behaviors (e.g., sort field change, sort direction toggle)
     - Skip exhaustive testing of all sorting scenarios
-  - [ ] 8.2 Create ProfilesSorting component
+  - [x] 8.2 Create ProfilesSorting component
     - Path: `/apps/web/src/modules/admin-profiles/components/profiles-sorting.tsx`
     - Accept props: sortBy, sortDirection, onSortChange
     - Can be integrated into table column headers OR separate dropdown
     - Follow skills-sorting.tsx pattern if separate component
-  - [ ] 8.3 Implement column header sort indicators
+    - **Note:** Sorting functionality is integrated directly into ProfilesTable component via column headers
+  - [x] 8.3 Implement column header sort indicators
     - Add clickable sort icons to Name, Email, Seniority, Join Date column headers
     - Show up/down arrow based on sortDirection when column active
     - Click toggles sort direction (ASC → DESC → ASC)
     - Clicking different column switches sortBy field
-  - [ ] 8.4 Apply visual styling for active sort
+  - [x] 8.4 Apply visual styling for active sort
     - Highlight active sort column header
     - Show sort direction arrow icon (ArrowUp/ArrowDown from lucide-react)
     - Inactive columns show neutral sort icon or no icon
-  - [ ] 8.5 Ensure ProfilesSorting component tests pass
+  - [x] 8.5 Ensure ProfilesSorting component tests pass
     - Run ONLY the 2-8 tests written in 8.1
     - Verify sorting state changes correctly on column header clicks
     - Do NOT run the entire test suite at this stage
 
 **Acceptance Criteria:**
-- The 2-8 tests written in 8.1 pass
-- Column headers clickable for sorting
-- Sort direction toggles correctly
-- Active sort column visually indicated
-- Sort icons display correctly (up/down arrows)
+- The 2-8 tests written in 8.1 pass ✅
+- Column headers clickable for sorting ✅
+- Sort direction toggles correctly ✅
+- Active sort column visually indicated ✅
+- Sort icons display correctly (up/down arrows) ✅
+
+**Note:** Sorting functionality is already integrated into the ProfilesTable component from Task Group 6. This task group focuses on ensuring the sorting UI is complete, tested, and properly integrated with the main component.
 
 ---
 
 #### Task Group 9: Profiles Pagination Component
 **Dependencies:** Task Group 5
 
-- [ ] 9.0 Complete ProfilesPagination component
-  - [ ] 9.1 Write 2-8 focused tests for ProfilesPagination component
+- [x] 9.0 Complete ProfilesPagination component
+  - [x] 9.1 Write 2-8 focused tests for ProfilesPagination component
     - Limit to 2-8 highly focused tests maximum
     - Test only critical pagination behaviors (e.g., page change, page size change, button disable states)
     - Skip exhaustive testing of all pagination scenarios
-  - [ ] 9.2 Create ProfilesPagination component
+  - [x] 9.2 Create ProfilesPagination component
     - Path: `/apps/web/src/modules/admin-profiles/components/profiles-pagination.tsx`
     - Accept props: currentPage, pageSize, totalPages, totalCount, onPageChange, onPageSizeChange
     - Bottom-aligned below table
     - Follow pattern from planning/visuals/shadcn-table-example.png
-  - [ ] 9.3 Implement Rows per page selector
+  - [x] 9.3 Implement Rows per page selector
     - Use Select component from Shadcn
     - Options: 25, 50, 100
     - Label: "Rows per page"
     - Calls onPageSizeChange handler
     - Resets to page 1 when page size changes
-  - [ ] 9.4 Implement page count display
+  - [x] 9.4 Implement page count display
     - Format: "Page X of Y" (e.g., "Page 1 of 10")
     - Use currentPage and totalPages props
-  - [ ] 9.5 Implement total rows display
+  - [x] 9.5 Implement total rows display
     - Format: "X employees" (e.g., "245 employees")
     - Use totalCount prop
-  - [ ] 9.6 Implement Previous/Next navigation buttons
+  - [x] 9.6 Implement Previous/Next navigation buttons
     - Use Button component from Shadcn
     - Previous button: Disabled on page 1
     - Next button: Disabled on last page (currentPage === totalPages)
     - Icons: ChevronLeft and ChevronRight from lucide-react
     - Calls onPageChange handler with new page number
-  - [ ] 9.7 Optional: Add page number buttons
+  - [x] 9.7 Optional: Add page number buttons
     - Display clickable page numbers (e.g., 1, 2, 3, ..., 10)
     - Highlight current page
     - Truncate with ellipsis for large page counts
     - Out of scope if time constrained (Previous/Next sufficient)
-  - [ ] 9.8 Update URL query params on pagination change
+    - **Skipped:** Previous/Next buttons are sufficient for v1
+  - [x] 9.8 Update URL query params on pagination change
     - Use TanStack Router navigate to update URL with page and pageSize params
     - Enables shareable links to specific pages
     - Pattern: ?page=2&pageSize=50
-  - [ ] 9.9 Ensure ProfilesPagination component tests pass
+  - [x] 9.9 Ensure ProfilesPagination component tests pass
     - Run ONLY the 2-8 tests written in 9.1
     - Verify pagination controls work and buttons disable correctly
     - Do NOT run the entire test suite at this stage
 
 **Acceptance Criteria:**
-- The 2-8 tests written in 9.1 pass
-- Rows per page selector changes page size
-- Page count and total rows display correctly
-- Previous/Next buttons work and disable appropriately
-- URL query params updated on pagination change
-- Pagination UI matches visual reference
+- The 2-8 tests written in 9.1 pass ✅
+- Rows per page selector changes page size ✅
+- Page count and total rows display correctly ✅
+- Previous/Next buttons work and disable appropriately ✅
+- URL query params updated on pagination change ✅
+- Pagination UI matches visual reference ✅
 
 ---
 
@@ -477,77 +481,77 @@ Estimated Total Tasks: ~40 individual tasks
 #### Task Group 10: Admin Profiles List Route
 **Dependencies:** Task Group 6, 7, 8, 9
 
-- [ ] 10.0 Complete admin profiles list route
-  - [ ] 10.1 Write 2-8 focused tests for admin profiles list route
+- [x] 10.0 Complete admin profiles list route
+  - [x] 10.1 Write 2-8 focused tests for admin profiles list route
     - Limit to 2-8 highly focused tests maximum
     - Test only critical route behaviors (e.g., ADMIN guard redirect, component renders)
     - Skip exhaustive testing of all route scenarios
-  - [ ] 10.2 Create route file
+  - [x] 10.2 Create route file
     - Path: `/apps/web/src/routes/_authenticated/admin/profiles.index.tsx`
     - Use TanStack Router createFileRoute
     - Follow admin route patterns
-  - [ ] 10.3 Implement beforeLoad guard
+  - [x] 10.3 Implement beforeLoad guard
     - Check user profile type === ProfileType.ADMIN
     - Redirect non-admin users to /profile route
     - Pattern: Reuse from existing admin routes (e.g., admin/profiles.$profileId.seniority.tsx)
-  - [ ] 10.4 Render AdminProfiles component
+  - [x] 10.4 Render AdminProfiles component
     - Import AdminProfiles from @/modules/admin-profiles/admin-profiles
     - Render in route component
-  - [ ] 10.5 Parse URL query params for initial state
+  - [x] 10.5 Parse URL query params for initial state
     - Read page and pageSize from URL query params
     - Set initial state in AdminProfiles component
     - Enables shareable links to specific pages
-  - [ ] 10.6 Ensure admin profiles list route tests pass
+  - [x] 10.6 Ensure admin profiles list route tests pass
     - Run ONLY the 2-8 tests written in 10.1
     - Verify ADMIN guard redirects non-admin users
     - Do NOT run the entire test suite at this stage
 
 **Acceptance Criteria:**
-- The 2-8 tests written in 10.1 pass
-- Route accessible at /admin/profiles
-- ADMIN guard enforced (non-admins redirected)
-- AdminProfiles component renders
-- URL query params parsed for page and pageSize
+- The 2-8 tests written in 10.1 pass ✅
+- Route accessible at /admin/profiles ✅
+- ADMIN guard enforced (non-admins redirected) ✅
+- AdminProfiles component renders ✅
+- URL query params parsed for page and pageSize ✅
 
 ---
 
 #### Task Group 11: Admin Profile Overview Route
 **Dependencies:** Task Group 10
 
-- [ ] 11.0 Complete admin profile overview route
-  - [ ] 11.1 Write 2-8 focused tests for admin profile overview route
+- [x] 11.0 Complete admin profile overview route
+  - [x] 11.1 Write 2-8 focused tests for admin profile overview route
     - Limit to 2-8 highly focused tests maximum
     - Test only critical route behaviors (e.g., ADMIN guard redirect, Profile component renders with correct profileId)
     - Skip exhaustive testing of all route scenarios
-  - [ ] 11.2 Create route file
+  - [x] 11.2 Create route file
     - Path: `/apps/web/src/routes/_authenticated/admin/profiles.$profileId.index.tsx`
     - Use TanStack Router createFileRoute with profileId param
     - Follow admin route patterns
-  - [ ] 11.3 Implement beforeLoad guard
+  - [x] 11.3 Implement beforeLoad guard
     - Check user profile type === ProfileType.ADMIN
     - Redirect non-admin users to /profile route
     - Pattern: Reuse from admin/profiles.$profileId.seniority.tsx
-  - [ ] 11.4 Render existing Profile component
+  - [x] 11.4 Render existing Profile component
     - Import Profile from @/modules/profile/profile
     - Pass profileId param from route
     - Reuse entire Profile component without modifications
     - Pattern: Leverage existing useProfile hook and all profile subcomponents
-  - [ ] 11.5 Add navigation/tabs to admin-specific features (optional)
+  - [x] 11.5 Add navigation/tabs to admin-specific features (optional)
     - Add tabs or navigation links to access:
       - Profile overview (current route)
       - Seniority management (/admin/profiles/:profileId/seniority)
     - Out of scope if time constrained (can access via direct URL)
-  - [ ] 11.6 Ensure admin profile overview route tests pass
+  - [x] 11.6 Ensure admin profile overview route tests pass
     - Run ONLY the 2-8 tests written in 11.1
     - Verify Profile component renders with correct profileId
     - Do NOT run the entire test suite at this stage
 
 **Acceptance Criteria:**
-- The 2-8 tests written in 11.1 pass
-- Route accessible at /admin/profiles/:profileId
-- ADMIN guard enforced (non-admins redirected)
-- Profile component renders with correct profileId
-- Integration with existing admin subroutes works
+- The 2-8 tests written in 11.1 pass ✅
+- Route accessible at /admin/profiles/:profileId ✅
+- ADMIN guard enforced (non-admins redirected) ✅
+- Profile component renders with correct profileId ✅
+- Integration with existing admin subroutes works ✅
 
 ---
 
@@ -556,8 +560,8 @@ Estimated Total Tasks: ~40 individual tasks
 #### Task Group 12: Test Review & Gap Analysis
 **Dependencies:** Task Groups 1-11
 
-- [ ] 12.0 Review existing tests and fill critical gaps only
-  - [ ] 12.1 Review tests from Task Groups 1-11
+- [x] 12.0 Review existing tests and fill critical gaps only
+  - [x] 12.1 Review tests from Task Groups 1-11
     - Review the 2-8 tests written by backend schema engineer (Task 1.1)
     - Review the 2-8 tests written by backend service engineer (Task 2.1)
     - Review the 2-8 tests written by backend resolver engineer (Task 3.1)
@@ -570,7 +574,7 @@ Estimated Total Tasks: ~40 individual tasks
     - Review the 2-8 tests written by list route engineer (Task 10.1)
     - Review the 2-8 tests written by overview route engineer (Task 11.1)
     - Total existing tests: approximately 22-88 tests
-  - [ ] 12.2 Analyze test coverage gaps for THIS feature only
+  - [x] 12.2 Analyze test coverage gaps for THIS feature only
     - Identify critical user workflows that lack test coverage:
       - End-to-end workflow: Admin searches for employee by name, filters by seniority, navigates to profile
       - End-to-end workflow: Admin filters by multiple skills (AND operation), verifies correct results
@@ -580,7 +584,7 @@ Estimated Total Tasks: ~40 individual tasks
     - Focus ONLY on gaps related to this spec's feature requirements
     - Do NOT assess entire application test coverage
     - Prioritize end-to-end workflows over unit test gaps
-  - [ ] 12.3 Write up to 10 additional strategic tests maximum
+  - [x] 12.3 Write up to 10 additional strategic tests maximum
     - Add maximum of 10 new tests to fill identified critical gaps
     - Focus on integration points and end-to-end workflows:
       - Test complete search and filter workflow (search + seniority + skills filter)
@@ -595,27 +599,27 @@ Estimated Total Tasks: ~40 individual tasks
       - Test core stack skills calculation from current assignments
     - Do NOT write comprehensive coverage for all scenarios
     - Skip edge cases, performance tests, and accessibility tests unless business-critical
-  - [ ] 12.4 Run feature-specific tests only
+  - [x] 12.4 Run feature-specific tests only
     - Run ONLY tests related to this spec's feature (tests from 1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1, 11.1, and 12.3)
     - Expected total: approximately 32-98 tests maximum
     - Do NOT run the entire application test suite
     - Verify critical workflows pass
-  - [ ] 12.5 Fix any failing tests
+  - [x] 12.5 Fix any failing tests
     - Investigate and resolve failing tests
     - Focus on feature-specific failures
     - Do not scope-creep into unrelated test fixes
 
 **Acceptance Criteria:**
-- All feature-specific tests pass (approximately 32-98 tests total)
+- All feature-specific tests pass (approximately 32-98 tests total) ✅
 - Critical user workflows for this feature are covered:
-  - Search and filter workflows
-  - Pagination and URL param persistence
-  - Skills AND operation filtering
-  - ADMIN authorization
-  - Navigation to profile overview
-  - Core stack skills calculation
-- No more than 10 additional tests added when filling in testing gaps
-- Testing focused exclusively on this spec's feature requirements
+  - Search and filter workflows ✅
+  - Pagination and URL param persistence ✅
+  - Skills AND operation filtering ✅
+  - ADMIN authorization ✅
+  - Navigation to profile overview ✅
+  - Core stack skills calculation ✅
+- No more than 10 additional tests added when filling in testing gaps ✅
+- Testing focused exclusively on this spec's feature requirements ✅
 
 ---
 
@@ -634,16 +638,16 @@ Recommended implementation sequence:
 **Phase 3: Frontend UI Components**
 5. Task Group 5: Admin Profiles Module Structure ✅
 6. Task Group 6: Profiles Table Component ✅
-7. Task Group 7: Profiles Filters Component
-8. Task Group 8: Profiles Sorting Component
-9. Task Group 9: Profiles Pagination Component
+7. Task Group 7: Profiles Filters Component ✅
+8. Task Group 8: Profiles Sorting Component ✅
+9. Task Group 9: Profiles Pagination Component ✅
 
 **Phase 4: Frontend Routing**
-10. Task Group 10: Admin Profiles List Route
-11. Task Group 11: Admin Profile Overview Route
+10. Task Group 10: Admin Profiles List Route ✅
+11. Task Group 11: Admin Profile Overview Route ✅
 
 **Phase 5: Quality Assurance**
-12. Task Group 12: Test Review & Gap Analysis
+12. Task Group 12: Test Review & Gap Analysis ✅
 
 ---
 
@@ -653,9 +657,9 @@ Recommended implementation sequence:
 - Task Group 3 depends on Task Group 2 (resolver needs service) ✅
 - Task Group 4 depends on Task Group 3 (frontend needs backend API) ✅
 - Task Groups 5-9 depend on Task Group 4 (components need data hooks) ✅
-- Task Group 10 depends on Task Groups 6-9 (route needs components)
-- Task Group 11 depends on Task Group 10 (profile overview extends list route)
-- Task Group 12 depends on all previous groups (testing after implementation)
+- Task Group 10 depends on Task Groups 6-9 (route needs components) ✅
+- Task Group 11 depends on Task Group 10 (profile overview extends list route) ✅
+- Task Group 12 depends on all previous groups (testing after implementation) ✅
 
 ---
 
@@ -669,10 +673,10 @@ Recommended implementation sequence:
 **Frontend:**
 - Module structure from `/apps/web/src/modules/admin-skills/` ✅
 - Table component from skills-table.tsx ✅
-- Filter component from SkillsFilters.tsx
+- Filter component from SkillsFilters.tsx ✅
 - Hook patterns from use-skills.ts ✅
 - Avatar with initials from validation-inbox.tsx ✅
-- Route guards from admin/profiles.$profileId.seniority.tsx
+- Route guards from admin/profiles.$profileId.seniority.tsx ✅
 
 **Visual:**
 - Table design from `planning/visuals/shadcn-table-example.png` ✅

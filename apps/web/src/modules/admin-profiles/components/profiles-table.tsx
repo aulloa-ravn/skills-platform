@@ -13,13 +13,17 @@ import {
 } from '@/shared/components/ui/avatar'
 import { Badge } from '@/shared/components/ui/badge'
 import { Spinner } from '@/shared/components/ui/spinner'
-import { cn, getStringInitials, SeniorityLevelMap } from '@/shared/utils'
+import {
+  formatShortDate,
+  getStringInitials,
+  SeniorityLevelMap,
+} from '@/shared/utils'
 import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react'
-import type {
-  ProfileListItemResponse,
+import {
   ProfileSortField,
-  SortDirection,
   SeniorityLevel,
+  type ProfileListItemResponse,
+  SortDirection,
 } from '@/shared/lib/types'
 
 type ProfilesTableProps = {
@@ -40,16 +44,6 @@ type ProfilesTableProps = {
   sortBy?: ProfileSortField
   sortDirection?: SortDirection
   onSortChange: (field: ProfileSortField, direction: SortDirection) => void
-}
-
-// Helper to format join date
-const formatJoinDate = (dateString: string): string => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
 }
 
 // Helper to format skills display
@@ -81,12 +75,12 @@ const getSeniorityBadgeVariant = (
   seniorityLevel: SeniorityLevel,
 ): 'default' | 'secondary' | 'outline' => {
   switch (seniorityLevel) {
-    case 'SENIOR_ENGINEER':
-    case 'STAFF_ENGINEER':
+    case SeniorityLevel.SENIOR_ENGINEER:
+    case SeniorityLevel.STAFF_ENGINEER:
       return 'default'
-    case 'MID_ENGINEER':
+    case SeniorityLevel.MID_ENGINEER:
       return 'secondary'
-    case 'JUNIOR_ENGINEER':
+    case SeniorityLevel.JUNIOR_ENGINEER:
       return 'outline'
     default:
       return 'outline'
@@ -112,11 +106,11 @@ const SortableHeader = ({
 
   const handleClick = () => {
     if (!isActive) {
-      onSort(field, 'ASC')
-    } else if (direction === 'ASC') {
-      onSort(field, 'DESC')
+      onSort(field, SortDirection.ASC)
+    } else if (direction === SortDirection.ASC) {
+      onSort(field, SortDirection.DESC)
     } else {
-      onSort(field, 'ASC')
+      onSort(field, SortDirection.ASC)
     }
   }
 
@@ -127,10 +121,10 @@ const SortableHeader = ({
     >
       <div className="flex items-center gap-1">
         <span>{label}</span>
-        {isActive && direction === 'ASC' && (
+        {isActive && direction === SortDirection.ASC && (
           <ArrowUpIcon className="h-4 w-4" />
         )}
-        {isActive && direction === 'DESC' && (
+        {isActive && direction === SortDirection.DESC && (
           <ArrowDownIcon className="h-4 w-4" />
         )}
       </div>
@@ -173,28 +167,28 @@ export function ProfilesTable({
         <TableHeader>
           <TableRow>
             <SortableHeader
-              field="NAME"
+              field={ProfileSortField.NAME}
               label="Name"
               currentSortBy={sortBy}
               currentSortDirection={sortDirection}
               onSort={onSortChange}
             />
             <SortableHeader
-              field="EMAIL"
+              field={ProfileSortField.EMAIL}
               label="Email"
               currentSortBy={sortBy}
               currentSortDirection={sortDirection}
               onSort={onSortChange}
             />
             <SortableHeader
-              field="SENIORITY"
+              field={ProfileSortField.SENIORITY}
               label="Seniority"
               currentSortBy={sortBy}
               currentSortDirection={sortDirection}
               onSort={onSortChange}
             />
             <SortableHeader
-              field="JOIN_DATE"
+              field={ProfileSortField.JOIN_DATE}
               label="Join Date"
               currentSortBy={sortBy}
               currentSortDirection={sortDirection}
@@ -219,10 +213,7 @@ export function ProfilesTable({
                 <div className="flex items-center gap-3">
                   <Avatar className="h-8 w-8">
                     {profile.avatarUrl && (
-                      <AvatarImage
-                        src={profile.avatarUrl}
-                        alt={profile.name}
-                      />
+                      <AvatarImage src={profile.avatarUrl} alt={profile.name} />
                     )}
                     <AvatarFallback>
                       {getStringInitials(profile.name)}
@@ -250,7 +241,7 @@ export function ProfilesTable({
 
               {/* Join Date Column - hidden on mobile */}
               <TableCell className="hidden md:table-cell">
-                {formatJoinDate(profile.joinDate)}
+                {formatShortDate(profile.joinDate)}
               </TableCell>
 
               {/* Assignments Column - hidden on mobile */}
@@ -267,9 +258,7 @@ export function ProfilesTable({
               </TableCell>
 
               {/* Actions Column - placeholder for future three-dot menu */}
-              <TableCell>
-                {/* Reserved for future actions menu */}
-              </TableCell>
+              <TableCell>{/* Reserved for future actions menu */}</TableCell>
             </TableRow>
           ))}
         </TableBody>
