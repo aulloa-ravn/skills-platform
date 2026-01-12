@@ -56,7 +56,9 @@ describe('Admin Profiles List - Integration Tests', () => {
     service = module.get<ProfileService>(ProfileService);
     prisma = module.get<PrismaService>(PrismaService);
 
-    jest.spyOn(prisma.profile, 'findUnique').mockResolvedValue(mockAdminProfile);
+    jest
+      .spyOn(prisma.profile, 'findUnique')
+      .mockResolvedValue(mockAdminProfile);
   });
 
   it('should handle skills AND operation filtering (employee must have ALL selected skills)', async () => {
@@ -67,9 +69,11 @@ describe('Admin Profiles List - Integration Tests', () => {
     };
 
     // Mock groupBy to return profile counts
-    jest.spyOn(prisma.employeeSkill, 'groupBy').mockResolvedValue([
-      { profileId: 'profile-1', _count: { profileId: 3 } },
-    ] as any);
+    jest
+      .spyOn(prisma.employeeSkill, 'groupBy')
+      .mockResolvedValue([
+        { profileId: 'profile-1', _count: { profileId: 3 } },
+      ] as any);
     jest.spyOn(prisma.profile, 'findMany').mockResolvedValue([]);
     jest.spyOn(prisma.profile, 'count').mockResolvedValue(0);
 
@@ -94,7 +98,9 @@ describe('Admin Profiles List - Integration Tests', () => {
       pageSize: 25,
     };
 
-    const findManySpy = jest.spyOn(prisma.profile, 'findMany').mockResolvedValue([]);
+    const findManySpy = jest
+      .spyOn(prisma.profile, 'findMany')
+      .mockResolvedValue([]);
     jest.spyOn(prisma.profile, 'count').mockResolvedValue(0);
 
     await service.getAllProfilesForAdmin(input, 'admin-123');
@@ -104,8 +110,12 @@ describe('Admin Profiles List - Integration Tests', () => {
       expect.objectContaining({
         where: expect.objectContaining({
           OR: expect.arrayContaining([
-            expect.objectContaining({ name: expect.objectContaining({ contains: 'john' }) }),
-            expect.objectContaining({ email: expect.objectContaining({ contains: 'john' }) }),
+            expect.objectContaining({
+              name: expect.objectContaining({ contains: 'john' }),
+            }),
+            expect.objectContaining({
+              email: expect.objectContaining({ contains: 'john' }),
+            }),
           ]),
           currentSeniorityLevel: expect.objectContaining({
             in: [SeniorityLevel.SENIOR_ENGINEER],
@@ -117,12 +127,24 @@ describe('Admin Profiles List - Integration Tests', () => {
 
   it('should handle sorting by different fields and directions', async () => {
     const inputs: GetAllProfilesForAdminInput[] = [
-      { sortBy: ProfileSortField.EMAIL, sortDirection: SortDirection.DESC, page: 1, pageSize: 25 },
-      { sortBy: ProfileSortField.SENIORITY, sortDirection: SortDirection.ASC, page: 1, pageSize: 25 },
+      {
+        sortBy: ProfileSortField.EMAIL,
+        sortDirection: SortDirection.DESC,
+        page: 1,
+        pageSize: 25,
+      },
+      {
+        sortBy: ProfileSortField.SENIORITY,
+        sortDirection: SortDirection.ASC,
+        page: 1,
+        pageSize: 25,
+      },
     ];
 
     for (const input of inputs) {
-      const findManySpy = jest.spyOn(prisma.profile, 'findMany').mockResolvedValue([]);
+      const findManySpy = jest
+        .spyOn(prisma.profile, 'findMany')
+        .mockResolvedValue([]);
       jest.spyOn(prisma.profile, 'count').mockResolvedValue(0);
 
       await service.getAllProfilesForAdmin(input, 'admin-123');
@@ -167,7 +189,9 @@ describe('Admin Profiles List - Integration Tests', () => {
       pageSize: 25,
     };
 
-    const findManySpy = jest.spyOn(prisma.profile, 'findMany').mockResolvedValue([]);
+    const findManySpy = jest
+      .spyOn(prisma.profile, 'findMany')
+      .mockResolvedValue([]);
     jest.spyOn(prisma.profile, 'count').mockResolvedValue(0);
 
     await service.getAllProfilesForAdmin(input, 'admin-123');
@@ -191,7 +215,9 @@ describe('Admin Profiles List - Integration Tests', () => {
     ];
 
     for (const scenario of scenarios) {
-      const findManySpy = jest.spyOn(prisma.profile, 'findMany').mockResolvedValue([]);
+      const findManySpy = jest
+        .spyOn(prisma.profile, 'findMany')
+        .mockResolvedValue([]);
       jest.spyOn(prisma.profile, 'count').mockResolvedValue(0);
 
       await service.getAllProfilesForAdmin(
@@ -242,7 +268,9 @@ describe('Admin Profiles List - Integration Tests', () => {
       pageSize: 25,
     };
 
-    const findManySpy = jest.spyOn(prisma.profile, 'findMany').mockResolvedValue([]);
+    const findManySpy = jest
+      .spyOn(prisma.profile, 'findMany')
+      .mockResolvedValue([]);
     jest.spyOn(prisma.profile, 'count').mockResolvedValue(0);
 
     await service.getAllProfilesForAdmin(inputCleared, 'admin-123');
@@ -266,7 +294,9 @@ describe('Admin Profiles List - Integration Tests', () => {
       pageSize: 100,
     };
 
-    const findManySpy = jest.spyOn(prisma.profile, 'findMany').mockResolvedValue([]);
+    const findManySpy = jest
+      .spyOn(prisma.profile, 'findMany')
+      .mockResolvedValue([]);
     jest.spyOn(prisma.profile, 'count').mockResolvedValue(0);
 
     const result = await service.getAllProfilesForAdmin(input, 'admin-123');

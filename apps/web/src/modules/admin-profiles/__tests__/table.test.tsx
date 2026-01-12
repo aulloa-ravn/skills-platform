@@ -11,10 +11,11 @@ describe('ProfilesTable Component', () => {
     const mockProps = {
       profiles: [],
       loading: false,
-      onRowClick: () => {},
       sortBy: undefined,
       sortDirection: undefined,
       onSortChange: () => {},
+      onNameClick: () => {},
+      onSeniorityHistoryClick: () => {},
     }
 
     const result = ProfilesTable(mockProps)
@@ -25,10 +26,11 @@ describe('ProfilesTable Component', () => {
     const mockProps = {
       profiles: [],
       loading: false,
-      onRowClick: () => {},
       sortBy: undefined,
       sortDirection: undefined,
       onSortChange: () => {},
+      onNameClick: () => {},
+      onSeniorityHistoryClick: () => {},
     }
 
     const result = ProfilesTable(mockProps)

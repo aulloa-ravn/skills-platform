@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useSearch, Link } from '@tanstack/react-router'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import type {
   SeniorityLevel,
   YearsInCompanyRange,

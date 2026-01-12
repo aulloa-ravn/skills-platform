@@ -21,17 +21,15 @@ describe('Admin Profiles GraphQL Hooks', () => {
 
   describe('GraphQL Documents', () => {
     it('should have valid GetAllProfilesForAdmin query document', async () => {
-      const { GetAllProfilesForAdminDocument } = await import(
-        '../graphql/get-all-profiles-for-admin.query.generated'
-      )
+      const { GetAllProfilesForAdminDocument } =
+        await import('../graphql/get-all-profiles-for-admin.query.generated')
       expect(GetAllProfilesForAdminDocument).toBeDefined()
       expect(GetAllProfilesForAdminDocument.kind).toBe('Document')
     })
 
     it('should have GetAllProfilesForAdmin query with correct fields', async () => {
-      const { GetAllProfilesForAdminDocument } = await import(
-        '../graphql/get-all-profiles-for-admin.query.generated'
-      )
+      const { GetAllProfilesForAdminDocument } =
+        await import('../graphql/get-all-profiles-for-admin.query.generated')
       const definitions = GetAllProfilesForAdminDocument.definitions
       expect(definitions).toBeDefined()
       expect(definitions.length).toBeGreaterThan(0)

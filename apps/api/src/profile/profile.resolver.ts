@@ -26,9 +26,6 @@ export class ProfileResolver {
     @CurrentUser() user: CurrentUserType,
     @Args('input', { nullable: true }) input?: GetAllProfilesForAdminInput,
   ): Promise<PaginatedProfilesResponse> {
-    return this.profileService.getAllProfilesForAdmin(
-      input || {},
-      user.id,
-    );
+    return this.profileService.getAllProfilesForAdmin(input || {}, user.id);
   }
 }

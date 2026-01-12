@@ -168,7 +168,10 @@ describe('ProfileService - getAllProfilesForAdmin', () => {
       expect.objectContaining({
         where: expect.objectContaining({
           currentSeniorityLevel: {
-            in: [SeniorityLevel.JUNIOR_ENGINEER, SeniorityLevel.SENIOR_ENGINEER],
+            in: [
+              SeniorityLevel.JUNIOR_ENGINEER,
+              SeniorityLevel.SENIOR_ENGINEER,
+            ],
           },
         }),
       }),

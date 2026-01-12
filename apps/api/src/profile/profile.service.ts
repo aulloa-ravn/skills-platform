@@ -298,9 +298,10 @@ export class ProfileService {
    * @param range YearsInCompanyRange enum value
    * @returns Object with gte and lt date values
    */
-  private calculateYearsInCompanyDateRange(
-    range: YearsInCompanyRange,
-  ): { gte?: Date; lt?: Date } {
+  private calculateYearsInCompanyDateRange(range: YearsInCompanyRange): {
+    gte?: Date;
+    lt?: Date;
+  } {
     const now = new Date();
     const oneYearAgo = new Date(
       now.getFullYear() - 1,
@@ -411,15 +412,16 @@ export class ProfileService {
         .map((group) => group.profileId);
 
       where.id = where.id
-        ? { in: profileIdsWithAllSkills.filter((id) => where.id.in.includes(id)) }
+        ? {
+            in: profileIdsWithAllSkills.filter((id) =>
+              where.id.in.includes(id),
+            ),
+          }
         : { in: profileIdsWithAllSkills };
     }
 
     // Apply years in company filter (OR operation)
-    if (
-      input.yearsInCompanyRanges &&
-      input.yearsInCompanyRanges.length > 0
-    ) {
+    if (input.yearsInCompanyRanges && input.yearsInCompanyRanges.length > 0) {
       // Need to find profiles where first seniority history matches any range
       // This requires a subquery approach - we'll filter by profileId after querying
       const profilesMatchingYears = await this.prisma.profile.findMany({
