@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { Link } from '@tanstack/react-router'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,6 +10,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/shared/components/ui/alert-dialog'
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from '@/shared/components/ui/breadcrumb'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { AlertCircleIcon } from 'lucide-react'
 import type { Discipline } from '@/shared/lib/types'
@@ -152,6 +161,21 @@ export function AdminSkills() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
+      {/* Breadcrumbs */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/admin/profiles">Admin</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Skills</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       {/* Header */}
       <div className="flex flex-col gap-1 sm:gap-2">
         <h1 className="text-2xl sm:text-3xl font-bold">Skills Management</h1>

@@ -1,5 +1,15 @@
 import { useState } from 'react'
-import { useParams } from '@tanstack/react-router'
+import { useParams, Link } from '@tanstack/react-router'
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from '@/shared/components/ui/breadcrumb'
+import { useProfile } from '@/modules/profile/hooks/use-profile'
+import { SeniorityLevelMap } from '@/shared/utils'
 import { useSeniorityHistory } from './hooks/use-seniority-history'
 import { SeniorityHistoryTable } from './components/seniority-history-table'
 import { EditSeniorityModal } from './components/edit-seniority-modal'
@@ -11,6 +21,9 @@ export function AdminSeniority() {
   const [selectedRecord, setSelectedRecord] =
     useState<SeniorityHistoryTableRow | null>(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
+
+  // Fetch profile data for breadcrumbs
+  const { profile } = useProfile(profileId)
 
   // Fetch seniority history
   const { seniorityHistory, loading, error } = useSeniorityHistory(profileId)
@@ -32,19 +45,46 @@ export function AdminSeniority() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
-      {/* TODO: Add breadcrumb/navigation */}
+      {/* Breadcrumbs */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/admin/profiles">Admin</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/admin/profiles">Profiles</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/admin/profiles/$profileId" params={{ profileId }}>
+                {profile?.name || 'Loading...'}
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Seniority</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       {/* Header */}
       <div className="flex flex-col gap-1 sm:gap-2">
         <h1 className="text-2xl sm:text-3xl font-bold">
-          {/* TODO: Get profile name from profile */}
-          [ProfileName] - Seniority History
+          {`${profile?.name}'s seniority history` || 'Loading...'}
         </h1>
         <p className="text-xs sm:text-sm text-muted-foreground">
           Current Level:{' '}
           <span className="font-medium text-foreground">
-            {/* TODO: Get current seniority level from profile */}
-            [ProfileCurrentSeniorityLevel]
+            {profile?.currentSeniorityLevel
+              ? SeniorityLevelMap[profile.currentSeniorityLevel]
+              : 'Loading...'}
           </span>
         </p>
       </div>

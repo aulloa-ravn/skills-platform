@@ -1,11 +1,17 @@
 import { useState } from 'react'
-import { useNavigate, useSearch } from '@tanstack/react-router'
+import { useNavigate, useSearch, Link } from '@tanstack/react-router'
 import type {
   SeniorityLevel,
   YearsInCompanyRange,
   ProfileSortField,
   SortDirection,
 } from '@/shared/lib/types'
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbPage,
+} from '@/shared/components/ui/breadcrumb'
 import { useProfiles } from './hooks/use-profiles'
 import { ProfilesTable } from './components/profiles-table'
 import { ProfilesFilters } from './components/profiles-filters'
@@ -120,6 +126,15 @@ export function AdminProfiles() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
+      {/* Breadcrumbs */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Admin</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       {/* Header */}
       <div className="flex flex-col gap-1 sm:gap-2">
         <h1 className="text-2xl sm:text-3xl font-bold">Employee Profiles</h1>

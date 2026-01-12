@@ -23,7 +23,7 @@ export function SeniorityTimeline({
         Seniority Timeline
       </h2>
 
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 overflow-x-auto">
         {timeline.map((item, index) => (
           <div
             key={item.id}
