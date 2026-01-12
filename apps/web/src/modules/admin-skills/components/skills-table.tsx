@@ -10,9 +10,9 @@ import { Badge } from '@/shared/components/ui/badge'
 import { Switch } from '@/shared/components/ui/switch'
 import { Button } from '@/shared/components/ui/button'
 import { Spinner } from '@/shared/components/ui/spinner'
-import { DisciplineMap } from '@/shared/utils'
+import { DisciplineMap, skillIcons } from '@/shared/utils'
 import { cn } from '@/shared/utils'
-import { EditIcon } from 'lucide-react'
+import { EditIcon, ToolCase } from 'lucide-react'
 import type { Discipline } from '@/shared/lib/types'
 
 export type SkillTableRow = {
@@ -82,61 +82,72 @@ export function SkillsTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {skills.map((skill) => (
-            <TableRow key={skill.id}>
-              <TableCell
-                className={cn(
-                  'font-medium',
-                  !skill.isActive && 'text-muted-foreground line-through',
-                )}
-              >
-                {skill.name}
-              </TableCell>
-              <TableCell>
-                <Badge variant={skill.isActive ? 'default' : 'secondary'}>
-                  {DisciplineMap[skill.discipline]}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-center hidden md:table-cell">
-                <span
+          {skills.map((skill) => {
+            const Icon = skillIcons[skill.name as keyof typeof skillIcons]
+
+            return (
+              <TableRow key={skill.id}>
+                <TableCell
                   className={cn(
-                    'text-sm',
-                    !skill.isActive && 'text-muted-foreground',
+                    'font-medium',
+                    !skill.isActive && 'text-muted-foreground line-through',
                   )}
                 >
-                  {skill.employeeCount}
-                </span>
-              </TableCell>
-              <TableCell className="text-center">
-                <div className="flex justify-center">
-                  <Switch
-                    checked={skill.isActive}
-                    onCheckedChange={() =>
-                      onToggleSkill(
-                        skill.id,
-                        skill.isActive,
-                        skill.name,
-                        skill.discipline,
-                        skill.employeeCount,
-                        skill.createdAt,
-                      )
-                    }
-                    aria-label={`Toggle ${skill.name} active status`}
-                  />
-                </div>
-              </TableCell>
-              <TableCell className="text-right">
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={() => onEditSkill(skill)}
-                  aria-label={`Edit ${skill.name}`}
-                >
-                  <EditIcon className="h-4 w-4" />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+                  <div className="flex items-center gap-2">
+                    {Icon ? (
+                      <Icon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    ) : (
+                      <ToolCase className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                    )}
+                    <span>{skill.name}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={skill.isActive ? 'default' : 'secondary'}>
+                    {DisciplineMap[skill.discipline]}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-center hidden md:table-cell">
+                  <span
+                    className={cn(
+                      'text-sm',
+                      !skill.isActive && 'text-muted-foreground',
+                    )}
+                  >
+                    {skill.employeeCount}
+                  </span>
+                </TableCell>
+                <TableCell className="text-center">
+                  <div className="flex justify-center">
+                    <Switch
+                      checked={skill.isActive}
+                      onCheckedChange={() =>
+                        onToggleSkill(
+                          skill.id,
+                          skill.isActive,
+                          skill.name,
+                          skill.discipline,
+                          skill.employeeCount,
+                          skill.createdAt,
+                        )
+                      }
+                      aria-label={`Toggle ${skill.name} active status`}
+                    />
+                  </div>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => onEditSkill(skill)}
+                    aria-label={`Edit ${skill.name}`}
+                  >
+                    <EditIcon className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            )
+          })}
         </TableBody>
       </Table>
     </div>

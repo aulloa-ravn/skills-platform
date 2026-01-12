@@ -1,6 +1,6 @@
 import { Card } from '@/shared/components/ui/card'
 import { Badge } from '@/shared/components/ui/badge'
-import { CheckCircle2, AlertCircle } from 'lucide-react'
+import { AlertCircle, ToolCase } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -9,8 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table'
-import { formatTimeAgo, ProficiencyLevelMap } from '@/shared/utils'
-import type { SkillsTiersResponse } from '@/shared/lib/types'
+import { formatTimeAgo, ProficiencyLevelMap, skillIcons } from '@/shared/utils'
+import type {
+  PendingSkillResponse,
+  SkillsTiersResponse,
+  ValidatedSkillResponse,
+} from '@/shared/lib/types'
 
 interface SkillsSectionProps {
   skills: SkillsTiersResponse
@@ -33,28 +37,11 @@ function CoreStackSection({
 }: {
   coreStack: SkillsTiersResponse['coreStack']
 }) {
-  const getSkillIcon = (discipline: string) => {
-    const icons: Record<string, string> = {
-      FRONTEND: '⚛️',
-      BACKEND: '🔧',
-      DATABASE: '🗄️',
-      MOBILE: '📱',
-      DEVOPS: '🚀',
-      DESIGN: '🎨',
-      LANGUAGES: '📘',
-      TOOLS: '🔨',
-      CLOUD: '☁️',
-      TESTING: '✅',
-    }
-    return icons[discipline] || '💻'
-  }
-
   const skills = coreStack.map((skill) => ({
     name: skill.skillName,
-    icon: getSkillIcon(skill.discipline),
-    projects: ['Current Project'], // Hardcoded - API doesn't provide project associations
+    icon: getSkillIcon(skill),
     proficiency: ProficiencyLevelMap[skill.proficiencyLevel],
-    validatedBy: skill.validator?.name || 'Unknown',
+    validatedBy: skill.validator?.name,
   }))
 
   return (
@@ -81,18 +68,18 @@ function CoreStackSection({
               className="p-3 sm:p-6 border border-primary/20 bg-primary/5 hover:shadow-md transition-shadow"
             >
               <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">
-                {skill.icon}
+                {skill.icon ? (
+                  <skill.icon className="w-6 h-6 sm:w-8 sm:h-8" />
+                ) : (
+                  <ToolCase className="w-6 h-6 sm:w-8 sm:h-8" />
+                )}
               </div>
-              <h3 className="font-semibold text-sm sm:text-base text-foreground mb-1 sm:mb-2">
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
                 {skill.name}
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  {skill.proficiency}
+                </p>
               </h3>
-              {/* <div className="space-y-0.5 sm:space-y-1">
-                {skill.projects.map((project) => (
-                  <p key={project} className="text-xs text-muted-foreground">
-                    • {project}
-                  </p>
-                ))}
-              </div> */}
             </Card>
           ))}
         </div>
@@ -108,10 +95,10 @@ function ValidatedInventorySection({
 }) {
   const skills = validatedInventory.map((skill) => ({
     skill: skill.skillName,
+    icon: getSkillIcon(skill),
     proficiency: ProficiencyLevelMap[skill.proficiencyLevel],
-    assignments: Math.floor(Math.random() * 20) + 5, // Hardcoded - API doesn't provide assignments
     lastValidated: formatTimeAgo(skill.validatedAt),
-    validatedBy: skill.validator?.name || 'Unknown',
+    validatedBy: skill.validator?.name,
   }))
 
   return (
@@ -131,7 +118,7 @@ function ValidatedInventorySection({
           <p>No skills found</p>
         </Card>
       ) : (
-        <Card className="border border-border overflow-hidden overflow-x-auto">
+        <Card className="border border-border overflow-hidden overflow-x-auto p-0">
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow>
@@ -139,7 +126,7 @@ function ValidatedInventorySection({
                   Skill
                 </TableHead>
                 <TableHead className="text-foreground font-semibold text-xs sm:text-sm text-center">
-                  Assignments
+                  Proficiency
                 </TableHead>
                 <TableHead className="text-foreground font-semibold text-xs sm:text-sm text-right">
                   Last Validated
@@ -154,19 +141,22 @@ function ValidatedInventorySection({
                 >
                   <TableCell className="py-2 sm:py-4">
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                      {item.icon ? (
+                        <item.icon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                      ) : (
+                        <ToolCase className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                      )}
                       <span className="font-medium text-xs sm:text-sm text-foreground">
                         {item.skill}
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-center py-2 sm:py-4">
-                    <Badge variant="secondary" className="text-xs">
-                      {item.assignments}
-                    </Badge>
+                  <TableCell className="text-center text-xs sm:text-sm text-muted-foreground py-2 sm:py-4">
+                    {item.proficiency}
                   </TableCell>
                   <TableCell className="text-right text-xs sm:text-sm text-muted-foreground py-2 sm:py-4">
-                    {item.lastValidated} by {item.validatedBy}
+                    {item.lastValidated}{' '}
+                    {item.validatedBy && `by ${item.validatedBy}`}
                   </TableCell>
                 </TableRow>
               ))}
@@ -185,6 +175,7 @@ function PendingSkillsSection({
 }) {
   const skills = pending.map((skill) => ({
     skill: skill.skillName,
+    icon: getSkillIcon(skill),
     status: 'Pending Review', // Hardcoded - API doesn't provide status
     proficiency: ProficiencyLevelMap[skill.suggestedProficiency],
     createdAt: formatTimeAgo(skill.createdAt),
@@ -214,7 +205,11 @@ function PendingSkillsSection({
               className="p-3 sm:p-4 border border-yellow-200/50 bg-yellow-50/20 dark:bg-yellow-950/20"
             >
               <div className="flex items-start gap-2 sm:gap-3">
-                <AlertCircle className="w-4 sm:w-5 h-4 sm:h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                {item.icon ? (
+                  <item.icon className="w-4 sm:w-5 h-4 sm:h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                ) : (
+                  <ToolCase className="w-4 sm:w-5 h-4 sm:h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                )}
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium text-sm sm:text-base text-foreground">
                     {item.skill}
@@ -240,3 +235,6 @@ function PendingSkillsSection({
     </div>
   )
 }
+
+const getSkillIcon = (skill: ValidatedSkillResponse | PendingSkillResponse) =>
+  skillIcons[skill.skillName as keyof typeof skillIcons]

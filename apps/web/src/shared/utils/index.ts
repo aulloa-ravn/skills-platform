@@ -7,3 +7,4 @@ export {
   DisciplineMap,
 } from './map-enums'
 export { formatShortDate, formatTimeAgo } from './dates'
+export { skillIcons } from './skill-icons'

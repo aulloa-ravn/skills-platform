@@ -9,6 +9,8 @@ import {
 import {
   Avatar,
   AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
   AvatarImage,
 } from '@/shared/components/ui/avatar'
 import { Badge } from '@/shared/components/ui/badge'
@@ -17,6 +19,7 @@ import {
   formatShortDate,
   getStringInitials,
   SeniorityLevelMap,
+  skillIcons,
 } from '@/shared/utils'
 import { ArrowUpIcon, ArrowDownIcon, MoreHorizontal } from 'lucide-react'
 import {
@@ -59,24 +62,33 @@ type ProfilesTableProps = {
 const formatSkills = (
   coreStackSkills: string[],
   remainingSkillsCount: number,
-): string => {
+) => {
   if (coreStackSkills.length === 0 && remainingSkillsCount === 0) {
     return 'No skills'
   }
 
-  // Show first 3-4 skills
-  const displaySkills = coreStackSkills.slice(0, 3)
-  const parts = displaySkills.join(', ')
+  // Show first 4 skills
+  const displaySkills = coreStackSkills.slice(0, 4)
 
   // Calculate remaining count (skills not shown)
   const notShownCount =
     coreStackSkills.length - displaySkills.length + remainingSkillsCount
 
-  if (notShownCount > 0) {
-    return `${parts}, +${notShownCount}`
-  }
-
-  return parts
+  return (
+    <AvatarGroup>
+      {displaySkills.map((skill) => {
+        const Icon = skillIcons[skill as keyof typeof skillIcons]
+        return (
+          <Avatar key={skill}>
+            <AvatarFallback>
+              {Icon ? <Icon className="h-4 w-4" /> : getStringInitials(skill)}
+            </AvatarFallback>
+          </Avatar>
+        )
+      })}
+      <AvatarGroupCount>+{notShownCount}</AvatarGroupCount>
+    </AvatarGroup>
+  )
 }
 
 // Helper to get badge variant for seniority
