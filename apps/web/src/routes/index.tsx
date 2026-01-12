@@ -13,7 +13,7 @@ export const Route = createFileRoute('/')({
     throw redirect({
       to:
         context.auth.user?.type === ProfileType.ADMIN
-          ? '/admin/skills'
+          ? '/admin/profiles'
           : '/profile',
     })
   },

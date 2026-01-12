@@ -44,7 +44,7 @@ function RouteComponent() {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
+      <SidebarInset className="w-[calc(100%-var(--sidebar-width))]">
         <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
           <RavnLogoShort className="fill-primary h-6 w-6 dark:fill-white" />
@@ -66,6 +66,11 @@ type MenuItem = {
 }
 
 const adminMenuItems: MenuItem[] = [
+  {
+    title: 'Profiles',
+    to: '/admin/profiles',
+    icon: User,
+  },
   {
     title: 'Skills',
     to: '/admin/skills',

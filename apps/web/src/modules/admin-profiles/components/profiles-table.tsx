@@ -18,13 +18,21 @@ import {
   getStringInitials,
   SeniorityLevelMap,
 } from '@/shared/utils'
-import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react'
+import { ArrowUpIcon, ArrowDownIcon, MoreHorizontal } from 'lucide-react'
 import {
   ProfileSortField,
   SeniorityLevel,
   type ProfileListItemResponse,
   SortDirection,
 } from '@/shared/lib/types'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/shared/components/ui/dropdown-menu'
+import { Button } from '@/shared/components/ui/button'
 
 type ProfilesTableProps = {
   profiles: Pick<
@@ -40,7 +48,8 @@ type ProfilesTableProps = {
     | 'remainingSkillsCount'
   >[]
   loading: boolean
-  onRowClick: (profileId: string) => void
+  onNameClick: (profileId: string) => void
+  onSeniorityHistoryClick: (profileId: string) => void
   sortBy?: ProfileSortField
   sortDirection?: SortDirection
   onSortChange: (field: ProfileSortField, direction: SortDirection) => void
@@ -135,7 +144,8 @@ const SortableHeader = ({
 export function ProfilesTable({
   profiles,
   loading,
-  onRowClick,
+  onNameClick,
+  onSeniorityHistoryClick,
   sortBy,
   sortDirection,
   onSortChange,
@@ -194,7 +204,7 @@ export function ProfilesTable({
               currentSortDirection={sortDirection}
               onSort={onSortChange}
             />
-            <TableHead className="text-center hidden md:table-cell">
+            <TableHead className="text-center md:table-cell">
               Assignments
             </TableHead>
             <TableHead>Skills</TableHead>
@@ -206,7 +216,6 @@ export function ProfilesTable({
             <TableRow
               key={profile.id}
               className="cursor-pointer hover:bg-muted/50"
-              onClick={() => onRowClick(profile.id)}
             >
               {/* Avatar + Name Column */}
               <TableCell>
@@ -219,7 +228,12 @@ export function ProfilesTable({
                       {getStringInitials(profile.name)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="font-medium">{profile.name}</span>
+                  <span
+                    className="font-medium cursor-pointer"
+                    onClick={() => onNameClick(profile.id)}
+                  >
+                    {profile.name}
+                  </span>
                 </div>
               </TableCell>
 
@@ -231,21 +245,23 @@ export function ProfilesTable({
               {/* Seniority Column */}
               <TableCell>
                 <Badge
+                  className="cursor-pointer"
                   variant={getSeniorityBadgeVariant(
                     profile.currentSeniorityLevel,
                   )}
+                  onClick={() => onSeniorityHistoryClick(profile.id)}
                 >
                   {SeniorityLevelMap[profile.currentSeniorityLevel]}
                 </Badge>
               </TableCell>
 
               {/* Join Date Column - hidden on mobile */}
-              <TableCell className="hidden md:table-cell">
+              <TableCell className="md:table-cell">
                 {formatShortDate(profile.joinDate)}
               </TableCell>
 
               {/* Assignments Column - hidden on mobile */}
-              <TableCell className="text-center hidden md:table-cell">
+              <TableCell className="text-center md:table-cell">
                 {profile.currentAssignmentsCount}
               </TableCell>
 
@@ -258,7 +274,32 @@ export function ProfilesTable({
               </TableCell>
 
               {/* Actions Column - placeholder for future three-dot menu */}
-              <TableCell>{/* Reserved for future actions menu */}</TableCell>
+              <TableCell className="w-[50px] text-right">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onNameClick(profile.id)}>
+                      View profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => onSeniorityHistoryClick(profile.id)}
+                    >
+                      View seniority history
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => navigator.clipboard.writeText(profile.id)}
+                    >
+                      Copy profile ID
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

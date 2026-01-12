@@ -27,7 +27,7 @@ export function AdminProfiles() {
     undefined,
   )
   const [page, setPage] = useState(searchParams.page || 1)
-  const [pageSize, setPageSize] = useState(searchParams.pageSize || 25)
+  const [pageSize, setPageSize] = useState(searchParams.pageSize || 10)
 
   // Fetch profiles with current filters/sort/pagination
   const { data, loading, error } = useProfiles({
@@ -92,8 +92,11 @@ export function AdminProfiles() {
   }
 
   // Handle row click navigation
-  const handleRowClick = (profileId: string) => {
+  const handleNameClick = (profileId: string) => {
     navigate({ to: `/admin/profiles/${profileId}` })
+  }
+  const handleSeniorityHistoryClick = (profileId: string) => {
+    navigate({ to: `/admin/profiles/${profileId}/seniority` })
   }
 
   // Handle clear all filters
@@ -142,7 +145,8 @@ export function AdminProfiles() {
       <ProfilesTable
         profiles={data?.profiles || []}
         loading={loading}
-        onRowClick={handleRowClick}
+        onNameClick={handleNameClick}
+        onSeniorityHistoryClick={handleSeniorityHistoryClick}
         sortBy={sortBy}
         sortDirection={sortDirection}
         onSortChange={handleSortChange}
