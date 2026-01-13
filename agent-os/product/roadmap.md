@@ -22,7 +22,7 @@
 
 6. [x] Employee Profile UI — Create profile dashboard displaying employee header, seniority timeline visualization, and tiered skills display (Core Stack, Validated Inventory, Pending) `M`
 
-7. [ ] Self-Report Skills API — Implement mutation for employees to submit new skill suggestions with proficiency level, creating pending validation requests `S`
+7. [x] Self-Report Skills API — Implement mutation for employees to submit new skill suggestions with proficiency level, creating pending validation requests `S`
 
 8. [ ] Self-Report Skills UI — Build skill suggestion form with taxonomy autocomplete, proficiency selector, and submission confirmation `S`
 

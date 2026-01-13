@@ -5,6 +5,7 @@ import { InboxService } from './inbox.service';
 import { InboxResolver } from './inbox.resolver';
 import { ResolutionService } from './resolution.service';
 import { ResolutionResolver } from './resolution.resolver';
+import { SuggestionsService } from './suggestions.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuthModule } from '../auth/auth.module';
 
@@ -17,6 +18,7 @@ import { AuthModule } from '../auth/auth.module';
     InboxResolver,
     ResolutionService,
     ResolutionResolver,
+    SuggestionsService,
   ],
   exports: [ProfileService],
 })
