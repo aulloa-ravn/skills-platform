@@ -7,7 +7,11 @@ import {
 import { ProfileResolver } from './profile.resolver';
 import { ProfileService } from './profile.service';
 import { SuggestionsService } from './suggestions.service';
-import { ProficiencyLevel, ProfileType, SuggestionStatus } from '@prisma/client';
+import {
+  ProficiencyLevel,
+  ProfileType,
+  SuggestionStatus,
+} from '@prisma/client';
 import { SubmitSkillSuggestionInput } from './dto/submit-skill-suggestion.input';
 import type { CurrentUserType } from '../auth/decorators/current-user.decorator';
 
@@ -84,7 +88,10 @@ describe('ProfileResolver - submitSkillSuggestion Mutation', () => {
         mockCreatedSuggestion,
       );
 
-      const result = await resolver.submitSkillSuggestion(mockEmployeeUser, input);
+      const result = await resolver.submitSkillSuggestion(
+        mockEmployeeUser,
+        input,
+      );
 
       expect(result).toEqual({
         suggestionId: 1,
@@ -98,11 +105,9 @@ describe('ProfileResolver - submitSkillSuggestion Mutation', () => {
         },
       });
 
-      expect(suggestionsService.createSelfReportSuggestion).toHaveBeenCalledWith(
-        'employee-123',
-        1,
-        ProficiencyLevel.INTERMEDIATE,
-      );
+      expect(
+        suggestionsService.createSelfReportSuggestion,
+      ).toHaveBeenCalledWith('employee-123', 1, ProficiencyLevel.INTERMEDIATE);
     });
 
     it('should throw SKILL_ALREADY_EXISTS when EmployeeSkill exists', async () => {
@@ -118,7 +123,9 @@ describe('ProfileResolver - submitSkillSuggestion Mutation', () => {
         },
       });
 
-      mockSuggestionsService.createSelfReportSuggestion.mockRejectedValue(error);
+      mockSuggestionsService.createSelfReportSuggestion.mockRejectedValue(
+        error,
+      );
 
       await expect(
         resolver.submitSkillSuggestion(mockEmployeeUser, input),
@@ -150,7 +157,9 @@ describe('ProfileResolver - submitSkillSuggestion Mutation', () => {
         },
       });
 
-      mockSuggestionsService.createSelfReportSuggestion.mockRejectedValue(error);
+      mockSuggestionsService.createSelfReportSuggestion.mockRejectedValue(
+        error,
+      );
 
       await expect(
         resolver.submitSkillSuggestion(mockEmployeeUser, input),
@@ -177,7 +186,9 @@ describe('ProfileResolver - submitSkillSuggestion Mutation', () => {
         },
       });
 
-      mockSuggestionsService.createSelfReportSuggestion.mockRejectedValue(error);
+      mockSuggestionsService.createSelfReportSuggestion.mockRejectedValue(
+        error,
+      );
 
       await expect(
         resolver.submitSkillSuggestion(mockEmployeeUser, input),
@@ -204,7 +215,9 @@ describe('ProfileResolver - submitSkillSuggestion Mutation', () => {
         },
       });
 
-      mockSuggestionsService.createSelfReportSuggestion.mockRejectedValue(error);
+      mockSuggestionsService.createSelfReportSuggestion.mockRejectedValue(
+        error,
+      );
 
       await expect(
         resolver.submitSkillSuggestion(mockEmployeeUser, input),

@@ -10,6 +10,8 @@ import {
   TableRow,
 } from '@/shared/components/ui/table'
 import { formatTimeAgo, ProficiencyLevelMap, skillIcons } from '@/shared/utils'
+import { useStore } from '@/shared/store'
+import { AddSkillModal } from './add-skill-modal'
 import type {
   PendingSkillResponse,
   SkillsTiersResponse,
@@ -18,16 +20,21 @@ import type {
 
 interface SkillsSectionProps {
   skills: SkillsTiersResponse
+  profileId?: string
 }
 
-export function SkillsSection({ skills }: SkillsSectionProps) {
+export function SkillsSection({ skills, profileId }: SkillsSectionProps) {
   return (
     <div className="space-y-8 px-4 sm:px-6 py-6 sm:py-8">
       <CoreStackSection coreStack={skills.coreStack} />
       <ValidatedInventorySection
         validatedInventory={skills.validatedInventory}
       />
-      <PendingSkillsSection pending={skills.pending} />
+      <PendingSkillsSection
+        pending={skills.pending}
+        profileSkills={skills}
+        profileId={profileId}
+      />
     </div>
   )
 }
@@ -170,26 +177,36 @@ function ValidatedInventorySection({
 
 function PendingSkillsSection({
   pending,
+  profileSkills,
+  profileId,
 }: {
   pending: SkillsTiersResponse['pending']
+  profileSkills: SkillsTiersResponse
+  profileId?: string
 }) {
+  const currentUser = useStore((state) => state.currentUser)
+  const isOwnProfile = currentUser?.id === profileId
+
   const skills = pending.map((skill) => ({
     skill: skill.skillName,
     icon: getSkillIcon(skill),
-    status: 'Pending Review', // Hardcoded - API doesn't provide status
+    status: 'Pending Review',
     proficiency: ProficiencyLevelMap[skill.suggestedProficiency],
     createdAt: formatTimeAgo(skill.createdAt),
   }))
 
   return (
     <div>
-      <div className="mb-4 sm:mb-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 sm:mb-2">
-          Pending Validation
-        </h2>
-        <p className="text-xs sm:text-sm text-muted-foreground">
-          Skills awaiting Tech Lead approval
-        </p>
+      <div className="mb-4 sm:mb-6 flex items-center justify-between">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 sm:mb-2">
+            Pending Validation
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Skills awaiting Tech Lead approval
+          </p>
+        </div>
+        {isOwnProfile && <AddSkillModal profileSkills={profileSkills} />}
       </div>
 
       {skills.length === 0 ? (

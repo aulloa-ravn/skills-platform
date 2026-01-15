@@ -132,6 +132,7 @@ export type Mutation = {
   login: LoginResponse
   refreshToken: RefreshTokenResponse
   resolveSuggestions: ResolveSuggestionsResponse
+  submitSkillSuggestion: SubmittedSuggestionResponse
   toggleSkill: Skill
   updateSeniorityHistory: SeniorityHistoryRecord
   updateSkill: Skill
@@ -155,6 +156,10 @@ export type MutationRefreshTokenArgs = {
 
 export type MutationResolveSuggestionsArgs = {
   input: ResolveSuggestionsInput
+}
+
+export type MutationSubmitSkillSuggestionArgs = {
+  input: SubmitSkillSuggestionInput
 }
 
 export type MutationToggleSkillArgs = {
@@ -388,10 +393,39 @@ export enum SortDirection {
   DESC = 'DESC',
 }
 
+export type SubmitSkillSuggestionInput = {
+  proficiencyLevel: ProficiencyLevel
+  skillId: Scalars['Int']['input']
+}
+
+export type SubmittedSuggestionResponse = {
+  __typename?: 'SubmittedSuggestionResponse'
+  createdAt: Scalars['DateTime']['output']
+  skill: SubmittedSuggestionSkill
+  status: SuggestionStatus
+  suggestedProficiency: ProficiencyLevel
+  suggestionId: Scalars['Int']['output']
+}
+
+export type SubmittedSuggestionSkill = {
+  __typename?: 'SubmittedSuggestionSkill'
+  discipline: Scalars['String']['output']
+  id: Scalars['Int']['output']
+  name: Scalars['String']['output']
+}
+
 /** Source of the skill suggestion */
 export enum SuggestionSource {
   SELF_REPORT = 'SELF_REPORT',
   SYSTEM_FLAG = 'SYSTEM_FLAG',
+}
+
+/** Status of the skill suggestion */
+export enum SuggestionStatus {
+  ADJUSTED = 'ADJUSTED',
+  APPROVED = 'APPROVED',
+  PENDING = 'PENDING',
+  REJECTED = 'REJECTED',
 }
 
 export type TechLeadInfo = {

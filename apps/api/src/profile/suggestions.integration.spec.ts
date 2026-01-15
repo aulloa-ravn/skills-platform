@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { SuggestionsService } from './suggestions.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { ProficiencyLevel, SuggestionStatus, ProfileType } from '@prisma/client';
+import {
+  ProficiencyLevel,
+  SuggestionStatus,
+  ProfileType,
+} from '@prisma/client';
 import { ProfileResolver } from './profile.resolver';
 import { ProfileService } from './profile.service';
 import { SubmitSkillSuggestionInput } from './dto/submit-skill-suggestion.input';
@@ -111,7 +115,10 @@ describe('Self-Report Skills API - Integration Tests', () => {
         mockCreatedSuggestion,
       );
 
-      const result = await resolver.submitSkillSuggestion(mockEmployeeUser, input);
+      const result = await resolver.submitSkillSuggestion(
+        mockEmployeeUser,
+        input,
+      );
 
       // Verify response structure
       expect(result).toEqual({
@@ -242,9 +249,8 @@ describe('Self-Report Skills API - Integration Tests', () => {
         },
       });
 
-      const techLeadId = await suggestionsService.findEmployeeTechLead(
-        'employee-123',
-      );
+      const techLeadId =
+        await suggestionsService.findEmployeeTechLead('employee-123');
 
       expect(techLeadId).toBe('tech-lead-789');
       expect(mockPrismaService.assignment.findFirst).toHaveBeenCalledWith({

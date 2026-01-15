@@ -1,0 +1,13 @@
+mutation SubmitSkillSuggestion($input: SubmitSkillSuggestionInput!) {
+  submitSkillSuggestion(input: $input) {
+    suggestionId
+    status
+    suggestedProficiency
+    createdAt
+    skill {
+      id
+      name
+      discipline
+    }
+  }
+}

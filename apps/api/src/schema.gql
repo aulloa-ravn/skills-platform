@@ -104,6 +104,7 @@ type Mutation {
   login(input: LoginInput!): LoginResponse!
   refreshToken(input: RefreshTokenInput!): RefreshTokenResponse!
   resolveSuggestions(input: ResolveSuggestionsInput!): ResolveSuggestionsResponse!
+  submitSkillSuggestion(input: SubmitSkillSuggestionInput!): SubmittedSuggestionResponse!
   toggleSkill(id: Float!, isActive: Boolean!): Skill!
   updateSeniorityHistory(input: UpdateSeniorityHistoryInput!): SeniorityHistoryRecord!
   updateSkill(input: UpdateSkillInput!): Skill!
@@ -291,10 +292,37 @@ enum SortDirection {
   DESC
 }
 
+input SubmitSkillSuggestionInput {
+  proficiencyLevel: ProficiencyLevel!
+  skillId: Int!
+}
+
+type SubmittedSuggestionResponse {
+  createdAt: DateTime!
+  skill: SubmittedSuggestionSkill!
+  status: SuggestionStatus!
+  suggestedProficiency: ProficiencyLevel!
+  suggestionId: Int!
+}
+
+type SubmittedSuggestionSkill {
+  discipline: String!
+  id: Int!
+  name: String!
+}
+
 """Source of the skill suggestion"""
 enum SuggestionSource {
   SELF_REPORT
   SYSTEM_FLAG
+}
+
+"""Status of the skill suggestion"""
+enum SuggestionStatus {
+  ADJUSTED
+  APPROVED
+  PENDING
+  REJECTED
 }
 
 type TechLeadInfo {

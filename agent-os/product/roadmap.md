@@ -24,7 +24,7 @@
 
 7. [x] Self-Report Skills API — Implement mutation for employees to submit new skill suggestions with proficiency level, creating pending validation requests `S`
 
-8. [ ] Self-Report Skills UI — Build skill suggestion form with taxonomy autocomplete, proficiency selector, and submission confirmation `S`
+8. [x] Self-Report Skills UI — Build skill suggestion form with taxonomy autocomplete, proficiency selector, and submission confirmation `S`
 
 9. [x] Validation Inbox API — Create GraphQL queries returning hierarchical inbox data (projects -> members -> suggestions) filtered by logged-in Tech Lead `M`
 

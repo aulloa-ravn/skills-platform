@@ -40,7 +40,7 @@ export class ProfileResolver {
 
   @Mutation(() => SubmittedSuggestionResponse)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ProfileType.EMPLOYEE)
+  @Roles(ProfileType.EMPLOYEE, ProfileType.TECH_LEAD)
   async submitSkillSuggestion(
     @CurrentUser() user: CurrentUserType,
     @Args('input') input: SubmitSkillSuggestionInput,

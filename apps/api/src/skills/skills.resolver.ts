@@ -16,7 +16,7 @@ export class SkillsResolver {
 
   @Query(() => [Skill], { name: 'getAllSkills' })
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ProfileType.ADMIN)
+  @Roles(ProfileType.ADMIN, ProfileType.TECH_LEAD, ProfileType.EMPLOYEE)
   async getAllSkills(
     @Args('input', { nullable: true }) input?: GetAllSkillsInput,
   ): Promise<Skill[]> {

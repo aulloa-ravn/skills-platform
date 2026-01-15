@@ -44,7 +44,7 @@ export function Profile({ profileId }: ProfileProps) {
       <SeniorityTimeline seniorityHistory={profile.seniorityHistory} />
       <CurrentAssignments assignments={profile.currentAssignments} />
       {/* <MyLeadersSection assignments={profile.currentAssignments} /> */}
-      <SkillsSection skills={profile.skills} />
+      <SkillsSection skills={profile.skills} profileId={profileId} />
     </div>
   )
 }
